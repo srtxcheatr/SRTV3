@@ -5,29 +5,29 @@ require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
 ?>
 
-<div class="term-window">
-    <div class="term-content">
+<div class="shell">
+    <div class="content">
 
-        <div class="prompt-header">tail -f /var/log/purchases.log</div>
-        <div id="historyList"><div class="dim" style="text-align:center;padding:20px">loading...</div></div>
+        <div class="section-label">🏆 Purchase History</div>
+        <div id="historyList"><div class="dim" style="text-align:center;padding:24px">Loading...</div></div>
 
-        <button class="btn btn-danger" id="clearBtn" style="margin-top:16px">clear history</button>
+        <button class="btn btn-danger" id="clearBtn" style="margin-top:16px">🗑️ Clear History</button>
 
     </div>
 </div>
 
 <style>
-.log-entry {
-    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
-    padding: 12px; margin-bottom: 8px; font-size: 12px;
+.hist-card {
+    background: var(--panel); border: 1px solid var(--border); clip-path: var(--clip-panel);
+    padding: 14px; margin-bottom: 10px; backdrop-filter: blur(6px);
 }
-.log-entry .top { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.log-entry .name { font-weight: 700; }
-.log-entry .price { color: var(--amber); font-weight: 700; }
-.log-entry .meta { color: var(--text3); font-size: 11px; margin-bottom: 6px; }
-.log-entry .key {
-    background: #040a06; border: 1px solid var(--border); border-radius: 4px;
-    padding: 6px 8px; word-break: break-all; color: var(--green); font-size: 11px;
+.hist-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.hist-name { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; }
+.hist-price { color: var(--gold); font-family: var(--font-display); font-weight: 700; font-size: 12px; }
+.hist-meta { color: var(--text3); font-size: 11px; margin-bottom: 8px; }
+.hist-key {
+    background: rgba(0,255,163,0.06); border: 1px solid rgba(0,255,163,0.3); clip-path: var(--clip-btn);
+    padding: 8px 10px; word-break: break-all; color: var(--success); font-size: 11px; font-weight: 700;
 }
 </style>
 
@@ -43,21 +43,21 @@ async function loadHistory() {
         const d = await backendFetch('/api/user/history');
         renderHistory(d.history || []);
     } catch (e) {
-        document.getElementById('historyList').innerHTML = `<div style="color:var(--red);font-size:12px">Couldn't load: ${esc(e.message)}</div>`;
+        document.getElementById('historyList').innerHTML = `<div style="color:var(--danger);font-size:12px">Couldn't load: ${esc(e.message)}</div>`;
     }
 }
 
 function renderHistory(items) {
     const el = document.getElementById('historyList');
     if (!items.length) {
-        el.innerHTML = '<div class="dim" style="text-align:center;padding:20px">-- no purchases yet --</div>';
+        el.innerHTML = '<div class="dim" style="text-align:center;padding:24px">No purchases yet — check the Store!</div>';
         return;
     }
     el.innerHTML = items.map(it => `
-        <div class="log-entry">
-            <div class="top"><span class="name">${esc(it.name || '—')}</span><span class="price">Rs ${it.price ?? '—'}</span></div>
-            <div class="meta">${esc(it.duration || '')} · ${fmtDate(it.at)}</div>
-            ${it.key ? `<div class="key">${esc(it.key)}</div>` : ''}
+        <div class="hist-card">
+            <div class="hist-top"><span class="hist-name">${esc(it.name || '—')}</span><span class="hist-price">Rs ${it.price ?? '—'}</span></div>
+            <div class="hist-meta">${esc(it.duration || '')} · ${fmtDate(it.at)}</div>
+            ${it.key ? `<div class="hist-key">${esc(it.key)}</div>` : ''}
         </div>
     `).join('');
 }
