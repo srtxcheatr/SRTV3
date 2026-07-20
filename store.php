@@ -55,13 +55,25 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Timer overlay (4s) ---- -->
+<!-- ---- Fake timer overlay ---- -->
 <div id="timerModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:300px;margin:auto;text-align:center">
         <div style="font-size:40px;margin-bottom:8px">⏳</div>
         <div class="prompt-header" style="justify-content:center">processing...</div>
         <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">4</div>
         <div class="dim" style="font-size:12px">Please wait</div>
+    </div>
+</div>
+
+<!-- ---- Delivery progress modal — real backend progress ---- -->
+<div id="deliveryModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
+        <div class="prompt-header" style="justify-content:center">delivering --key</div>
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin:12px 0 10px">Connecting to server...</div>
+        <div style="height:6px;background:rgba(57,255,136,0.1);border-radius:99px;overflow:hidden;margin-bottom:10px">
+            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 10px rgba(52,227,122,0.5);transition:width .4s cubic-bezier(0.22,1,0.36,1)"></div>
+        </div>
+        <div class="mono-num" id="deliveryPct" style="font-size:20px;font-weight:700;color:var(--green)">0%</div>
     </div>
 </div>
 
@@ -176,6 +188,11 @@ require __DIR__ . '/includes/nav.php';
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
+.code-block {
+    background: #040a06; border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 10px; color: var(--cyan); overflow-x: auto;
+    white-space: pre; margin-bottom: 4px;
+}
 </style>
 
 <script type="module">
@@ -231,6 +248,7 @@ async function loadCatalog() {
 }
 
 function renderCatalog() {
+    // Group by `row`
     const groups = {};
     for (const [sku, p] of Object.entries(catalog)) {
         if (!groups[p.row]) groups[p.row] = [];
@@ -274,39 +292,23 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with 4‑second timer + real backend polling ----
+// ---- Checkout with fake timer + real progress polling ----
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
     const btn = document.getElementById('confirmBuyBtn');
 
-    // Disable button and show loading state
+    // Show button loading state
     setButtonLoading(btn, true);
     closeModal('checkoutModal');
 
-    // Open timer overlay
+    // ---- Fake timer overlay ----
     openModal('timerModal');
     const timerEl = document.getElementById('timerCount');
     let count = 4;
     timerEl.textContent = count;
-
-    // Start the backend request immediately
-    const backendPromise = (async () => {
-        try {
-            const start = await backendFetch('/api/purchase/checkout/start', {
-                method: 'POST',
-                body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
-            });
-            // Poll for completion
-            return await pollCheckoutJob(start.jobId);
-        } catch (e) {
-            throw e;
-        }
-    })();
-
-    // Timer countdown (always runs for 4 seconds)
-    const timerPromise = new Promise((resolve) => {
+    await new Promise((resolve) => {
         const interval = setInterval(() => {
             count -= 1;
             if (count === 0) {
@@ -318,45 +320,47 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
             }
         }, 1000);
     });
-
-    // Wait for both timer and backend to finish
-    let result;
-    let backendError = null;
-    try {
-        // Wait for both, but if backend finishes earlier, we still wait for timer
-        const [res] = await Promise.all([backendPromise, timerPromise]);
-        result = res;
-    } catch (e) {
-        backendError = e;
-        // Still wait for timer to finish if it hasn't
-        await timerPromise;
-    }
-
     closeModal('timerModal');
 
-    if (backendError) {
-        toast(backendError.message, 'error');
-        setButtonLoading(btn, false);
-        return;
-    }
+    // ---- Real delivery progress ----
+    openModal('deliveryModal');
+    setDeliveryProgress(0, 'Connecting to server...');
 
-    if (!result.success) {
-        toast(result.error || 'Purchase failed', 'error');
-        setButtonLoading(btn, false);
-        return;
-    }
+    try {
+        const start = await backendFetch('/api/purchase/checkout/start', {
+            method: 'POST',
+            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
+        });
+        const result = await pollCheckoutJob(start.jobId);
+        closeModal('deliveryModal');
 
-    // Success – show real key
-    document.getElementById('keyProductName').textContent = pendingCheckout.name;
-    document.getElementById('keyValue').textContent = result.key;
-    openModal('keyModal');
-    document.getElementById('balAmount').textContent = result.newBalance;
-    setButtonLoading(btn, false);
+        if (!result.success) {
+            toast(result.error || 'Purchase failed', 'error');
+            return;
+        }
+
+        document.getElementById('keyProductName').textContent = pendingCheckout.name;
+        document.getElementById('keyValue').textContent = result.key;
+        openModal('keyModal');
+        document.getElementById('balAmount').textContent = result.newBalance;
+    } catch (e) {
+        closeModal('deliveryModal');
+        toast(e.message, 'error');
+    } finally {
+        setButtonLoading(btn, false);
+    }
 };
+
+function setDeliveryProgress(pct, label) {
+    document.getElementById('deliveryBar').style.width = pct + '%';
+    document.getElementById('deliveryPct').textContent = pct + '%';
+    if (label) document.getElementById('deliveryLabel').textContent = label;
+}
 
 async function pollCheckoutJob(jobId) {
     while (true) {
         const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+        setDeliveryProgress(d.percent, d.label);
         if (d.done) return d;
         await new Promise((r) => setTimeout(r, 500));
     }
