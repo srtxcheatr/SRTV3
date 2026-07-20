@@ -5,215 +5,190 @@ require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
 ?>
 
-<div class="shell">
-    <div class="content">
+<div class="term-window">
+    <div class="term-content">
 
-        <div class="panel">
-            <div class="balance-hud">
-                <div>
-                    <div class="balance-label">Wallet Balance</div>
-                    <div class="balance-amount">Rs <span id="balAmount">—</span></div>
-                </div>
-                <div class="rank-badge" id="statusBadge">—</div>
+        <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div>
+                <div class="dim" style="font-size:11px"><i class="fas fa-wallet"></i> balance</div>
+                <div style="color:var(--amber);font-weight:800;font-size:20px" class="mono-num">Rs <span id="balAmount">—</span></div>
             </div>
-            <div class="xp-track"><div class="xp-fill" id="balBar" style="width:0"></div></div>
+            <div style="flex:1;min-width:80px;margin-top:4px">
+                <div class="xp-track" style="height:4px;border-radius:4px;background:rgba(255,255,255,0.06)">
+                    <div class="xp-fill" id="balBar" style="width:0;height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));border-radius:4px;transition:width 0.3s"></div>
+                </div>
+            </div>
+            <div style="text-align:right">
+                <div class="dim" style="font-size:11px"><i class="fas fa-circle"></i> status</div>
+                <div id="statusVal" style="font-weight:700;font-size:13px">—</div>
+            </div>
         </div>
 
-        <div class="panel" style="border-color:rgba(255,204,51,0.25)">
-            <div class="section-label">📢 Announcement</div>
-            <div id="noticeText" class="dim" style="font-size:13px">loading...</div>
+        <div class="panel" id="noticePanel" style="border-color:var(--border-strong)">
+            <div class="dim" style="font-size:11px;margin-bottom:4px"><i class="fas fa-terminal"></i> admin-notice.txt</div>
+            <div id="noticeText" style="font-size:12px;color:var(--text2)">loading...</div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <button class="btn btn-secondary" id="openTopup">💰 Top Up</button>
-            <button class="btn btn-ghost" id="openProfile">👤 Profile</button>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" id="openTopup" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-coins"></i> ./topup.sh</button>
+            <button class="btn btn-ghost" id="openProfile" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-user-edit"></i> ./profile.sh</button>
+            <!-- Removed ./keys.sh -->
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <button class="btn btn-ghost" id="openBalHistory" style="font-size:11px">📊 Balance Log</button>
-            <button class="btn btn-ghost" id="openHelp" style="font-size:11px">🆘 Help</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
-            <a href="<?= htmlspecialchars(ABOUT_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px;text-decoration:none">ℹ️ About</a>
-            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px;text-decoration:none">👨‍💻 Developer</a>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <a href="https://samratsubedi163-star.github.io/Support-/" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-life-ring"></i> ./help.sh</a>
+            <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1"><i class="fas fa-key"></i> ./passwd.sh</button>
+            <!-- Removed ./apk.sh -->
+            <a href="https://srtxcheat.github.io/About" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
         </div>
 
-        <div class="section-label">🎮 Product Catalog</div>
-        <div id="catalogList"><div class="dim" style="text-align:center;padding:24px">Loading catalog...</div></div>
+        <div class="prompt-header"><i class="fas fa-folder-open"></i> ls -la /catalog</div>
+        <div class="dim" style="font-size:10px;margin-bottom:8px;padding:0 2px">
+            <span style="display:inline-block;width:52%">NAME</span><span style="display:inline-block;width:20%">TAG</span><span>SIZE</span>
+        </div>
+        <div id="catalogList"><div class="dim" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-pulse"></i> loading catalog...</div></div>
 
     </div>
 </div>
 
 <!-- ---- Checkout confirm modal ---- -->
 <div id="checkoutModal" class="modal-overlay hidden">
-    <div class="panel modal-panel">
-        <div class="section-label">⚡ Confirm Purchase</div>
-        <div id="checkoutSummary" style="margin-bottom:14px"></div>
-        <div class="field"><label>Your Name</label><input type="text" id="payName" placeholder="For delivery contact"></div>
-        <div class="field"><label>WhatsApp Number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
-        <button class="btn btn-primary" id="confirmBuyBtn" style="margin-bottom:10px">▸ Confirm Purchase</button>
-        <button class="btn btn-ghost" onclick="closeModal('checkoutModal')">Cancel</button>
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header"><i class="fas fa-shopping-cart"></i> confirm --purchase</div>
+        <div id="checkoutSummary" style="font-size:13px;margin-bottom:12px"></div>
+        <div class="field"><label><i class="fas fa-user"></i> your name</label><input type="text" id="payName" placeholder="For delivery contact"></div>
+        <div class="field"><label><i class="fab fa-whatsapp"></i> whatsapp number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
+        <button class="btn btn-solid" id="confirmBuyBtn" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-check"></i> confirm.sh</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('checkoutModal')"><i class="fas fa-times"></i> cancel</button>
     </div>
 </div>
 
 <!-- ---- Delivery progress modal ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel modal-panel" style="text-align:center">
-        <div class="section-label" style="justify-content:center">🚚 Delivering Your Key</div>
+    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
+        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck fa-fw fa-pulse" style="color:var(--amber)"></i> delivering key...</div>
         <div class="delivery-track">
             <div class="delivery-road"></div>
-            <div class="delivery-truck" id="deliveryTruck">🚀</div>
+            <div class="delivery-truck" id="deliveryTruck"><i class="fas fa-rocket fa-fw fa-spin" style="color:var(--green);font-size:28px"></i></div>
         </div>
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px">Connecting to server...</div>
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px"><i class="fas fa-sync-alt fa-spin"></i> Connecting to server...</div>
         <div class="dim" id="deliveryPct" style="font-family:var(--font-display);font-size:20px;margin-top:6px">0%</div>
     </div>
 </div>
 
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
-    <div class="panel modal-panel" style="text-align:center">
-        <div style="font-size:40px;margin-bottom:8px">🏆</div>
-        <div class="section-label" style="justify-content:center">Key Delivered!</div>
-        <div id="keyProductName" style="font-size:13px;margin-bottom:10px" class="dim"></div>
-        <div class="key-box" id="keyValue"></div>
-        <button class="btn btn-primary" style="margin-top:14px" onclick="closeModal('keyModal')">Awesome!</button>
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header"><i class="fas fa-check-circle" style="color:var(--green)"></i> cat delivered_key.txt</div>
+        <div id="keyProductName" style="font-size:13px;margin-bottom:6px"></div>
+        <div style="background:#040a06;border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:12px;word-break:break-all;color:var(--green);font-weight:700;margin-bottom:12px" id="keyValue"></div>
+        <button class="btn btn-solid" onclick="closeModal('keyModal')"><i class="fas fa-thumbs-up"></i> done</button>
     </div>
 </div>
 
 <!-- ---- Top-up modal ---- -->
 <div id="topupModal" class="modal-overlay hidden">
-    <div class="panel modal-panel">
-        <div class="section-label">💰 Top Up Balance</div>
-        <div class="dim" style="font-size:12px;margin-bottom:12px" id="topupHint">Pay via eSewa, then submit your transaction ID. Admin verifies and credits shortly.</div>
-        <div class="qr-box">
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header"><i class="fas fa-coins"></i> topup --esewa</div>
+        <div class="dim" style="font-size:12px;margin-bottom:12px" id="topupHint"><i class="fas fa-info-circle"></i> Pay via eSewa, then submit your transaction ID. Admin verifies and credits shortly.</div>
+        <div class="qr-wrap">
             <img src="https://i.postimg.cc/zXm07q9C/Screenshot-20260425-142906.jpg" alt="eSewa QR">
-            <div class="dim" style="text-align:center;font-size:11px;margin-top:6px">Scan with eSewa App</div>
+            <div class="dim" style="text-align:center;font-size:11px;margin-top:6px"><i class="fas fa-qrcode"></i> Scan with eSewa App</div>
         </div>
-        <div class="field"><label>Amount (Rs)</label><input type="number" id="topupAmount" value="100" min="50"></div>
-        <div class="field"><label>Your eSewa ID</label><input type="text" id="topupEsewa" placeholder="phone or email"></div>
-        <div class="field"><label>Transaction Code</label><input type="text" id="topupTx" placeholder="e.g. JRJDHD"></div>
-        <button class="btn btn-primary" id="submitTopup" style="margin-bottom:10px">▸ Submit</button>
-        <button class="btn btn-ghost" onclick="closeModal('topupModal')">Cancel</button>
+        <div class="field"><label><i class="fas fa-rupee-sign"></i> amount (Rs)</label><input type="number" id="topupAmount" value="100" min="50"></div>
+        <div class="field"><label><i class="fas fa-id-card"></i> your eSewa ID</label><input type="text" id="topupEsewa" placeholder="phone or email"></div>
+        <div class="field"><label><i class="fas fa-hashtag"></i> transaction code</label><input type="text" id="topupTx" placeholder="e.g. JRJDHD"></div>
+        <button class="btn btn-solid" id="submitTopup" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-paper-plane"></i> submit.sh</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('topupModal')"><i class="fas fa-times"></i> cancel</button>
     </div>
 </div>
 
 <!-- ---- Profile modal ---- -->
 <div id="profileModal" class="modal-overlay hidden">
-    <div class="panel modal-panel">
-        <div class="section-label">👤 Player Profile</div>
-        <div class="field"><label>Display Name</label><input type="text" id="profName"></div>
-        <div class="field"><label>WhatsApp Number</label><input type="text" id="profPhone"></div>
-        <button class="btn btn-primary" id="saveProfile" style="margin-bottom:16px">▸ Save Profile</button>
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header"><i class="fas fa-user-edit"></i> profile --edit</div>
+        <div class="field"><label><i class="fas fa-user"></i> display name</label><input type="text" id="profName"></div>
+        <div class="field"><label><i class="fab fa-whatsapp"></i> whatsapp number</label><input type="text" id="profPhone"></div>
+        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:14px;position:relative">
+            <span class="btn-text"><i class="fas fa-save"></i> save.sh</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
 
         <div class="field">
-            <label>Email Address</label>
+            <label><i class="fas fa-envelope"></i> email address</label>
             <input type="text" id="profEmail" readonly style="color:var(--text2)">
         </div>
         <div class="field">
-            <label>Player ID (UID)</label>
+            <label><i class="fas fa-id-badge"></i> user id (uid)</label>
             <div style="display:flex;gap:6px">
-                <input type="text" id="profUid" readonly style="color:var(--text2);font-size:10px">
-                <button class="btn btn-ghost" style="width:auto;padding:0 14px" onclick="navigator.clipboard.writeText(document.getElementById('profUid').value); window.__toastCopy()">Copy</button>
+                <input type="text" id="profUid" readonly style="color:var(--text2);font-size:11px">
+                <button class="btn btn-ghost" style="width:auto;padding:0 12px" onclick="navigator.clipboard.writeText(document.getElementById('profUid').value); window.__toastCopy()"><i class="fas fa-copy"></i> copy</button>
             </div>
         </div>
-        <button class="btn btn-secondary" id="openPassword" style="margin:14px 0 10px">🔒 Change Password</button>
-        <button class="btn btn-ghost" onclick="closeModal('profileModal')">Close</button>
+        <button class="btn btn-ghost" onclick="closeModal('profileModal')"><i class="fas fa-times"></i> close</button>
     </div>
 </div>
 
 <!-- ---- Change password modal ---- -->
 <div id="passwordModal" class="modal-overlay hidden">
-    <div class="panel modal-panel">
-        <div class="section-label">🔒 Change Password</div>
-        <div class="field"><label>Current Password</label><input type="password" id="curPass" autocomplete="current-password"></div>
-        <div class="field"><label>New Password (min 6 chars)</label><input type="password" id="newPass" autocomplete="new-password"></div>
-        <button class="btn btn-primary" id="savePassword" style="margin-bottom:10px">▸ Update Password</button>
-        <button class="btn btn-ghost" onclick="closeModal('passwordModal')">Cancel</button>
-    </div>
-</div>
-
-<!-- ---- Balance history modal ---- -->
-<div id="balHistoryModal" class="modal-overlay hidden">
-    <div class="panel modal-panel" style="max-height:80vh;overflow-y:auto">
-        <div class="section-label">📊 Balance Log</div>
-        <div id="balHistoryList"></div>
-        <button class="btn btn-ghost" style="margin-top:10px" onclick="closeModal('balHistoryModal')">Close</button>
-    </div>
-</div>
-
-<!-- ---- Report a problem modal ---- -->
-<div id="helpModal" class="modal-overlay hidden">
-    <div class="panel modal-panel">
-        <div class="section-label">🆘 Report a Problem</div>
-        <div class="dim" style="font-size:12px;margin-bottom:12px">
-            Describe what's going wrong. Your account details are attached automatically — no need to type them.
-        </div>
-        <div class="field">
-            <label>What happened?</label>
-            <textarea id="problemText" rows="5" placeholder="e.g. Purchase failed after payment, balance not updated..."></textarea>
-        </div>
-        <button class="btn btn-primary" id="submitReport" style="margin-bottom:10px">▸ Send Report</button>
-        <button class="btn btn-ghost" onclick="closeModal('helpModal')">Cancel</button>
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header"><i class="fas fa-key"></i> passwd --change</div>
+        <div class="field"><label><i class="fas fa-lock"></i> current password</label><input type="password" id="curPass" autocomplete="current-password"></div>
+        <div class="field"><label><i class="fas fa-unlock-alt"></i> new password (min 6 chars)</label><input type="password" id="newPass" autocomplete="new-password"></div>
+        <button class="btn btn-solid" id="savePassword" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-sync-alt"></i> update.sh</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('passwordModal')"><i class="fas fa-times"></i> cancel</button>
     </div>
 </div>
 
 <style>
+/* ---- modal overlay ---- */
 .modal-overlay {
     position: fixed; inset: 0; z-index: 100;
-    background: rgba(4,5,15,0.88);
+    background: rgba(2,6,4,0.85);
     display: flex; align-items: center; justify-content: center;
-    padding: 20px; backdrop-filter: blur(4px);
+    padding: 20px;
 }
-.modal-panel { max-width: 400px; width: 100%; margin: auto; max-height: 85vh; overflow-y: auto; }
-
-.cat-item {
-    background: var(--panel); border: 1px solid var(--border); clip-path: var(--clip-panel);
-    margin-bottom: 10px; overflow: hidden; backdrop-filter: blur(6px);
+/* ---- catalog rows ---- */
+.cat-row {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    margin-bottom: 6px; overflow: hidden;
 }
-.cat-head { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; }
+.cat-head {
+    display: flex; align-items: center; gap: 10px; padding: 11px 12px; cursor: pointer;
+}
 .cat-img {
-    width: 46px; height: 46px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
-    border: 1px solid var(--border); background: #0a0c1f;
+    width: 38px; height: 38px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
+    border: 1px solid var(--border); background: #040a06;
 }
 .cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cat-head .name { flex: 1; font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
-.cat-tag {
-    font-family: var(--font-display); font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
-    padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); color: var(--text2);
-}
-.cat-tag.root { color: var(--danger); border-color: rgba(255,59,92,0.35); }
-.cat-tag.nonroot { color: var(--success); border-color: rgba(0,255,163,0.35); }
-.cat-tag.ios { color: var(--secondary); border-color: rgba(0,229,255,0.35); }
-.cat-tag.pc { color: var(--gold); border-color: rgba(255,204,51,0.35); }
-.cat-arrow { font-size: 11px; color: var(--text3); transition: transform 0.2s ease; }
-.cat-item.open .cat-arrow { transform: rotate(90deg); }
+.cat-head .name { flex: 1; font-size: 12.5px; font-weight: 600; }
+.cat-head .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-strong); color: var(--text2); }
+.cat-head .arrow { font-size: 10px; color: var(--text3); transition: transform .2s; }
+.cat-row.open .arrow { transform: rotate(90deg); }
 .cat-body { display: none; border-top: 1px solid var(--border); }
-.cat-item.open .cat-body { display: block; }
+.cat-row.open .cat-body { display: block; }
 .dur-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 11px 14px; font-size: 12.5px; font-weight: 600; border-top: 1px solid var(--border); cursor: pointer;
-    transition: background 0.15s ease;
+    padding: 10px 12px; font-size: 12px; border-top: 1px solid var(--border);
+    cursor: pointer;
 }
-.dur-row:active { background: rgba(255,255,255,0.04); }
-.dur-row .price { color: var(--gold); font-family: var(--font-display); font-weight: 700; font-size: 12px; }
-
-.qr-box {
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border); clip-path: var(--clip-btn);
-    padding: 14px; margin-bottom: 12px; text-align: center;
+.dur-row:active { background: var(--panel2); }
+.dur-row .price { color: var(--amber); font-weight: 700; }
+.qr-wrap {
+    background: #040a06; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px; margin-bottom: 12px; text-align: center;
 }
-.qr-box img { width: 150px; height: 150px; object-fit: contain; border-radius: 8px; }
+.qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
 
-.key-box {
-    background: rgba(0,255,163,0.06); border: 1px solid rgba(0,255,163,0.35); clip-path: var(--clip-btn);
-    padding: 14px; word-break: break-all; color: var(--success); font-family: var(--font-display);
-    font-weight: 700; font-size: 13px; text-shadow: 0 0 12px rgba(0,255,163,0.3);
-}
-
-.log-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12.5px;
-}
-.log-item:last-child { border-bottom: none; }
-
+/* ---- delivery truck animation ---- */
 .delivery-track {
     position: relative; height: 50px; margin: 20px 0 6px;
     background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden;
@@ -228,11 +203,39 @@ require __DIR__ . '/includes/nav.php';
     transition: left 0.4s cubic-bezier(0.22,1,0.36,1);
     filter: drop-shadow(0 0 8px var(--secondary-glow));
 }
+
+/* ---- button loading states ---- */
+.btn {
+    position: relative;
+}
+.btn .btn-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+}
+.btn .btn-spinner .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+.btn.loading .btn-text { visibility: hidden; }
+.btn.loading .btn-spinner { display: inline-flex; }
+.btn.loading .btn-spinner .spinner { display: inline-block; }
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.hidden { display: none !important; }
 </style>
 
 <script type="module">
 import {
-    requireAuth, backendFetch, toast, fmtDate, esc, setButtonLoading,
+    requireAuth, backendFetch, toast, fmtDate, esc,
     auth, EmailAuthProvider, reauthenticateWithCredential, updatePassword,
 } from '/assets/js/app.js';
 
@@ -245,6 +248,18 @@ window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
 window.__toastCopy = () => toast('Copied', 'success');
 
+// ---- button loading helpers ----
+function setLoading(btn, loading) {
+    if (!btn) return;
+    if (loading) {
+        btn.classList.add('loading');
+        btn.disabled = true;
+    } else {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
 requireAuth(async (user) => {
     currentUid = user.uid;
     await Promise.all([loadBalance(), loadCatalog()]);
@@ -256,14 +271,10 @@ async function loadBalance() {
         userState = d;
         document.getElementById('balAmount').textContent = d.balance;
         document.getElementById('balBar').style.width = Math.min(100, d.balance / 10) + '%';
-
-        const badge = document.getElementById('statusBadge');
-        badge.textContent = d.requestStatus;
-        badge.style.color = d.requestStatus === 'Active' ? 'var(--success)'
-            : d.requestStatus === 'Pending' ? 'var(--gold)' : 'var(--danger)';
-        badge.style.borderColor = d.requestStatus === 'Active' ? 'rgba(0,255,163,0.4)'
-            : d.requestStatus === 'Pending' ? 'rgba(255,204,51,0.4)' : 'rgba(255,59,92,0.4)';
-
+        document.getElementById('statusVal').textContent = d.requestStatus;
+        document.getElementById('statusVal').style.color =
+            d.requestStatus === 'Active' ? 'var(--green)' :
+            d.requestStatus === 'Pending' ? 'var(--amber)' : 'var(--red)';
         document.getElementById('noticeText').textContent = d.adminMessage || 'No messages.';
         document.getElementById('profName').value = d.profileName || '';
         document.getElementById('profPhone').value = d.profilePhone || '';
@@ -271,16 +282,12 @@ async function loadBalance() {
         document.getElementById('profUid').value = currentUid;
         document.getElementById('payName').value = d.profileName || '';
         document.getElementById('payWA').value = d.profilePhone || '';
-
         setupTopupLock(d.hasCompletedFirstTopup);
     } catch (e) {
         toast(e.message, 'error');
     }
 }
 
-// ---- First-time top-up lock (server confirms the real state — this
-// is just reflecting it in the UI, the actual enforcement is in the
-// backend so it can't be bypassed via devtools) ----
 function setupTopupLock(hasCompletedFirstTopup) {
     const amountInput = document.getElementById('topupAmount');
     const hint = document.getElementById('topupHint');
@@ -304,7 +311,7 @@ async function loadCatalog() {
         catalog = d.catalog;
         renderCatalog();
     } catch (e) {
-        document.getElementById('catalogList').innerHTML = '<div style="color:var(--danger);font-size:12px;text-align:center">Failed to load catalog</div>';
+        document.getElementById('catalogList').innerHTML = '<div style="color:var(--red);font-size:12px"><i class="fas fa-exclamation-triangle"></i> Failed to load catalog</div>';
     }
 }
 
@@ -314,18 +321,18 @@ function renderCatalog() {
         if (!groups[p.row]) groups[p.row] = [];
         groups[p.row].push({ sku, ...p });
     }
-    const tagOf = (row) => /root/i.test(row) && !/non ?root/i.test(row) ? 'root'
-        : /ios/i.test(row) ? 'ios'
-        : /pc/i.test(row) ? 'pc'
-        : 'nonroot';
+    const tagOf = (row) => /root/i.test(row) && !/non ?root/i.test(row) ? 'ROOT'
+        : /ios/i.test(row) ? 'IOS'
+        : /pc/i.test(row) ? 'PC'
+        : 'NONROOT';
 
     const html = Object.entries(groups).map(([row, items], gi) => `
-        <div class="cat-item" id="cat-${gi}">
+        <div class="cat-row" id="cat-${gi}">
             <div class="cat-head" onclick="document.getElementById('cat-${gi}').classList.toggle('open')">
                 <div class="cat-img"><img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy"></div>
                 <span class="name">${esc(row)}</span>
-                <span class="cat-tag ${tagOf(row)}">${tagOf(row).toUpperCase()}</span>
-                <span class="cat-arrow">▸</span>
+                <span class="tag">${tagOf(row)}</span>
+                <span class="arrow"><i class="fas fa-chevron-right"></i></span>
             </div>
             <div class="cat-body">
                 ${items.map(it => `
@@ -345,32 +352,31 @@ window.__startCheckout = (sku) => {
     if (!p) return;
     pendingCheckout = { sku, ...p };
     document.getElementById('checkoutSummary').innerHTML = `
-        <div class="log-item"><span class="dim">Product</span><span>${esc(p.name)}</span></div>
-        <div class="log-item"><span class="dim">Duration</span><span>${esc(p.duration)}</span></div>
-        <div class="log-item"><span class="dim">Price</span><span style="color:var(--gold);font-weight:700">Rs ${p.price}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-cube"></i> product</span><span>${esc(p.name)}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-clock"></i> duration</span><span>${esc(p.duration)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span class="dim"><i class="fas fa-tag"></i> price</span><span class="price" style="color:var(--amber);font-weight:700">Rs ${p.price}</span></div>
     `;
     openModal('checkoutModal');
 };
 
 // ---- Checkout with real progress polling ----
-// The animation only moves as far as the backend has actually gotten
-// (via a real job-status endpoint), not a fake timer — see
-// /api/purchase/checkout/status/:jobId in the backend.
-document.getElementById('confirmBuyBtn').onclick = async () => {
+const confirmBtn = document.getElementById('confirmBuyBtn');
+confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
 
-    closeModal('checkoutModal');
-    openModal('deliveryModal');
-    setTruckProgress(0, 'Connecting to server...');
-
+    setLoading(confirmBtn, true);
     try {
         const start = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
         const jobId = start.jobId;
+
+        closeModal('checkoutModal');
+        openModal('deliveryModal');
+        setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
 
         const result = await pollJob(jobId);
         closeModal('deliveryModal');
@@ -388,13 +394,15 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
     } catch (e) {
         closeModal('deliveryModal');
         toast(e.message, 'error');
+    } finally {
+        setLoading(confirmBtn, false);
     }
 };
 
 function setTruckProgress(pct, label) {
     document.getElementById('deliveryTruck').style.left = `calc(${pct}% - ${pct * 0.2}px)`;
     document.getElementById('deliveryPct').textContent = pct + '%';
-    if (label) document.getElementById('deliveryLabel').textContent = label;
+    if (label) document.getElementById('deliveryLabel').innerHTML = label;
 }
 
 async function pollJob(jobId) {
@@ -408,66 +416,50 @@ async function pollJob(jobId) {
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
-document.getElementById('submitTopup').onclick = async () => {
+const topupBtn = document.getElementById('submitTopup');
+topupBtn.onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
     const esewaId = document.getElementById('topupEsewa').value.trim();
     const txCode = document.getElementById('topupTx').value.trim();
-    const btn = document.getElementById('submitTopup');
-    setButtonLoading(btn, true);
+    setLoading(topupBtn, true);
     try {
         await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
         toast('Submitted — awaiting admin approval', 'success');
         closeModal('topupModal');
     } catch (e) {
         toast(e.message, 'error');
+    } finally {
+        setLoading(topupBtn, false);
     }
-    setButtonLoading(btn, false);
-};
-
-// ---- Help / Report a Problem ----
-document.getElementById('openHelp').onclick = () => openModal('helpModal');
-document.getElementById('submitReport').onclick = async () => {
-    const problem = document.getElementById('problemText').value.trim();
-    if (!problem) return toast('Please describe the problem', 'error');
-    const btn = document.getElementById('submitReport');
-    setButtonLoading(btn, true);
-    try {
-        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
-        toast('Report sent — we\'ll look into it', 'success');
-        document.getElementById('problemText').value = '';
-        closeModal('helpModal');
-    } catch (e) {
-        toast(e.message, 'error');
-    }
-    setButtonLoading(btn, false);
 };
 
 // ---- Profile ----
 document.getElementById('openProfile').onclick = () => openModal('profileModal');
-document.getElementById('saveProfile').onclick = async () => {
+const profileBtn = document.getElementById('saveProfile');
+profileBtn.onclick = async () => {
     const name = document.getElementById('profName').value.trim();
     const phone = document.getElementById('profPhone').value.trim();
-    const btn = document.getElementById('saveProfile');
-    setButtonLoading(btn, true);
+    setLoading(profileBtn, true);
     try {
         await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
         toast('Saved', 'success');
         closeModal('profileModal');
     } catch (e) {
         toast(e.message, 'error');
+    } finally {
+        setLoading(profileBtn, false);
     }
-    setButtonLoading(btn, false);
 };
 
 // ---- Change password ----
 document.getElementById('openPassword').onclick = () => openModal('passwordModal');
-document.getElementById('savePassword').onclick = async () => {
+const passBtn = document.getElementById('savePassword');
+passBtn.onclick = async () => {
     const curPass = document.getElementById('curPass').value;
     const newPass = document.getElementById('newPass').value;
     if (!curPass || !newPass) return toast('Fill both fields', 'error');
     if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
-    const btn = document.getElementById('savePassword');
-    setButtonLoading(btn, true);
+    setLoading(passBtn, true);
     try {
         const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
         await reauthenticateWithCredential(auth.currentUser, cred);
@@ -478,42 +470,10 @@ document.getElementById('savePassword').onclick = async () => {
         document.getElementById('newPass').value = '';
     } catch (e) {
         toast(e.code === 'auth/wrong-password' ? 'Current password is incorrect' : e.message, 'error');
-    }
-    setButtonLoading(btn, false);
-};
-
-// ---- Balance history (with localStorage cache for instant display) ----
-document.getElementById('openBalHistory').onclick = async () => {
-    openModal('balHistoryModal');
-
-    // Cache is a speed layer only — never treated as the source of
-    // truth. It's shown instantly, then immediately overwritten by
-    // whatever the backend actually says.
-    const cached = localStorage.getItem('srtx_bal_log_cache');
-    if (cached) renderBalHistory(JSON.parse(cached));
-
-    try {
-        const d = await backendFetch('/api/user/balance-history');
-        renderBalHistory(d.log || []);
-        localStorage.setItem('srtx_bal_log_cache', JSON.stringify(d.log || []));
-    } catch (e) {
-        if (!cached) document.getElementById('balHistoryList').innerHTML = `<div style="color:var(--danger);font-size:12px">${esc(e.message)}</div>`;
+    } finally {
+        setLoading(passBtn, false);
     }
 };
-function renderBalHistory(list) {
-    document.getElementById('balHistoryList').innerHTML = list.length ? list.map(l => `
-        <div class="log-item">
-            <div>
-                <div style="color:${l.delta >= 0 ? 'var(--success)' : 'var(--danger)'};font-weight:700">${l.delta >= 0 ? '+' : ''}${l.delta}</div>
-                <div class="dim" style="font-size:10.5px">${esc(l.note || '')}</div>
-            </div>
-            <div style="text-align:right">
-                <div class="dim" style="font-size:10.5px">${fmtDate(l.at)}</div>
-                <div style="font-size:11px">→ Rs ${l.resultingBalance}</div>
-            </div>
-        </div>
-    `).join('') : '<div class="dim" style="text-align:center;padding:16px">No balance changes yet</div>';
-}
 </script>
 
 </body>
