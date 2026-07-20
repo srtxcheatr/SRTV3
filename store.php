@@ -28,9 +28,13 @@ require __DIR__ . '/includes/nav.php';
             <button class="btn btn-secondary" id="openTopup">💰 Top Up</button>
             <button class="btn btn-ghost" id="openProfile">👤 Profile</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
             <button class="btn btn-ghost" id="openBalHistory" style="font-size:11px">📊 Balance Log</button>
+            <button class="btn btn-ghost" id="openHelp" style="font-size:11px">🆘 Help</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
             <a href="<?= htmlspecialchars(ABOUT_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px;text-decoration:none">ℹ️ About</a>
+            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px;text-decoration:none">👨‍💻 Developer</a>
         </div>
 
         <div class="section-label">🎮 Product Catalog</div>
@@ -136,6 +140,22 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- ---- Report a problem modal ---- -->
+<div id="helpModal" class="modal-overlay hidden">
+    <div class="panel modal-panel">
+        <div class="section-label">🆘 Report a Problem</div>
+        <div class="dim" style="font-size:12px;margin-bottom:12px">
+            Describe what's going wrong. Your account details are attached automatically — no need to type them.
+        </div>
+        <div class="field">
+            <label>What happened?</label>
+            <textarea id="problemText" rows="5" placeholder="e.g. Purchase failed after payment, balance not updated..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="submitReport" style="margin-bottom:10px">▸ Send Report</button>
+        <button class="btn btn-ghost" onclick="closeModal('helpModal')">Cancel</button>
+    </div>
+</div>
+
 <style>
 .modal-overlay {
     position: fixed; inset: 0; z-index: 100;
@@ -212,7 +232,7 @@ require __DIR__ . '/includes/nav.php';
 
 <script type="module">
 import {
-    requireAuth, backendFetch, toast, fmtDate, esc,
+    requireAuth, backendFetch, toast, fmtDate, esc, setButtonLoading,
     auth, EmailAuthProvider, reauthenticateWithCredential, updatePassword,
 } from '/assets/js/app.js';
 
@@ -392,6 +412,8 @@ document.getElementById('submitTopup').onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
     const esewaId = document.getElementById('topupEsewa').value.trim();
     const txCode = document.getElementById('topupTx').value.trim();
+    const btn = document.getElementById('submitTopup');
+    setButtonLoading(btn, true);
     try {
         await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
         toast('Submitted — awaiting admin approval', 'success');
@@ -399,6 +421,25 @@ document.getElementById('submitTopup').onclick = async () => {
     } catch (e) {
         toast(e.message, 'error');
     }
+    setButtonLoading(btn, false);
+};
+
+// ---- Help / Report a Problem ----
+document.getElementById('openHelp').onclick = () => openModal('helpModal');
+document.getElementById('submitReport').onclick = async () => {
+    const problem = document.getElementById('problemText').value.trim();
+    if (!problem) return toast('Please describe the problem', 'error');
+    const btn = document.getElementById('submitReport');
+    setButtonLoading(btn, true);
+    try {
+        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+        toast('Report sent — we\'ll look into it', 'success');
+        document.getElementById('problemText').value = '';
+        closeModal('helpModal');
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+    setButtonLoading(btn, false);
 };
 
 // ---- Profile ----
@@ -406,6 +447,8 @@ document.getElementById('openProfile').onclick = () => openModal('profileModal')
 document.getElementById('saveProfile').onclick = async () => {
     const name = document.getElementById('profName').value.trim();
     const phone = document.getElementById('profPhone').value.trim();
+    const btn = document.getElementById('saveProfile');
+    setButtonLoading(btn, true);
     try {
         await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
         toast('Saved', 'success');
@@ -413,6 +456,7 @@ document.getElementById('saveProfile').onclick = async () => {
     } catch (e) {
         toast(e.message, 'error');
     }
+    setButtonLoading(btn, false);
 };
 
 // ---- Change password ----
@@ -422,6 +466,8 @@ document.getElementById('savePassword').onclick = async () => {
     const newPass = document.getElementById('newPass').value;
     if (!curPass || !newPass) return toast('Fill both fields', 'error');
     if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
+    const btn = document.getElementById('savePassword');
+    setButtonLoading(btn, true);
     try {
         const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
         await reauthenticateWithCredential(auth.currentUser, cred);
@@ -433,6 +479,7 @@ document.getElementById('savePassword').onclick = async () => {
     } catch (e) {
         toast(e.code === 'auth/wrong-password' ? 'Current password is incorrect' : e.message, 'error');
     }
+    setButtonLoading(btn, false);
 };
 
 // ---- Balance history (with localStorage cache for instant display) ----
