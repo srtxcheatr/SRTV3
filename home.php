@@ -73,7 +73,7 @@ require __DIR__ . '/includes/nav.php';
 <script type="module">
 import {
     auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    signInWithPopup, googleProvider, sendPasswordResetEmail, backendFetch, toast,
+    signInWithPopup, googleProvider, sendPasswordResetEmail, backendFetch, toast, setButtonLoading,
 } from '/assets/js/app.js';
 
 // ---- Loading sequence ----
@@ -119,11 +119,14 @@ document.getElementById('loginBtn').onclick = async () => {
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
     if (!email || !pass) return toast('Fill both fields', 'error');
+    const btn = document.getElementById('loginBtn');
+    setButtonLoading(btn, true);
     try {
         await signInWithEmailAndPassword(auth, email, pass);
         window.location.href = '/store.php';
     } catch (e) {
         toast(e.message, 'error');
+        setButtonLoading(btn, false);
     }
 };
 
@@ -132,12 +135,15 @@ document.getElementById('signupBtn').onclick = async () => {
     const pass = document.getElementById('regPass').value;
     if (!email || !pass) return toast('Fill both fields', 'error');
     if (pass.length < 6) return toast('Password must be at least 6 characters', 'error');
+    const btn = document.getElementById('signupBtn');
+    setButtonLoading(btn, true);
     try {
         await createUserWithEmailAndPassword(auth, email, pass);
         await backendFetch('/api/user/init', { method: 'POST' });
         window.location.href = '/store.php';
     } catch (e) {
         toast(e.message, 'error');
+        setButtonLoading(btn, false);
     }
 };
 
