@@ -281,79 +281,27 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with fake timer + real progress polling ----
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
     const btn = document.getElementById('confirmBuyBtn');
-
-    // Show button loading state
-    setButtonLoading(btn, true);
-    closeModal('checkoutModal');
-
-    // ---- Fake timer overlay ----
-    openModal('timerModal');
-    const timerEl = document.getElementById('timerCount');
-    let count = 4;
-    timerEl.textContent = count;
-    await new Promise((resolve) => {
-        const interval = setInterval(() => {
-            count -= 1;
-            if (count === 0) {
-                clearInterval(interval);
-                timerEl.textContent = '⏳';
-                resolve();
-            } else {
-                timerEl.textContent = count;
-            }
-        }, 1000);
-    });
-    closeModal('timerModal');
-
-    // ---- Real delivery progress ----
-    openModal('deliveryModal');
-    setDeliveryProgress(0, 'Connecting to server...');
-
+    btn.disabled = true;
     try {
-        const start = await backendFetch('/api/purchase/checkout/start', {
+        const d = await backendFetch('/api/purchase/checkout', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
-        const result = await pollCheckoutJob(start.jobId);
-        closeModal('deliveryModal');
-
-        if (!result.success) {
-            toast(result.error || 'Purchase failed', 'error');
-            return;
-        }
-
+        closeModal('checkoutModal');
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = result.key;
+        document.getElementById('keyValue').textContent = d.key;
         openModal('keyModal');
-        document.getElementById('balAmount').textContent = result.newBalance;
+        document.getElementById('balAmount').textContent = d.newBalance;
     } catch (e) {
-        closeModal('deliveryModal');
         toast(e.message, 'error');
-    } finally {
-        setButtonLoading(btn, false);
     }
+    btn.disabled = false;
 };
-
-function setDeliveryProgress(pct, label) {
-    document.getElementById('deliveryBar').style.width = pct + '%';
-    document.getElementById('deliveryPct').textContent = pct + '%';
-    if (label) document.getElementById('deliveryLabel').textContent = label;
-}
-
-async function pollCheckoutJob(jobId) {
-    while (true) {
-        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
-        setDeliveryProgress(d.percent, d.label);
-        if (d.done) return d;
-        await new Promise((r) => setTimeout(r, 500));
-    }
-}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
