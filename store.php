@@ -27,11 +27,11 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openTopup" style="font-size:12px;flex:1;min-width:100px">./topup.sh</button>
             <button class="btn btn-ghost" id="openProfile" style="font-size:12px;flex:1;min-width:100px">./profile.sh</button>
-            <button class="btn btn-ghost" id="openKeys" style="font-size:12px;flex:1;min-width:100px">./keys.sh</button>
+            <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1;min-width:100px">./passwd.sh</button>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px">
-            <a href="https://samratsubedi163-star.github.io/Support-/" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none">./help.sh</a>
-            <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1">./passwd.sh</button>
+            <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1">./help.sh</button>
+            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none">./developer.sh</a>
         </div>
 
         <div class="prompt-header">ls -la /catalog</div>
@@ -55,6 +55,8 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+
+
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
@@ -64,6 +66,9 @@ require __DIR__ . '/includes/nav.php';
         <button class="btn btn-solid" onclick="closeModal('keyModal')">done</button>
     </div>
 </div>
+
+
+
 
 <!-- ---- Top-up modal ---- -->
 <div id="topupModal" class="modal-overlay hidden">
@@ -88,18 +93,33 @@ require __DIR__ . '/includes/nav.php';
         <div class="prompt-header">profile --edit</div>
         <div class="field"><label>display name</label><input type="text" id="profName"></div>
         <div class="field"><label>whatsapp number</label><input type="text" id="profPhone"></div>
-        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:8px">save.sh</button>
+        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:14px">save.sh</button>
+
+        <div class="field">
+            <label>email address</label>
+            <input type="text" id="profEmail" readonly style="color:var(--text2)">
+        </div>
+        <div class="field">
+            <label>user id (uid)</label>
+            <div style="display:flex;gap:6px">
+                <input type="text" id="profUid" readonly style="color:var(--text2);font-size:11px">
+                <button class="btn btn-ghost" style="width:auto;padding:0 12px" onclick="navigator.clipboard.writeText(document.getElementById('profUid').value); window.__toastCopy()">copy</button>
+            </div>
+        </div>
         <button class="btn btn-ghost" onclick="closeModal('profileModal')">close</button>
     </div>
 </div>
 
-<!-- ---- API Keys modal ---- -->
-<div id="keysModal" class="modal-overlay hidden">
+<!-- ---- Report a problem modal ---- -->
+<div id="helpModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
-        <div class="prompt-header">./api-keys --list</div>
-        <div id="keysList" style="margin-bottom:12px"></div>
-        <button class="btn btn-solid" id="genKey" style="margin-bottom:8px">generate.sh</button>
-        <button class="btn btn-ghost" onclick="closeModal('keysModal')">close</button>
+        <div class="prompt-header">report --problem</div>
+        <div class="dim" style="font-size:12px;margin-bottom:12px">
+            Describe what's going wrong. Your account details (uid, email, balance) are attached automatically.
+        </div>
+        <div class="field"><label>describe issue</label><textarea id="problemText" rows="5" placeholder="e.g. Purchase failed after payment, balance not updated..."></textarea></div>
+        <button class="btn btn-solid" id="submitReport" style="margin-bottom:8px">send.sh</button>
+        <button class="btn btn-ghost" onclick="closeModal('helpModal')">cancel</button>
     </div>
 </div>
 
@@ -151,22 +171,30 @@ require __DIR__ . '/includes/nav.php';
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
+.code-block {
+    background: #040a06; border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 10px; color: var(--cyan); overflow-x: auto;
+    white-space: pre; margin-bottom: 4px;
+}
 </style>
 
 <script type="module">
 import {
-    requireAuth, backendFetch, toast, fmtDate, esc,
+    requireAuth, backendFetch, toast, fmtDate, esc, setButtonLoading,
     auth, EmailAuthProvider, reauthenticateWithCredential, updatePassword,
 } from '/assets/js/app.js';
 
 let userState = {};
 let catalog = {};
 let pendingCheckout = null;
+let currentUid = '';
 
 window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
+window.__toastCopy = () => toast('Copied', 'success');
 
 requireAuth(async (user) => {
+    currentUid = user.uid;
     await Promise.all([loadBalance(), loadCatalog()]);
 });
 
@@ -182,6 +210,8 @@ async function loadBalance() {
         document.getElementById('noticeText').textContent = d.adminMessage || 'No messages.';
         document.getElementById('profName').value = d.profileName || '';
         document.getElementById('profPhone').value = d.profilePhone || '';
+        document.getElementById('profEmail').value = d.email || '';
+        document.getElementById('profUid').value = currentUid;
         document.getElementById('payName').value = d.profileName || '';
         document.getElementById('payWA').value = d.profilePhone || '';
     } catch (e) {
@@ -245,27 +275,58 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
+// ---- Checkout with real progress polling ----
+// The bar only moves as far as the backend has actually gotten (via
+// a real job-status endpoint), not a fake timer — this ALSO fixes
+// the "Unexpected token '<'" crash, since /api/purchase/checkout
+// (single-call) no longer exists on the backend; it's
+// /checkout/start + /checkout/status/:jobId now.
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
-    const btn = document.getElementById('confirmBuyBtn');
-    btn.disabled = true;
+
+    closeModal('checkoutModal');
+    openModal('deliveryModal');
+    setDeliveryProgress(0, 'Connecting to server...');
+
     try {
-        const d = await backendFetch('/api/purchase/checkout', {
+        const start = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
-        closeModal('checkoutModal');
+        const result = await pollCheckoutJob(start.jobId);
+        closeModal('deliveryModal');
+
+        if (!result.success) {
+            toast(result.error || 'Purchase failed', 'error');
+            return;
+        }
+
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = d.key;
+        document.getElementById('keyValue').textContent = result.key;
         openModal('keyModal');
-        document.getElementById('balAmount').textContent = d.newBalance;
+        document.getElementById('balAmount').textContent = result.newBalance;
     } catch (e) {
+        closeModal('deliveryModal');
         toast(e.message, 'error');
     }
-    btn.disabled = false;
 };
+
+function setDeliveryProgress(pct, label) {
+    document.getElementById('deliveryBar').style.width = pct + '%';
+    document.getElementById('deliveryPct').textContent = pct + '%';
+    if (label) document.getElementById('deliveryLabel').textContent = label;
+}
+
+async function pollCheckoutJob(jobId) {
+    while (true) {
+        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+        setDeliveryProgress(d.percent, d.label);
+        if (d.done) return d;
+        await new Promise((r) => setTimeout(r, 500));
+    }
+}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
@@ -273,6 +334,8 @@ document.getElementById('submitTopup').onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
     const esewaId = document.getElementById('topupEsewa').value.trim();
     const txCode = document.getElementById('topupTx').value.trim();
+    const btn = document.getElementById('submitTopup');
+    setButtonLoading(btn, true);
     try {
         await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
         toast('Submitted — awaiting admin approval', 'success');
@@ -280,6 +343,7 @@ document.getElementById('submitTopup').onclick = async () => {
     } catch (e) {
         toast(e.message, 'error');
     }
+    setButtonLoading(btn, false);
 };
 
 // ---- Profile ----
@@ -287,6 +351,8 @@ document.getElementById('openProfile').onclick = () => openModal('profileModal')
 document.getElementById('saveProfile').onclick = async () => {
     const name = document.getElementById('profName').value.trim();
     const phone = document.getElementById('profPhone').value.trim();
+    const btn = document.getElementById('saveProfile');
+    setButtonLoading(btn, true);
     try {
         await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
         toast('Saved', 'success');
@@ -294,38 +360,27 @@ document.getElementById('saveProfile').onclick = async () => {
     } catch (e) {
         toast(e.message, 'error');
     }
+    setButtonLoading(btn, false);
 };
 
-// ---- API Keys ----
-document.getElementById('openKeys').onclick = async () => {
-    openModal('keysModal');
-    await refreshKeys();
-};
-async function refreshKeys() {
+// ---- Help / Report a Problem ----
+document.getElementById('openHelp').onclick = () => openModal('helpModal');
+document.getElementById('submitReport').onclick = async () => {
+    const problem = document.getElementById('problemText').value.trim();
+    if (!problem) return toast('Please describe the problem', 'error');
+    const btn = document.getElementById('submitReport');
+    setButtonLoading(btn, true);
     try {
-        const d = await backendFetch('/api/user/keys');
-        renderKeys(d.apiKeys || []);
+        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+        toast('Report sent', 'success');
+        document.getElementById('problemText').value = '';
+        closeModal('helpModal');
     } catch (e) {
         toast(e.message, 'error');
     }
-}
-function renderKeys(keys) {
-    document.getElementById('keysList').innerHTML = keys.length ? keys.map(k => `
-        <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;font-size:11px">
-            <div style="word-break:break-all;color:${k.active ? 'var(--green)' : 'var(--text3)'}">${esc(k.key)}</div>
-            <div class="dim" style="margin-top:2px">${k.active ? 'active' : 'revoked'} · ${fmtDate(k.createdAt)}</div>
-            ${k.active ? `<button class="btn btn-danger" style="margin-top:6px;padding:6px" onclick="window.__revokeKey('${k.key}')">revoke</button>` : ''}
-        </div>
-    `).join('') : '<div class="dim" style="font-size:12px">No keys yet</div>';
-}
-window.__revokeKey = async (key) => {
-    try {
-        await backendFetch('/api/user/keys', { method: 'POST', body: JSON.stringify({ action: 'revoke', key }) });
-        await refreshKeys();
-    } catch (e) {
-        toast(e.message, 'error');
-    }
+    setButtonLoading(btn, false);
 };
+
 // ---- Change password ----
 document.getElementById('openPassword').onclick = () => openModal('passwordModal');
 document.getElementById('savePassword').onclick = async () => {
@@ -333,6 +388,8 @@ document.getElementById('savePassword').onclick = async () => {
     const newPass = document.getElementById('newPass').value;
     if (!curPass || !newPass) return toast('Fill both fields', 'error');
     if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
+    const btn = document.getElementById('savePassword');
+    setButtonLoading(btn, true);
     try {
         const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
         await reauthenticateWithCredential(auth.currentUser, cred);
@@ -344,6 +401,7 @@ document.getElementById('savePassword').onclick = async () => {
     } catch (e) {
         toast(e.code === 'auth/wrong-password' ? 'Current password is incorrect' : e.message, 'error');
     }
+    setButtonLoading(btn, false);
 };
 </script>
 
