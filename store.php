@@ -43,6 +43,7 @@ require __DIR__ . '/includes/nav.php';
 
     </div>
 </div>
+
 <!-- ---- Checkout confirm modal ---- -->
 <div id="checkoutModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
@@ -88,19 +89,6 @@ require __DIR__ . '/includes/nav.php';
         <div class="prompt-header">profile --edit</div>
         <div class="field"><label>display name</label><input type="text" id="profName"></div>
         <div class="field"><label>whatsapp number</label><input type="text" id="profPhone"></div>
-        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:8px">save.sh</button>
-        <button class="btn btn-ghost" onclick="closeModal('profileModal')">close</button>
-    </div>
-</div>
-
-<!-- ---- Profile modal ---- -->
-<div id="profileModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;margin:auto">
-        <div class="prompt-header">profile --edit</div>
-        <div class="field"><label>display name</label><input type="text" id="profName"></div>
-        <div class="field"><label>whatsapp number</label><input type="text" id="profPhone"></div>
-        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:14px">save.sh</button>
-
         <div class="field">
             <label>email address</label>
             <input type="text" id="profEmail" readonly style="color:var(--text2)">
@@ -112,6 +100,7 @@ require __DIR__ . '/includes/nav.php';
                 <button class="btn btn-ghost" style="width:auto;padding:0 12px" onclick="navigator.clipboard.writeText(document.getElementById('profUid').value); window.__toastCopy()">copy</button>
             </div>
         </div>
+        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:8px">save.sh</button>
         <button class="btn btn-ghost" onclick="closeModal('profileModal')">close</button>
     </div>
 </div>
@@ -194,6 +183,7 @@ let userState = {};
 let catalog = {};
 let pendingCheckout = null;
 let currentUid = '';
+let buyCooldownTimer = null;
 
 window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
@@ -237,7 +227,6 @@ async function loadCatalog() {
 }
 
 function renderCatalog() {
-    // Group by `row`
     const groups = {};
     for (const [sku, p] of Object.entries(catalog)) {
         if (!groups[p.row]) groups[p.row] = [];
@@ -281,26 +270,54 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
+// ---- Purchase handling with loading animation & 30s delay ----
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
+    
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
     const btn = document.getElementById('confirmBuyBtn');
-    btn.disabled = true;
+
+    setButtonLoading(btn, true);
+
     try {
         const d = await backendFetch('/api/purchase/checkout', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
+
         closeModal('checkoutModal');
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
         document.getElementById('keyValue').textContent = d.key;
         openModal('keyModal');
+        
         document.getElementById('balAmount').textContent = d.newBalance;
+
+        if (buyCooldownTimer) clearInterval(buyCooldownTimer);
+
+        let countdown = 30;
+        btn.disabled = true;
+        btn.innerHTML = `wait (${countdown}s)`;
+
+        buyCooldownTimer = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                btn.innerHTML = `wait (${countdown}s)`;
+            } else {
+                clearInterval(buyCooldownTimer);
+                buyCooldownTimer = null;
+                btn.disabled = false;
+                btn.innerHTML = 'confirm.sh';
+            }
+        }, 1000);
+
     } catch (e) {
         toast(e.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'confirm.sh';
+    } finally {
+        setButtonLoading(btn, false);
     }
-    btn.disabled = false;
 };
 
 // ---- Top-up ----
