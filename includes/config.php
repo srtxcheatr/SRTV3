@@ -4,7 +4,6 @@
 
 define('BACKEND_URL', 'https://reprov1.onrender.com'); // ← your Node backend URL
 
-define('ABOUT_URL', 'https://your-portfolio-or-about-link.example.com'); // ← EDIT: your "about me" link
 define('DEVELOPER_URL', 'https://your-developer-profile-link.example.com'); // ← EDIT: your dev/portfolio link
 
 define('FIREBASE_CONFIG_JSON', json_encode([
