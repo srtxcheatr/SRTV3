@@ -177,6 +177,11 @@ a { color: var(--cyan); text-decoration: none; }
 .btn-ghost::before { content: ''; }
 .btn-danger { border-color: rgba(255,95,86,0.4); color: var(--red); }
 .btn-danger::before { content: 'rm '; opacity: 0.7; }
+.btn-scrambling {
+    color: var(--green) !important;
+    text-shadow: 0 0 8px rgba(52,227,122,0.5);
+}
+.btn-scrambling::before { content: none; }
 
 /* ---- Inputs ---- */
 .field { margin-bottom: 12px; }
