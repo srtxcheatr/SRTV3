@@ -32,7 +32,7 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:16px">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1">./help.sh</button>
             <!-- developer.sh link – uses the DEVELOPER_URL from config.php -->
-            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none">./developer.sh</a>
+            <a href="<?= htmlspecialchars(https://srtstorev5.onrender.com) ?>" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none">./developer.sh</a>
         </div>
 
         <div class="prompt-header">ls -la /catalog</div>
@@ -61,7 +61,7 @@ require __DIR__ . '/includes/nav.php';
     <div class="panel" style="max-width:300px;margin:auto;text-align:center">
         <div style="font-size:40px;margin-bottom:8px">⏳</div>
         <div class="prompt-header" style="justify-content:center">processing...</div>
-        <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">4</div>
+        <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">6</div>
         <div class="dim" style="font-size:12px">Please wait</div>
     </div>
 </div>
