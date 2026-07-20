@@ -31,6 +31,7 @@ require __DIR__ . '/includes/nav.php';
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1">./help.sh</button>
+            <!-- developer.sh link – uses the DEVELOPER_URL from config.php -->
             <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none">./developer.sh</a>
         </div>
 
@@ -42,7 +43,6 @@ require __DIR__ . '/includes/nav.php';
 
     </div>
 </div>
-
 <!-- ---- Checkout confirm modal ---- -->
 <div id="checkoutModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
@@ -52,28 +52,6 @@ require __DIR__ . '/includes/nav.php';
         <div class="field"><label>whatsapp number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
         <button class="btn btn-solid" id="confirmBuyBtn" style="margin-bottom:8px">confirm.sh</button>
         <button class="btn btn-ghost" onclick="closeModal('checkoutModal')">cancel</button>
-    </div>
-</div>
-
-<!-- ---- Fake timer overlay ---- -->
-<div id="timerModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:300px;margin:auto;text-align:center">
-        <div style="font-size:40px;margin-bottom:8px">⏳</div>
-        <div class="prompt-header" style="justify-content:center">processing...</div>
-        <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">4</div>
-        <div class="dim" style="font-size:12px">Please wait</div>
-    </div>
-</div>
-
-<!-- ---- Delivery progress modal — real backend progress ---- -->
-<div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center">delivering --key</div>
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin:12px 0 10px">Connecting to server...</div>
-        <div style="height:6px;background:rgba(57,255,136,0.1);border-radius:99px;overflow:hidden;margin-bottom:10px">
-            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 10px rgba(52,227,122,0.5);transition:width .4s cubic-bezier(0.22,1,0.36,1)"></div>
-        </div>
-        <div class="mono-num" id="deliveryPct" style="font-size:20px;font-weight:700;color:var(--green)">0%</div>
     </div>
 </div>
 
@@ -101,6 +79,17 @@ require __DIR__ . '/includes/nav.php';
         <div class="field"><label>transaction code</label><input type="text" id="topupTx" placeholder="e.g. JRJDHD"></div>
         <button class="btn btn-solid" id="submitTopup" style="margin-bottom:8px">submit.sh</button>
         <button class="btn btn-ghost" onclick="closeModal('topupModal')">cancel</button>
+    </div>
+</div>
+
+<!-- ---- Profile modal ---- -->
+<div id="profileModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header">profile --edit</div>
+        <div class="field"><label>display name</label><input type="text" id="profName"></div>
+        <div class="field"><label>whatsapp number</label><input type="text" id="profPhone"></div>
+        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:8px">save.sh</button>
+        <button class="btn btn-ghost" onclick="closeModal('profileModal')">close</button>
     </div>
 </div>
 
