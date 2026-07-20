@@ -1,20 +1,22 @@
 <?php
-// includes/nav.php — expects $currentPage ('home'|'store'|'history').
+// includes/nav.php — expects $currentPage ('home'|'store'|'history')
+// and optionally $breadcrumb (defaults to the page name).
+$breadcrumb = $breadcrumb ?? $currentPage;
 ?>
-<div class="bg-orbs">
-    <div class="bg-orb o1"></div>
-    <div class="bg-orb o2"></div>
-    <div class="bg-orb o3"></div>
-</div>
-<div class="topbar">
-    <div class="brand">SRT<span>X</span>CHEATS</div>
-    <?php if ($currentPage !== 'home'): ?>
-    <button class="btn btn-ghost" style="width:auto;padding:8px 14px;font-size:10px" onclick="doLogout()">LOGOUT</button>
-    <?php endif; ?>
+<div class="term-bar">
+    <div class="term-dots">
+        <span class="term-dot r"></span>
+        <span class="term-dot a"></span>
+        <span class="term-dot g"></span>
+    </div>
+    <div class="term-path">
+        srtxcheats<span class="sep">~</span><span class="cur">/<?= htmlspecialchars($breadcrumb) ?></span>
+    </div>
 </div>
 <?php if ($currentPage !== 'home'): ?>
-<nav class="tabbar">
-    <a href="/store.php" class="<?= $currentPage === 'store' ? 'active' : '' ?>">Store</a>
-    <a href="/history.php" class="<?= $currentPage === 'history' ? 'active' : '' ?>">History</a>
+<nav class="term-nav">
+    <a href="/store.php" class="<?= $currentPage === 'store' ? 'active' : '' ?>">store</a>
+    <a href="/history.php" class="<?= $currentPage === 'history' ? 'active' : '' ?>">history</a>
+    <a href="#" onclick="doLogout(); return false;">logout</a>
 </nav>
 <?php endif; ?>
