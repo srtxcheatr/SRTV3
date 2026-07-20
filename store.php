@@ -31,7 +31,6 @@ require __DIR__ . '/includes/nav.php';
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1">./help.sh</button>
-            <!-- developer.sh link – uses the DEVELOPER_URL from config.php -->
             <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none">./developer.sh</a>
         </div>
 
@@ -56,25 +55,13 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Fake timer overlay ---- -->
+<!-- ---- Fake timer overlay (now used for the entire 6‑second delivery simulation) ---- -->
 <div id="timerModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:300px;margin:auto;text-align:center">
         <div style="font-size:40px;margin-bottom:8px">⏳</div>
         <div class="prompt-header" style="justify-content:center">processing...</div>
         <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">6</div>
         <div class="dim" style="font-size:12px">Please wait</div>
-    </div>
-</div>
-
-<!-- ---- Delivery progress modal — real backend progress ---- -->
-<div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center">delivering --key</div>
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin:12px 0 10px">Connecting to server...</div>
-        <div style="height:6px;background:rgba(57,255,136,0.1);border-radius:99px;overflow:hidden;margin-bottom:10px">
-            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 10px rgba(52,227,122,0.5);transition:width .4s cubic-bezier(0.22,1,0.36,1)"></div>
-        </div>
-        <div class="mono-num" id="deliveryPct" style="font-size:20px;font-weight:700;color:var(--green)">0%</div>
     </div>
 </div>
 
@@ -189,11 +176,6 @@ require __DIR__ . '/includes/nav.php';
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
-.code-block {
-    background: #040a06; border: 1px solid var(--border); border-radius: 6px;
-    padding: 8px 10px; font-size: 10px; color: var(--cyan); overflow-x: auto;
-    white-space: pre; margin-bottom: 4px;
-}
 </style>
 
 <script type="module">
@@ -249,7 +231,6 @@ async function loadCatalog() {
 }
 
 function renderCatalog() {
-    // Group by `row`
     const groups = {};
     for (const [sku, p] of Object.entries(catalog)) {
         if (!groups[p.row]) groups[p.row] = [];
@@ -293,21 +274,19 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with fake timer + real progress polling ----
+// ---- FAKE CHECKOUT: 6-second timer + fake key ----
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
-    const name = document.getElementById('payName').value.trim();
-    const waNum = document.getElementById('payWA').value.trim();
     const btn = document.getElementById('confirmBuyBtn');
 
     // Show button loading state
     setButtonLoading(btn, true);
     closeModal('checkoutModal');
 
-    // ---- Fake timer overlay ----
+    // ---- Fake timer (6 seconds) ----
     openModal('timerModal');
     const timerEl = document.getElementById('timerCount');
-    let count = 4;
+    let count = 6;
     timerEl.textContent = count;
     await new Promise((resolve) => {
         const interval = setInterval(() => {
@@ -323,49 +302,24 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
     });
     closeModal('timerModal');
 
-    // ---- Real delivery progress ----
-    openModal('deliveryModal');
-    setDeliveryProgress(0, 'Connecting to server...');
+    // ---- Generate fake key and update balance ----
+    const fakeKey = 'SRTX-FAKE-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    const productName = pendingCheckout.name;
+    const price = pendingCheckout.price;
 
-    try {
-        const start = await backendFetch('/api/purchase/checkout/start', {
-            method: 'POST',
-            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
-        });
-        const result = await pollCheckoutJob(start.jobId);
-        closeModal('deliveryModal');
+    // Update balance display (fake deduction)
+    const currentBalance = parseInt(document.getElementById('balAmount').textContent, 10) || 0;
+    const newBalance = currentBalance - price;
+    document.getElementById('balAmount').textContent = newBalance;
 
-        if (!result.success) {
-            toast(result.error || 'Purchase failed', 'error');
-            return;
-        }
+    // Show key modal
+    document.getElementById('keyProductName').textContent = productName;
+    document.getElementById('keyValue').textContent = fakeKey;
+    openModal('keyModal');
 
-        document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = result.key;
-        openModal('keyModal');
-        document.getElementById('balAmount').textContent = result.newBalance;
-    } catch (e) {
-        closeModal('deliveryModal');
-        toast(e.message, 'error');
-    } finally {
-        setButtonLoading(btn, false);
-    }
+    // Reset button state
+    setButtonLoading(btn, false);
 };
-
-function setDeliveryProgress(pct, label) {
-    document.getElementById('deliveryBar').style.width = pct + '%';
-    document.getElementById('deliveryPct').textContent = pct + '%';
-    if (label) document.getElementById('deliveryLabel').textContent = label;
-}
-
-async function pollCheckoutJob(jobId) {
-    while (true) {
-        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
-        setDeliveryProgress(d.percent, d.label);
-        if (d.done) return d;
-        await new Promise((r) => setTimeout(r, 500));
-    }
-}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
