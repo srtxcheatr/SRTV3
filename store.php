@@ -55,12 +55,12 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Fake timer overlay (now used for the entire 6‑second delivery simulation) ---- -->
+<!-- ---- Timer overlay (4s) ---- -->
 <div id="timerModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:300px;margin:auto;text-align:center">
         <div style="font-size:40px;margin-bottom:8px">⏳</div>
         <div class="prompt-header" style="justify-content:center">processing...</div>
-        <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">6</div>
+        <div id="timerCount" style="font-size:48px;font-weight:800;color:var(--amber);margin:12px 0">4</div>
         <div class="dim" style="font-size:12px">Please wait</div>
     </div>
 </div>
@@ -274,21 +274,39 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- FAKE CHECKOUT: 6-second timer + fake key ----
+// ---- Checkout with 4‑second timer + real backend polling ----
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
+    const name = document.getElementById('payName').value.trim();
+    const waNum = document.getElementById('payWA').value.trim();
     const btn = document.getElementById('confirmBuyBtn');
 
-    // Show button loading state
+    // Disable button and show loading state
     setButtonLoading(btn, true);
     closeModal('checkoutModal');
 
-    // ---- Fake timer (6 seconds) ----
+    // Open timer overlay
     openModal('timerModal');
     const timerEl = document.getElementById('timerCount');
-    let count = 6;
+    let count = 4;
     timerEl.textContent = count;
-    await new Promise((resolve) => {
+
+    // Start the backend request immediately
+    const backendPromise = (async () => {
+        try {
+            const start = await backendFetch('/api/purchase/checkout/start', {
+                method: 'POST',
+                body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
+            });
+            // Poll for completion
+            return await pollCheckoutJob(start.jobId);
+        } catch (e) {
+            throw e;
+        }
+    })();
+
+    // Timer countdown (always runs for 4 seconds)
+    const timerPromise = new Promise((resolve) => {
         const interval = setInterval(() => {
             count -= 1;
             if (count === 0) {
@@ -300,26 +318,49 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
             }
         }, 1000);
     });
+
+    // Wait for both timer and backend to finish
+    let result;
+    let backendError = null;
+    try {
+        // Wait for both, but if backend finishes earlier, we still wait for timer
+        const [res] = await Promise.all([backendPromise, timerPromise]);
+        result = res;
+    } catch (e) {
+        backendError = e;
+        // Still wait for timer to finish if it hasn't
+        await timerPromise;
+    }
+
     closeModal('timerModal');
 
-    // ---- Generate fake key and update balance ----
-    const fakeKey = 'SRTX-FAKE-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-    const productName = pendingCheckout.name;
-    const price = pendingCheckout.price;
+    if (backendError) {
+        toast(backendError.message, 'error');
+        setButtonLoading(btn, false);
+        return;
+    }
 
-    // Update balance display (fake deduction)
-    const currentBalance = parseInt(document.getElementById('balAmount').textContent, 10) || 0;
-    const newBalance = currentBalance - price;
-    document.getElementById('balAmount').textContent = newBalance;
+    if (!result.success) {
+        toast(result.error || 'Purchase failed', 'error');
+        setButtonLoading(btn, false);
+        return;
+    }
 
-    // Show key modal
-    document.getElementById('keyProductName').textContent = productName;
-    document.getElementById('keyValue').textContent = fakeKey;
+    // Success – show real key
+    document.getElementById('keyProductName').textContent = pendingCheckout.name;
+    document.getElementById('keyValue').textContent = result.key;
     openModal('keyModal');
-
-    // Reset button state
+    document.getElementById('balAmount').textContent = result.newBalance;
     setButtonLoading(btn, false);
 };
+
+async function pollCheckoutJob(jobId) {
+    while (true) {
+        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+        if (d.done) return d;
+        await new Promise((r) => setTimeout(r, 500));
+    }
+}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
