@@ -56,7 +56,7 @@ require __DIR__ . '/includes/nav.php';
         </div>
 
         <div class="dim" style="font-size:10px;margin-bottom:8px;padding:0 2px">
-            <span style="display:inline-block;width:52%">NAME</span><span style="display:inline-block;width:20%">TAG</span><span>SIZE</span>
+            <i class="fas fa-cubes"></i> tap a product to see pricing options
         </div>
         <div id="catalogList"><div class="dim" style="text-align:center;padding:20px"><i class="fas fa-spinner fa-pulse"></i> loading catalog...</div></div>
 
@@ -197,28 +197,35 @@ require __DIR__ . '/includes/nav.php';
     color: var(--green); border-color: var(--border-strong);
     background: rgba(52,227,122,0.08);
 }
-/* ---- catalog rows ---- */
+/* ---- catalog cards — big hero image, like a real product card ---- */
 .cat-row {
-    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-sm);
-    margin-bottom: 6px; overflow: hidden;
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 14px; overflow: hidden;
 }
-.cat-head {
-    display: flex; align-items: center; gap: 10px; padding: 11px 12px; cursor: pointer;
-}
+.cat-head { cursor: pointer; }
 .cat-img {
-    width: 38px; height: 38px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
-    border: 1px solid var(--border); background: #040a06;
+    width: 100%; aspect-ratio: 16 / 10; overflow: hidden;
+    background: #040a06; border-bottom: 1px solid var(--border);
+    position: relative;
 }
 .cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cat-head .name { flex: 1; font-size: 12.5px; font-weight: 600; }
-.cat-head .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-strong); color: var(--text2); }
-.cat-head .arrow { font-size: 10px; color: var(--text3); transition: transform .2s; }
-.cat-row.open .arrow { transform: rotate(90deg); }
+.cat-img .cat-tag-badge {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(2,6,4,0.75); border: 1px solid var(--border-strong);
+    color: var(--green); backdrop-filter: blur(4px);
+}
+.cat-info { padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.cat-head .name { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
+.cat-head .price-range { font-size: 12px; color: var(--amber); font-weight: 700; }
+.cat-arrow { font-size: 11px; color: var(--text3); transition: transform .2s; }
+.cat-row.open .cat-arrow { transform: rotate(90deg); }
 .cat-body { display: none; border-top: 1px solid var(--border); }
 .cat-row.open .cat-body { display: block; }
 .dur-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 12px; font-size: 12px; border-top: 1px solid var(--border);
+    padding: 12px 14px; font-size: 13px; border-top: 1px solid var(--border);
     cursor: pointer;
 }
 .dur-row:active { background: var(--panel2); }
@@ -386,13 +393,25 @@ function renderCatalog() {
         return;
     }
 
-    const html = filteredEntries.map(([row, items], gi) => `
+    const html = filteredEntries.map(([row, items], gi) => {
+        const prices = items.map((it) => it.price);
+        const priceRange = Math.min(...prices) === Math.max(...prices)
+            ? `Rs ${prices[0]}`
+            : `Rs ${Math.min(...prices)}–${Math.max(...prices)}`;
+        return `
         <div class="cat-row" id="cat-${gi}">
             <div class="cat-head" onclick="document.getElementById('cat-${gi}').classList.toggle('open')">
-                <div class="cat-img"><img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy"></div>
-                <span class="name">${esc(row)}</span>
-                <span class="tag">${tagOf(row)}</span>
-                <span class="arrow"><i class="fas fa-chevron-right"></i></span>
+                <div class="cat-img">
+                    <img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy">
+                    <span class="cat-tag-badge">${tagOf(row)}</span>
+                </div>
+                <div class="cat-info">
+                    <div style="flex:1">
+                        <div class="name">${esc(row)}</div>
+                        <div class="price-range">${priceRange}</div>
+                    </div>
+                    <span class="cat-arrow"><i class="fas fa-chevron-right"></i></span>
+                </div>
             </div>
             <div class="cat-body">
                 ${items.map(it => `
@@ -403,7 +422,8 @@ function renderCatalog() {
                 `).join('')}
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
     document.getElementById('catalogList').innerHTML = html;
 }
 
