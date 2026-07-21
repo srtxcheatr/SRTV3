@@ -270,14 +270,16 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Purchase handling with loading animation & 30s delay ----
+// ---- Purchase handling with immediate single-click protection ----
 document.getElementById('confirmBuyBtn').onclick = async () => {
     if (!pendingCheckout) return;
-    
+
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
     const btn = document.getElementById('confirmBuyBtn');
 
+    // Instantly disable button to prevent double-clicking
+    btn.disabled = true;
     setButtonLoading(btn, true);
 
     try {
@@ -286,6 +288,7 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
 
+        // Close modal automatically on success
         closeModal('checkoutModal');
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
         document.getElementById('keyValue').textContent = d.key;
@@ -296,7 +299,6 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
         if (buyCooldownTimer) clearInterval(buyCooldownTimer);
 
         let countdown = 30;
-        btn.disabled = true;
         btn.innerHTML = `wait (${countdown}s)`;
 
         buyCooldownTimer = setInterval(() => {
@@ -313,6 +315,7 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
 
     } catch (e) {
         toast(e.message, 'error');
+        // If API fails, re-enable button safely
         btn.disabled = false;
         btn.innerHTML = 'confirm.sh';
     } finally {
