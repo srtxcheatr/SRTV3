@@ -76,14 +76,17 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Delivery progress modal ---- -->
+<!-- ---- Simple Indeterminate Loading Modal ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center"><i class="fas fa-boxes" style="color:var(--amber)"></i> dispatching key...</div>
+    <div class="panel" style="max-width:380px;margin:auto;text-align:center;padding:24px 20px">
+        <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
+            <i class="fas fa-box-open" style="color:var(--amber)"></i> Processing Order...
+        </div>
+        
+        <!-- Loop driving track animation -->
         <div class="delivery-track">
             <div class="delivery-road"></div>
-            <div class="delivery-truck" id="deliveryTruck">
-                <!-- Colorful SVG Vehicle Icon -->
+            <div class="delivery-truck">
                 <svg width="34" height="28" viewBox="0 0 24 24" style="display:block;filter:drop-shadow(0 0 8px #00ff88);">
                     <defs>
                         <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -96,8 +99,10 @@ require __DIR__ . '/includes/nav.php';
                 </svg>
             </div>
         </div>
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px"><i class="fas fa-sync-alt fa-spin"></i> Connecting to server...</div>
-        <div class="dim" id="deliveryPct" style="font-family:var(--font-display);font-size:20px;margin-top:6px">0%</div>
+
+        <div class="dim" style="font-size:12px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px">
+            <i class="fas fa-spinner fa-spin" style="color:var(--green)"></i> Please wait, delivering key...
+        </div>
     </div>
 </div>
 
@@ -253,19 +258,26 @@ require __DIR__ . '/includes/nav.php';
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
 
-/* ---- delivery vehicle track animation ---- */
+/* ---- continuous vehicle track animation ---- */
 .delivery-track {
-    position: relative; height: 50px; margin: 20px 0 6px;
+    position: relative; height: 50px; margin: 10px 0;
     background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden;
     border: 1px solid var(--border-strong);
 }
 .delivery-road {
-    position: absolute; bottom: 10px; left: 6%; right: 6%; height: 2px;
+    position: absolute; bottom: 10px; left: 0; right: 0; height: 2px;
     background: repeating-linear-gradient(to right, var(--text3) 0 8px, transparent 8px 16px);
 }
 .delivery-truck {
-    position: absolute; bottom: 8px; left: 0%;
-    transition: left 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    position: absolute; bottom: 8px;
+    animation: driveLoop 2s ease-in-out infinite;
+}
+
+@keyframes driveLoop {
+    0% { left: -40px; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
 }
 
 /* ---- button loading states ---- */
@@ -320,10 +332,8 @@ function setLoading(btn, loading) {
     }
 }
 
-// Safe fetch wrapper to avoid HTML <!DOCTYPE > JSON syntax errors
 async function safeFetch(endpoint, options = {}) {
-    const res = await backendFetch(endpoint, options);
-    return res;
+    return await backendFetch(endpoint, options);
 }
 
 requireAuth(async (user) => {
@@ -478,7 +488,7 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout handler with auto modal dismissal on error ----
+// ---- Smooth Silent Checkout Handler ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -486,33 +496,26 @@ confirmBtn.onclick = async () => {
     const waNum = document.getElementById('payWA').value.trim();
 
     closeModal('checkoutModal');
-    setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
     try {
-        const start = await safeFetch('/api/purchase/checkout/start', {
+        const res = await safeFetch('/api/purchase/checkout', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
 
-        if (!start || !start.jobId) throw new Error('Invalid response from server');
-
-        const result = await pollJob(start.jobId);
         closeModal('deliveryModal');
 
-        if (!result.success) {
-            toast(result.error || 'Purchase failed', 'error');
-            return;
-        }
+        if (!res || !res.key) throw new Error(res?.error || 'Purchase failed');
 
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = result.key;
+        document.getElementById('keyValue').textContent = res.key;
         openModal('keyModal');
         
-        if (result.newBalance !== undefined) {
-            document.getElementById('balAmount').textContent = result.newBalance;
-            document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
+        if (res.newBalance !== undefined) {
+            document.getElementById('balAmount').textContent = res.newBalance;
+            document.getElementById('balBar').style.width = Math.min(100, res.newBalance / 10) + '%';
         }
     } catch (e) {
         closeModal('deliveryModal');
@@ -522,26 +525,6 @@ confirmBtn.onclick = async () => {
         pendingCheckout = null;
     }
 };
-
-function setTruckProgress(pct, label) {
-    document.getElementById('deliveryTruck').style.left = `calc(${pct}% - ${pct * 0.2}px)`;
-    document.getElementById('deliveryPct').textContent = pct + '%';
-    if (label) document.getElementById('deliveryLabel').innerHTML = label;
-}
-
-async function pollJob(jobId) {
-    let attempts = 0;
-    const maxAttempts = 60; // 30s timeout
-
-    while (attempts < maxAttempts) {
-        attempts++;
-        const d = await safeFetch(`/api/purchase/checkout/status/${jobId}`);
-        setTruckProgress(d.percent || 0, d.label || 'Processing...');
-        if (d.done) return d;
-        await new Promise((r) => setTimeout(r, 500));
-    }
-    throw new Error('Connection timed out. Please check your purchase history.');
-}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
