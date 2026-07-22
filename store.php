@@ -32,12 +32,10 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openTopup" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-coins"></i> ./topup.sh</button>
             <button class="btn btn-ghost" id="openProfile" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-user-edit"></i> ./profile.sh</button>
-            <!-- Removed ./keys.sh -->
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1"><i class="fas fa-life-ring"></i> ./help.sh</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1"><i class="fas fa-key"></i> ./passwd.sh</button>
-            <!-- Removed ./apk.sh -->
             <a href="https://srtxcheat.github.io/About" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
         </div>
 
@@ -81,10 +79,10 @@ require __DIR__ . '/includes/nav.php';
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
-        <div class="prompt-header">cat delivered_key.txt</div>
+        <div class="prompt-header"><i class="fas fa-check-circle" style="color:var(--green)"></i> cat delivered_key.txt</div>
         <div id="keyProductName" style="font-size:13px;margin-bottom:6px"></div>
         <div style="background:#040a06;border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:12px;word-break:break-all;color:var(--green);font-weight:700;margin-bottom:12px" id="keyValue"></div>
-        <button class="btn btn-solid" onclick="closeModal('keyModal')">done</button>
+        <button class="btn btn-solid" onclick="closeModal('keyModal')"><i class="fas fa-thumbs-up"></i> done</button>
     </div>
 </div>
 
@@ -184,7 +182,7 @@ require __DIR__ . '/includes/nav.php';
     color: var(--green); border-color: var(--border-strong);
     background: rgba(52,227,122,0.08);
 }
-/* ---- catalog cards — big hero image, like a real product card ---- */
+/* ---- catalog cards ---- */
 .cat-row {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     margin-bottom: 14px; overflow: hidden;
@@ -222,22 +220,6 @@ require __DIR__ . '/includes/nav.php';
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
-
-/* ---- delivery truck animation ---- */
-.delivery-track {
-    position: relative; height: 50px; margin: 20px 0 6px;
-    background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden;
-    border: 1px solid var(--border);
-}
-.delivery-road {
-    position: absolute; bottom: 10px; left: 6%; right: 6%; height: 2px;
-    background: repeating-linear-gradient(to right, var(--text3) 0 8px, transparent 8px 16px);
-}
-.delivery-truck {
-    position: absolute; bottom: 4px; left: 0%; font-size: 26px;
-    transition: left 0.4s cubic-bezier(0.22,1,0.36,1);
-    filter: drop-shadow(0 0 8px var(--secondary-glow));
-}
 
 /* ---- button loading states ---- */
 .btn {
@@ -369,8 +351,6 @@ function renderCatalog() {
     const filteredEntries = Object.entries(groups).filter(([row, items]) => {
         if (activeTag !== 'ALL' && tagOf(row) !== activeTag) return false;
         if (!q) return true;
-        // Matches against the row name AND every duration's product
-        // name, so a search for e.g. a specific variant still finds it.
         return row.toLowerCase().includes(q) || items.some((it) => it.name.toLowerCase().includes(q));
     });
 
@@ -440,17 +420,15 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with real progress polling ----
-document.getElementById('confirmBuyBtn').onclick = async () => {
+// ---- Direct Checkout handling with spinner animation on confirm button ----
+const confirmBtn = document.getElementById('confirmBuyBtn');
+confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
-
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
-    const btn = document.getElementById('confirmBuyBtn');
 
-    // Instantly disable button to prevent double-clicking
-    btn.disabled = true;
-    setButtonLoading(btn, true);
+    // Disable button & show spinner immediately
+    setLoading(confirmBtn, true);
 
     try {
         const d = await backendFetch('/api/purchase/checkout', {
@@ -458,38 +436,19 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
 
-        // Close modal automatically on success
+        // Close checkout modal & show key
         closeModal('checkoutModal');
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
         document.getElementById('keyValue').textContent = d.key;
         openModal('keyModal');
-        
+
         document.getElementById('balAmount').textContent = d.newBalance;
-
-        if (buyCooldownTimer) clearInterval(buyCooldownTimer);
-
-        let countdown = 30;
-        btn.innerHTML = `wait (${countdown}s)`;
-
-        buyCooldownTimer = setInterval(() => {
-            countdown--;
-            if (countdown > 0) {
-                btn.innerHTML = `wait (${countdown}s)`;
-            } else {
-                clearInterval(buyCooldownTimer);
-                buyCooldownTimer = null;
-                btn.disabled = false;
-                btn.innerHTML = 'confirm.sh';
-            }
-        }, 1000);
-
+        document.getElementById('balBar').style.width = Math.min(100, d.newBalance / 10) + '%';
     } catch (e) {
         toast(e.message, 'error');
-        // If API fails, re-enable button safely
-        btn.disabled = false;
-        btn.innerHTML = 'confirm.sh';
     } finally {
-        setButtonLoading(btn, false);
+        setLoading(confirmBtn, false);
+        pendingCheckout = null;
     }
 };
 
