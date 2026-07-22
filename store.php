@@ -76,6 +76,23 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- ---- Delivery vehicle progress modal ---- -->
+<div id="deliveryModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
+        <div class="prompt-header" style="justify-content:center"><i class="fas fa-boxes-packing" style="color:var(--amber)"></i> dispatching key...</div>
+        
+        <!-- Live moving vehicle track -->
+        <div class="delivery-track">
+            <div class="delivery-road"></div>
+            <div class="delivery-truck-anim">
+                <i class="fas fa-truck-fast" style="color:var(--green);font-size:26px"></i>
+            </div>
+        </div>
+        
+        <div class="dim" style="font-size:12px;margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Processing key generation & delivery...</div>
+    </div>
+</div>
+
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
@@ -220,6 +237,51 @@ require __DIR__ . '/includes/nav.php';
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
+
+/* ---- vehicle delivery left-to-right swipe animation ---- */
+.delivery-track {
+    position: relative;
+    height: 54px;
+    margin: 20px 0 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+}
+
+.delivery-road {
+    position: absolute;
+    bottom: 12px;
+    left: 4%;
+    right: 4%;
+    height: 2px;
+    background: repeating-linear-gradient(to right, var(--text3) 0 10px, transparent 10px 18px);
+}
+
+.delivery-truck-anim {
+    position: absolute;
+    bottom: 8px;
+    left: -40px;
+    animation: truckDrive 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    filter: drop-shadow(0 0 6px var(--green));
+}
+
+@keyframes truckDrive {
+    0% {
+        left: -40px;
+        opacity: 0.2;
+    }
+    15% {
+        opacity: 1;
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        left: calc(100% + 10px);
+        opacity: 0.2;
+    }
+}
 
 /* ---- button loading states ---- */
 .btn {
@@ -420,15 +482,16 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Direct Checkout handling with spinner animation on confirm button ----
+// ---- Checkout handling with live vehicle driving animation modal ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
 
-    // Disable button & show spinner immediately
-    setLoading(confirmBtn, true);
+    // Hide checkout modal and open live delivery vehicle animation
+    closeModal('checkoutModal');
+    openModal('deliveryModal');
 
     try {
         const d = await backendFetch('/api/purchase/checkout', {
@@ -436,8 +499,8 @@ confirmBtn.onclick = async () => {
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
 
-        // Close checkout modal & show key
-        closeModal('checkoutModal');
+        // Close delivery animation modal & show key
+        closeModal('deliveryModal');
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
         document.getElementById('keyValue').textContent = d.key;
         openModal('keyModal');
@@ -445,9 +508,9 @@ confirmBtn.onclick = async () => {
         document.getElementById('balAmount').textContent = d.newBalance;
         document.getElementById('balBar').style.width = Math.min(100, d.newBalance / 10) + '%';
     } catch (e) {
+        closeModal('deliveryModal');
         toast(e.message, 'error');
     } finally {
-        setLoading(confirmBtn, false);
         pendingCheckout = null;
     }
 };
