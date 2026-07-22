@@ -88,3 +88,38 @@ export function esc(s) {
     d.textContent = s ?? '';
     return d.innerHTML;
 }
+
+// ---- Hacker-style button loading state ----
+// Scrambles the button's own text into random characters that
+// gradually "resolve" back to readable text while a request is in
+// flight, instead of just going blank/disabled with no feedback —
+// exists because users kept thinking the site was frozen when
+// Render's free tier had a slow cold start and nothing on screen
+// changed after tapping a button.
+const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#________';
+
+export function setButtonLoading(btn, loading) {
+    if (loading) {
+        if (btn.dataset.origText === undefined) btn.dataset.origText = btn.textContent;
+        btn.disabled = true;
+        const original = btn.dataset.origText;
+        let frame = 0;
+        btn._scrambleTimer = setInterval(() => {
+            frame++;
+            const revealCount = Math.floor((frame / 14) * original.length);
+            let out = '';
+            for (let i = 0; i < original.length; i++) {
+                if (original[i] === ' ') { out += ' '; continue; }
+                out += i < revealCount
+                    ? original[i]
+                    : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+            }
+            btn.textContent = out;
+            if (revealCount >= original.length) frame = 0;
+        }, 45);
+    } else {
+        clearInterval(btn._scrambleTimer);
+        btn.disabled = false;
+        if (btn.dataset.origText !== undefined) btn.textContent = btn.dataset.origText;
+    }
+}
