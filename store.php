@@ -79,19 +79,27 @@ require __DIR__ . '/includes/nav.php';
 <!-- ---- Delivery vehicle progress modal ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center"><i class="fas fa-boxes-packing" style="color:var(--amber)"></i> dispatching key...</div>
+        <div class="prompt-header" style="justify-content:center">
+            <i class="fas fa-boxes" style="color:var(--amber)"></i> dispatching key...
+        </div>
         
         <!-- Live moving vehicle track -->
         <div class="delivery-track">
             <div class="delivery-road"></div>
             <div class="delivery-truck-anim">
-                <i class="fas fa-truck-fast" style="color:var(--green);font-size:26px"></i>
+                <!-- SVG Vehicle Icon (Guaranteed to render without external font dependencies) -->
+                <svg width="32" height="28" viewBox="0 0 24 24" fill="var(--green)" style="display:block;filter:drop-shadow(0 0 6px var(--green));">
+                    <path d="M20 8h-3V4H1v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-6l-3-3zM6 18.5A1.5 1.5 0 1 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM17 12V9.5h2.2l1.8 1.8V12z"/>
+                </svg>
             </div>
         </div>
         
-        <div class="dim" style="font-size:12px;margin-top:14px"><i class="fas fa-circle-notch fa-spin"></i> Processing key generation & delivery...</div>
+        <div class="dim" style="font-size:12px;margin-top:14px">
+            <i class="fas fa-circle-notch fa-spin"></i> Processing key generation & delivery...
+        </div>
     </div>
 </div>
+
 
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
