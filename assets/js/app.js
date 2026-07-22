@@ -26,20 +26,32 @@ export async function getAuthToken() {
     return await user.getIdToken(true);
 }
 
-export async function backendFetch(path, options = {}) {
-    const token = await getAuthToken();
-    const r = await fetch(`${window.BACKEND_URL}${path}`, {
-        ...options,
-        headers: {
-            Authorization: `Bearer ${token}`,
-            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-            ...(options.headers || {}),
-        },
-    });
-    const d = await r.json();
-    if (!d.success) throw new Error(d.error || 'Request failed');
-    return d;
+export async function backendFetch(endpoint, options = {}) {
+    const url = `${window.BACKEND_URL || ''}${endpoint}`;
+    
+    // Add default headers
+    options.headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+    };
+
+    const res = await fetch(url, options);
+
+    // Check if response is HTML instead of JSON (e.g. 404/500 error page)
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Server returned non-JSON response (${res.status}). Check server logs or API endpoint URL.`);
+    }
+
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data.error || data.message || `Request failed with status ${res.status}`);
+    }
+
+    return data;
 }
+
 
 /**
  * Every page except home.php calls this on load. Redirects to
