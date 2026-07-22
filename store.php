@@ -78,26 +78,13 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Delivery progress modal ---- -->
-<div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck fa-fw fa-pulse" style="color:var(--amber)"></i> delivering key...</div>
-        <div class="delivery-track">
-            <div class="delivery-road"></div>
-            <div class="delivery-truck" id="deliveryTruck"><i class="fas fa-rocket fa-fw fa-spin" style="color:var(--green);font-size:28px"></i></div>
-        </div>
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px"><i class="fas fa-sync-alt fa-spin"></i> Connecting to server...</div>
-        <div class="dim" id="deliveryPct" style="font-family:var(--font-display);font-size:20px;margin-top:6px">0%</div>
-    </div>
-</div>
-
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
-        <div class="prompt-header"><i class="fas fa-check-circle" style="color:var(--green)"></i> cat delivered_key.txt</div>
+        <div class="prompt-header">cat delivered_key.txt</div>
         <div id="keyProductName" style="font-size:13px;margin-bottom:6px"></div>
         <div style="background:#040a06;border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:12px;word-break:break-all;color:var(--green);font-weight:700;margin-bottom:12px" id="keyValue"></div>
-        <button class="btn btn-solid" onclick="closeModal('keyModal')"><i class="fas fa-thumbs-up"></i> done</button>
+        <button class="btn btn-solid" onclick="closeModal('keyModal')">done</button>
     </div>
 </div>
 
