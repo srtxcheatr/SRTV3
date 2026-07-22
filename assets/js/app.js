@@ -26,32 +26,20 @@ export async function getAuthToken() {
     return await user.getIdToken(true);
 }
 
-export async function backendFetch(endpoint, options = {}) {
-    const url = `${window.BACKEND_URL || ''}${endpoint}`;
-    
-    // Add default headers
-    options.headers = {
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-    };
-
-    const res = await fetch(url, options);
-
-    // Check if response is HTML instead of JSON (e.g. 404/500 error page)
-    const contentType = res.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-        const text = await res.text();
-        throw new Error(`Server returned non-JSON response (${res.status}). Check server logs or API endpoint URL.`);
-    }
-
-    const data = await res.json();
-    if (!res.ok) {
-        throw new Error(data.error || data.message || `Request failed with status ${res.status}`);
-    }
-
-    return data;
+export async function backendFetch(path, options = {}) {
+    const token = await getAuthToken();
+    const r = await fetch(`${window.BACKEND_URL}${path}`, {
+        ...options,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+            ...(options.headers || {}),
+        },
+    });
+    const d = await r.json();
+    if (!d.success) throw new Error(d.error || 'Request failed');
+    return d;
 }
-
 
 /**
  * Every page except home.php calls this on load. Redirects to
@@ -99,39 +87,4 @@ export function esc(s) {
     const d = document.createElement('div');
     d.textContent = s ?? '';
     return d.innerHTML;
-}
-
-// ---- Hacker-style button loading state ----
-// Scrambles the button's own text into random characters that
-// gradually "resolve" back to readable text while a request is in
-// flight, instead of just going blank/disabled with no feedback —
-// exists because users kept thinking the site was frozen when
-// Render's free tier had a slow cold start and nothing on screen
-// changed after tapping a button.
-const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#________';
-
-export function setButtonLoading(btn, loading) {
-    if (loading) {
-        if (btn.dataset.origText === undefined) btn.dataset.origText = btn.textContent;
-        btn.disabled = true;
-        const original = btn.dataset.origText;
-        let frame = 0;
-        btn._scrambleTimer = setInterval(() => {
-            frame++;
-            const revealCount = Math.floor((frame / 14) * original.length);
-            let out = '';
-            for (let i = 0; i < original.length; i++) {
-                if (original[i] === ' ') { out += ' '; continue; }
-                out += i < revealCount
-                    ? original[i]
-                    : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-            }
-            btn.textContent = out;
-            if (revealCount >= original.length) frame = 0;
-        }, 45);
-    } else {
-        clearInterval(btn._scrambleTimer);
-        btn.disabled = false;
-        if (btn.dataset.origText !== undefined) btn.textContent = btn.dataset.origText;
-    }
 }
