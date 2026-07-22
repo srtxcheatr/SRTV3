@@ -269,9 +269,7 @@ require __DIR__ . '/includes/nav.php';
 }
 
 /* ---- button loading states ---- */
-.btn {
-    position: relative;
-}
+.btn { position: relative; }
 .btn .btn-spinner {
     display: inline-flex;
     align-items: center;
@@ -279,8 +277,7 @@ require __DIR__ . '/includes/nav.php';
     margin-left: 8px;
 }
 .btn .btn-spinner .spinner {
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border: 2px solid rgba(255,255,255,0.2);
     border-top-color: #fff;
     border-radius: 50%;
@@ -323,6 +320,12 @@ function setLoading(btn, loading) {
     }
 }
 
+// Safe fetch wrapper to avoid HTML <!DOCTYPE > JSON syntax errors
+async function safeFetch(endpoint, options = {}) {
+    const res = await backendFetch(endpoint, options);
+    return res;
+}
+
 requireAuth(async (user) => {
     currentUid = user.uid;
     await Promise.all([loadBalance(), loadCatalog()]);
@@ -330,7 +333,7 @@ requireAuth(async (user) => {
 
 async function loadBalance() {
     try {
-        const d = await backendFetch('/api/user/balance');
+        const d = await safeFetch('/api/user/balance');
         userState = d;
         document.getElementById('balAmount').textContent = d.balance;
         document.getElementById('balBar').style.width = Math.min(100, d.balance / 10) + '%';
@@ -370,6 +373,10 @@ function setupTopupLock(hasCompletedFirstTopup) {
 async function loadCatalog() {
     try {
         const r = await fetch(`${window.BACKEND_URL}/api/catalog`);
+        const contentType = r.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Invalid catalog endpoint");
+        }
         const d = await r.json();
         catalog = d.catalog;
         renderCatalog();
@@ -471,7 +478,7 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with progress polling ----
+// ---- Checkout handler with auto modal dismissal on error ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -479,18 +486,19 @@ confirmBtn.onclick = async () => {
     const waNum = document.getElementById('payWA').value.trim();
 
     closeModal('checkoutModal');
-    openModal('deliveryModal');
     setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
+    openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
     try {
-        const start = await backendFetch('/api/purchase/checkout/start', {
+        const start = await safeFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
-        const jobId = start.jobId;
 
-        const result = await pollJob(jobId);
+        if (!start || !start.jobId) throw new Error('Invalid response from server');
+
+        const result = await pollJob(start.jobId);
         closeModal('deliveryModal');
 
         if (!result.success) {
@@ -501,11 +509,14 @@ confirmBtn.onclick = async () => {
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
         document.getElementById('keyValue').textContent = result.key;
         openModal('keyModal');
-        document.getElementById('balAmount').textContent = result.newBalance;
-        document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
+        
+        if (result.newBalance !== undefined) {
+            document.getElementById('balAmount').textContent = result.newBalance;
+            document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
+        }
     } catch (e) {
         closeModal('deliveryModal');
-        toast(e.message, 'error');
+        toast(e.message || 'Error occurred during processing', 'error');
     } finally {
         setLoading(confirmBtn, false);
         pendingCheckout = null;
@@ -519,12 +530,17 @@ function setTruckProgress(pct, label) {
 }
 
 async function pollJob(jobId) {
-    while (true) {
-        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
-        setTruckProgress(d.percent, d.label);
+    let attempts = 0;
+    const maxAttempts = 60; // 30s timeout
+
+    while (attempts < maxAttempts) {
+        attempts++;
+        const d = await safeFetch(`/api/purchase/checkout/status/${jobId}`);
+        setTruckProgress(d.percent || 0, d.label || 'Processing...');
         if (d.done) return d;
         await new Promise((r) => setTimeout(r, 500));
     }
+    throw new Error('Connection timed out. Please check your purchase history.');
 }
 
 // ---- Top-up ----
@@ -536,7 +552,7 @@ topupBtn.onclick = async () => {
     const txCode = document.getElementById('topupTx').value.trim();
     setLoading(topupBtn, true);
     try {
-        await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
+        await safeFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
         toast('Submitted — awaiting admin approval', 'success');
         closeModal('topupModal');
     } catch (e) {
@@ -554,7 +570,7 @@ profileBtn.onclick = async () => {
     const phone = document.getElementById('profPhone').value.trim();
     setLoading(profileBtn, true);
     try {
-        await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
+        await safeFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
         toast('Saved', 'success');
         closeModal('profileModal');
     } catch (e) {
@@ -596,7 +612,7 @@ reportBtn.onclick = async () => {
     if (!problem) return toast('Please describe the problem', 'error');
     setLoading(reportBtn, true);
     try {
-        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+        await safeFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
         toast('Report sent', 'success');
         document.getElementById('problemText').value = '';
         closeModal('helpModal');
