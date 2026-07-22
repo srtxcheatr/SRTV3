@@ -32,11 +32,13 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openTopup" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-coins"></i> ./topup.sh</button>
             <button class="btn btn-ghost" id="openProfile" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-user-edit"></i> ./profile.sh</button>
+            <!-- Removed ./keys.sh -->
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1"><i class="fas fa-life-ring"></i> ./help.sh</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1"><i class="fas fa-key"></i> ./passwd.sh</button>
-            <a href="https://srtxcheatr.github.io/srtxcheats/" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
+            <!-- Removed ./apk.sh -->
+            <a href="https://srtxcheat.github.io/About" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
         </div>
 
         <div class="prompt-header"><i class="fas fa-folder-open"></i> ls -la /catalog</div>
@@ -76,30 +78,18 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Delivery vehicle progress modal ---- -->
+<!-- ---- Delivery progress modal ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center">
-            <i class="fas fa-boxes" style="color:var(--amber)"></i> dispatching key...
-        </div>
-        
-        <!-- Live moving vehicle track -->
+        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck fa-fw fa-pulse" style="color:var(--amber)"></i> delivering key...</div>
         <div class="delivery-track">
             <div class="delivery-road"></div>
-            <div class="delivery-truck-anim">
-                <!-- SVG Vehicle Icon (Guaranteed to render without external font dependencies) -->
-                <svg width="32" height="28" viewBox="0 0 24 24" fill="var(--green)" style="display:block;filter:drop-shadow(0 0 6px var(--green));">
-                    <path d="M20 8h-3V4H1v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-6l-3-3zM6 18.5A1.5 1.5 0 1 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM17 12V9.5h2.2l1.8 1.8V12z"/>
-                </svg>
-            </div>
+            <div class="delivery-truck" id="deliveryTruck"><i class="fas fa-rocket fa-fw fa-spin" style="color:var(--green);font-size:28px"></i></div>
         </div>
-        
-        <div class="dim" style="font-size:12px;margin-top:14px">
-            <i class="fas fa-circle-notch fa-spin"></i> Processing key generation & delivery...
-        </div>
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px"><i class="fas fa-sync-alt fa-spin"></i> Connecting to server...</div>
+        <div class="dim" id="deliveryPct" style="font-family:var(--font-display);font-size:20px;margin-top:6px">0%</div>
     </div>
 </div>
-
 
 <!-- ---- Key delivered modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
@@ -207,7 +197,7 @@ require __DIR__ . '/includes/nav.php';
     color: var(--green); border-color: var(--border-strong);
     background: rgba(52,227,122,0.08);
 }
-/* ---- catalog cards ---- */
+/* ---- catalog cards — big hero image, like a real product card ---- */
 .cat-row {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     margin-bottom: 14px; overflow: hidden;
@@ -240,55 +230,33 @@ require __DIR__ . '/includes/nav.php';
 }
 .dur-row:active { background: var(--panel2); }
 .dur-row .price { color: var(--amber); font-weight: 700; }
+.apk-update-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px; font-size: 12px; font-weight: 700;
+    border-top: 1px solid var(--border);
+    color: var(--cyan); text-decoration: none;
+}
+.apk-update-row:active { background: var(--panel2); }
 .qr-wrap {
     background: #040a06; border: 1px solid var(--border); border-radius: var(--radius-sm);
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
 
-/* ---- vehicle delivery left-to-right swipe animation ---- */
+/* ---- delivery truck animation ---- */
 .delivery-track {
-    position: relative;
-    height: 54px;
-    margin: 20px 0 10px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border-strong);
+    position: relative; height: 50px; margin: 20px 0 6px;
+    background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border);
 }
-
 .delivery-road {
-    position: absolute;
-    bottom: 12px;
-    left: 4%;
-    right: 4%;
-    height: 2px;
-    background: repeating-linear-gradient(to right, var(--text3) 0 10px, transparent 10px 18px);
+    position: absolute; bottom: 10px; left: 6%; right: 6%; height: 2px;
+    background: repeating-linear-gradient(to right, var(--text3) 0 8px, transparent 8px 16px);
 }
-
-.delivery-truck-anim {
-    position: absolute;
-    bottom: 8px;
-    left: -40px;
-    animation: truckDrive 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    filter: drop-shadow(0 0 6px var(--green));
-}
-
-@keyframes truckDrive {
-    0% {
-        left: -40px;
-        opacity: 0.2;
-    }
-    15% {
-        opacity: 1;
-    }
-    85% {
-        opacity: 1;
-    }
-    100% {
-        left: calc(100% + 10px);
-        opacity: 0.2;
-    }
+.delivery-truck {
+    position: absolute; bottom: 4px; left: 0%; font-size: 26px;
+    transition: left 0.4s cubic-bezier(0.22,1,0.36,1);
+    filter: drop-shadow(0 0 8px var(--secondary-glow));
 }
 
 /* ---- button loading states ---- */
@@ -421,6 +389,8 @@ function renderCatalog() {
     const filteredEntries = Object.entries(groups).filter(([row, items]) => {
         if (activeTag !== 'ALL' && tagOf(row) !== activeTag) return false;
         if (!q) return true;
+        // Matches against the row name AND every duration's product
+        // name, so a search for e.g. a specific variant still finds it.
         return row.toLowerCase().includes(q) || items.some((it) => it.name.toLowerCase().includes(q));
     });
 
@@ -457,6 +427,11 @@ function renderCatalog() {
                         <span class="price">Rs ${it.price}</span>
                     </div>
                 `).join('')}
+                ${items[0].apkUrl ? `
+                    <a href="${esc(items[0].apkUrl)}" target="_blank" class="apk-update-row" onclick="event.stopPropagation()">
+                        <i class="fas fa-download"></i> APK Update — ${esc(row)}
+                    </a>
+                ` : ''}
             </div>
         </div>
     `;
@@ -490,38 +465,65 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout handling with live vehicle driving animation modal ----
+// ---- Checkout with real progress polling ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
 
-    // Hide checkout modal and open live delivery vehicle animation
+    // Close the checkout modal immediately, before any network call —
+    // this is what actually prevents accidental double-taps. Waiting
+    // until after a successful response meant a failed/slow request
+    // left the modal (and a clickable button) sitting on screen.
     closeModal('checkoutModal');
     openModal('deliveryModal');
+    setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
+    setLoading(confirmBtn, true);
 
     try {
-        const d = await backendFetch('/api/purchase/checkout', {
+        const start = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
+        const jobId = start.jobId;
 
-        // Close delivery animation modal & show key
+        const result = await pollJob(jobId);
         closeModal('deliveryModal');
-        document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = d.key;
-        openModal('keyModal');
 
-        document.getElementById('balAmount').textContent = d.newBalance;
-        document.getElementById('balBar').style.width = Math.min(100, d.newBalance / 10) + '%';
+        if (!result.success) {
+            toast(result.error || 'Purchase failed', 'error');
+            return;
+        }
+
+        document.getElementById('keyProductName').textContent = pendingCheckout.name;
+        document.getElementById('keyValue').textContent = result.key;
+        openModal('keyModal');
+        document.getElementById('balAmount').textContent = result.newBalance;
+        document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
     } catch (e) {
         closeModal('deliveryModal');
         toast(e.message, 'error');
     } finally {
+        setLoading(confirmBtn, false);
         pendingCheckout = null;
     }
 };
+
+function setTruckProgress(pct, label) {
+    document.getElementById('deliveryTruck').style.left = `calc(${pct}% - ${pct * 0.2}px)`;
+    document.getElementById('deliveryPct').textContent = pct + '%';
+    if (label) document.getElementById('deliveryLabel').innerHTML = label;
+}
+
+async function pollJob(jobId) {
+    while (true) {
+        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+        setTruckProgress(d.percent, d.label);
+        if (d.done) return d;
+        await new Promise((r) => setTimeout(r, 500));
+    }
+}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
