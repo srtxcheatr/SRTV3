@@ -7,6 +7,7 @@ define('DEVELOPER_URL', 'https://srtxcheatr.github.io/srtxcheats/');
 
 define('BACKEND_URL', 'https://reprov1.onrender.com'); // ← your Node backend URL
 
+define('TURNSTILE_SITE_KEY', '0x4AAAAAAD7qtHsXZ5GrNpLY'); // ← EDIT
 
 
 define('FIREBASE_CONFIG_JSON', json_encode([
