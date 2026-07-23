@@ -8,6 +8,7 @@ require __DIR__ . '/includes/nav.php';
 <div class="term-window">
     <div class="term-content">
 
+        <!-- Banner Carousel -->
         <div class="banner-carousel" id="bannerCarousel">
             <div class="banner-track" id="bannerTrack">
                 <?php foreach (BANNERS as $b): ?>
@@ -23,6 +24,7 @@ require __DIR__ . '/includes/nav.php';
             </div>
         </div>
 
+        <!-- Balance Panel -->
         <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
             <div>
                 <div class="dim" style="font-size:11px"><i class="fas fa-wallet"></i> balance</div>
@@ -91,26 +93,51 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Delivery progress modal ---- -->
+<!-- ---- Running Vehicle Delivery Modal ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
-        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck fa-fw fa-pulse" style="color:var(--amber)"></i> delivering key...</div>
+    <div class="panel" style="max-width:380px;margin:auto;text-align:center;padding:24px 20px">
+        <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
+            <i class="fas fa-shipping-fast" style="color:var(--amber)"></i> Fetching Access Key...
+        </div>
+        
         <div class="delivery-track">
             <div class="delivery-road"></div>
-            <div class="delivery-truck" id="deliveryTruck"><i class="fas fa-rocket fa-fw fa-spin" style="color:var(--green);font-size:28px"></i></div>
+            <div class="delivery-truck">
+                <svg width="36" height="28" viewBox="0 0 24 24" style="display:block;filter:drop-shadow(0 0 8px #00ff88);">
+                    <defs>
+                        <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ff007f" />
+                            <stop offset="50%" stop-color="#7928ca" />
+                            <stop offset="100%" stop-color="#00dfd8" />
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#truckGrad)" d="M20 8h-3V4H1v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-6l-3-3zM6 18.5A1.5 1.5 0 1 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM17 12V9.5h2.2l1.8 1.8V12z"/>
+                </svg>
+            </div>
         </div>
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px"><i class="fas fa-sync-alt fa-spin"></i> Connecting to server...</div>
-        <div class="dim" id="deliveryPct" style="font-family:var(--font-display);font-size:20px;margin-top:6px">0%</div>
+
+        <div class="dim" style="font-size:12px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px">
+            <i class="fas fa-spinner fa-spin" style="color:var(--green)"></i> Processing transaction with server...
+        </div>
     </div>
 </div>
 
-<!-- ---- Key delivered modal ---- -->
+<!-- ---- Key Delivered Modal ---- -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;margin:auto">
         <div class="prompt-header"><i class="fas fa-check-circle" style="color:var(--green)"></i> cat delivered_key.txt</div>
         <div id="keyProductName" style="font-size:13px;margin-bottom:6px"></div>
         <div style="background:#040a06;border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:12px;word-break:break-all;color:var(--green);font-weight:700;margin-bottom:12px" id="keyValue"></div>
         <button class="btn btn-solid" onclick="closeModal('keyModal')"><i class="fas fa-thumbs-up"></i> done</button>
+    </div>
+</div>
+
+<!-- ---- Purchase Error Details Modal ---- -->
+<div id="errorModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;margin:auto">
+        <div class="prompt-header"><i class="fas fa-exclamation-triangle" style="color:var(--red)"></i> system_error.log</div>
+        <div id="errorMsg" style="background:rgba(255,0,0,0.05);border:1px solid var(--red);border-radius:var(--radius-sm);padding:12px;color:var(--red);font-size:12px;margin-bottom:12px"></div>
+        <button class="btn btn-ghost" onclick="closeModal('errorModal')"><i class="fas fa-times"></i> dismiss</button>
     </div>
 </div>
 
@@ -278,26 +305,30 @@ require __DIR__ . '/includes/nav.php';
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
 
-/* ---- delivery truck animation ---- */
+/* ---- vehicle road track animation ---- */
 .delivery-track {
-    position: relative; height: 50px; margin: 20px 0 6px;
-    background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden;
-    border: 1px solid var(--border);
+    position: relative; height: 50px; margin: 12px 0;
+    background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border-strong);
 }
 .delivery-road {
-    position: absolute; bottom: 10px; left: 6%; right: 6%; height: 2px;
+    position: absolute; bottom: 10px; left: 0; right: 0; height: 2px;
     background: repeating-linear-gradient(to right, var(--text3) 0 8px, transparent 8px 16px);
 }
 .delivery-truck {
-    position: absolute; bottom: 4px; left: 0%; font-size: 26px;
-    transition: left 0.4s cubic-bezier(0.22,1,0.36,1);
-    filter: drop-shadow(0 0 8px var(--secondary-glow));
+    position: absolute; bottom: 8px;
+    animation: driveContinuous 2s ease-in-out infinite;
+}
+
+@keyframes driveContinuous {
+    0% { left: -40px; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
 }
 
 /* ---- button loading states ---- */
-.btn {
-    position: relative;
-}
+.btn { position: relative; }
 .btn .btn-spinner {
     display: inline-flex;
     align-items: center;
@@ -305,8 +336,7 @@ require __DIR__ . '/includes/nav.php';
     margin-left: 8px;
 }
 .btn .btn-spinner .spinner {
-    width: 16px;
-    height: 16px;
+    width: 16px; height: 16px;
     border: 2px solid rgba(255,255,255,0.2);
     border-top-color: #fff;
     border-radius: 50%;
@@ -338,7 +368,6 @@ window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
 window.__toastCopy = () => toast('Copied', 'success');
 
-// ---- button loading helpers ----
 function setLoading(btn, loading) {
     if (!btn) return;
     if (loading) {
@@ -350,7 +379,7 @@ function setLoading(btn, loading) {
     }
 }
 
-// ---- Banner carousel ----
+// Banner carousel
 (function initCarousel() {
     const track = document.getElementById('bannerTrack');
     const dots = document.querySelectorAll('.banner-dot');
@@ -513,7 +542,7 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout ----
+// Checkout direct execution with fallback error display modal
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -522,54 +551,39 @@ confirmBtn.onclick = async () => {
 
     closeModal('checkoutModal');
     openModal('deliveryModal');
-    setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
     setLoading(confirmBtn, true);
 
     try {
-        const start = await backendFetch('/api/purchase/checkout/start', {
+        const res = await backendFetch('/api/purchase/checkout', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
-        const jobId = start.jobId;
 
-        const result = await pollJob(jobId);
         closeModal('deliveryModal');
 
-        if (!result.success) {
-            toast(result.error || 'Purchase failed', 'error');
-            return;
+        if (!res || !res.key) {
+            throw new Error(res?.error || 'Purchase failed or out of stock');
         }
 
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = result.key;
+        document.getElementById('keyValue').textContent = res.key;
         openModal('keyModal');
-        document.getElementById('balAmount').textContent = result.newBalance;
-        document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
+
+        if (res.newBalance !== undefined) {
+            document.getElementById('balAmount').textContent = res.newBalance;
+            document.getElementById('balBar').style.width = Math.min(100, res.newBalance / 10) + '%';
+        }
     } catch (e) {
         closeModal('deliveryModal');
-        toast(e.message, 'error');
+        document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
+        openModal('errorModal');
     } finally {
         setLoading(confirmBtn, false);
         pendingCheckout = null;
     }
 };
 
-function setTruckProgress(pct, label) {
-    document.getElementById('deliveryTruck').style.left = `calc(${pct}% - ${pct * 0.2}px)`;
-    document.getElementById('deliveryPct').textContent = pct + '%';
-    if (label) document.getElementById('deliveryLabel').innerHTML = label;
-}
-
-async function pollJob(jobId) {
-    while (true) {
-        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
-        setTruckProgress(d.percent, d.label);
-        if (d.done) return d;
-        await new Promise((r) => setTimeout(r, 500));
-    }
-}
-
-// ---- Top-up ----
+// Top-up
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
@@ -588,7 +602,7 @@ topupBtn.onclick = async () => {
     }
 };
 
-// ---- Profile ----
+// Profile
 document.getElementById('openProfile').onclick = () => openModal('profileModal');
 const profileBtn = document.getElementById('saveProfile');
 profileBtn.onclick = async () => {
@@ -606,7 +620,7 @@ profileBtn.onclick = async () => {
     }
 };
 
-// ---- Change password ----
+// Change password
 document.getElementById('openPassword').onclick = () => openModal('passwordModal');
 const passBtn = document.getElementById('savePassword');
 passBtn.onclick = async () => {
@@ -630,7 +644,7 @@ passBtn.onclick = async () => {
     }
 };
 
-// ---- Help / Report a Problem ----
+// Help / Report
 document.getElementById('openHelp').onclick = () => openModal('helpModal');
 const reportBtn = document.getElementById('submitReport');
 reportBtn.onclick = async () => {
