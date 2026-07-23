@@ -53,7 +53,7 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1"><i class="fas fa-life-ring"></i> ./help.sh</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1"><i class="fas fa-key"></i> ./passwd.sh</button>
-            <a href="https://srtxcheat.github.io/srtxcheats/" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
+            <a href="https://srtxcheatr.github.io/srtxcheats/" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
         </div>
 
         <div class="prompt-header"><i class="fas fa-folder-open"></i> ls -la /catalog</div>
