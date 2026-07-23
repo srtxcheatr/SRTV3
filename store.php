@@ -47,12 +47,10 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openTopup" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-coins"></i> ./topup.sh</button>
             <button class="btn btn-ghost" id="openProfile" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-user-edit"></i> ./profile.sh</button>
-            <!-- Removed ./keys.sh -->
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1"><i class="fas fa-life-ring"></i> ./help.sh</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1"><i class="fas fa-key"></i> ./passwd.sh</button>
-            <!-- Removed ./apk.sh -->
             <a href="https://srtxcheat.github.io/About" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
         </div>
 
@@ -212,7 +210,7 @@ require __DIR__ . '/includes/nav.php';
     color: var(--green); border-color: var(--border-strong);
     background: rgba(52,227,122,0.08);
 }
-/* ---- catalog cards — big hero image, like a real product card ---- */
+/* ---- catalog cards ---- */
 .cat-row {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     margin-bottom: 14px; overflow: hidden;
@@ -352,12 +350,12 @@ function setLoading(btn, loading) {
     }
 }
 
-// ---- Banner carousel: auto-swipe every 4s, tap to open link ----
+// ---- Banner carousel ----
 (function initCarousel() {
     const track = document.getElementById('bannerTrack');
     const dots = document.querySelectorAll('.banner-dot');
     const slideCount = track ? track.children.length : 0;
-    if (!track || slideCount < 2) return; // nothing to swipe with 0-1 banners
+    if (!track || slideCount < 2) return;
 
     let idx = 0;
     setInterval(() => {
@@ -441,8 +439,6 @@ function renderCatalog() {
     const filteredEntries = Object.entries(groups).filter(([row, items]) => {
         if (activeTag !== 'ALL' && tagOf(row) !== activeTag) return false;
         if (!q) return true;
-        // Matches against the row name AND every duration's product
-        // name, so a search for e.g. a specific variant still finds it.
         return row.toLowerCase().includes(q) || items.some((it) => it.name.toLowerCase().includes(q));
     });
 
@@ -517,17 +513,13 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with real progress polling ----
+// ---- Checkout ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
 
-    // Close the checkout modal immediately, before any network call —
-    // this is what actually prevents accidental double-taps. Waiting
-    // until after a successful response meant a failed/slow request
-    // left the modal (and a clickable button) sitting on screen.
     closeModal('checkoutModal');
     openModal('deliveryModal');
     setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
