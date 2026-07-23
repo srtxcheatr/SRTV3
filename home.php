@@ -4,6 +4,7 @@ $currentPage = 'home';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
 ?>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <div class="term-window">
     <div class="term-content">
@@ -49,7 +50,11 @@ require __DIR__ . '/includes/nav.php';
                         <label>password (min 6 chars)</label>
                         <input type="password" id="regPass" placeholder="••••••••" autocomplete="new-password">
                     </div>
-                    <button class="btn btn-solid" id="signupBtn" style="margin-bottom:8px">signup.sh</button>
+                    <div class="field">
+                        <label>human verification</label>
+                        <div class="cf-turnstile" data-sitekey="<?= htmlspecialchars(TURNSTILE_SITE_KEY) ?>" data-callback="onTurnstileOk" data-expired-callback="onTurnstileExpired"></div>
+                    </div>
+                    <button class="btn btn-solid" id="signupBtn" style="margin-bottom:8px" disabled>signup.sh</button>
                     <div style="text-align:center;font-size:11px">
                         <a href="#" id="showLogin">./login.sh</a>
                     </div>
@@ -138,21 +143,48 @@ document.getElementById('loginBtn').onclick = async () => {
     }
 };
 
+// ---- Turnstile (bot protection) ----
+let turnstileToken = null;
+window.onTurnstileOk = (token) => {
+    turnstileToken = token;
+    document.getElementById('signupBtn').disabled = false;
+};
+window.onTurnstileExpired = () => {
+    turnstileToken = null;
+    document.getElementById('signupBtn').disabled = true;
+};
+
 // ---- Signup ----
 document.getElementById('signupBtn').onclick = async () => {
     const email = document.getElementById('regEmail').value.trim();
     const pass = document.getElementById('regPass').value;
     if (!email || !pass) return toast('Fill both fields', 'error');
     if (pass.length < 6) return toast('Password must be at least 6 characters', 'error');
+    if (!turnstileToken) return toast('Please complete verification', 'error');
     const btn = document.getElementById('signupBtn');
     setButtonLoading(btn, true);
     try {
+        // Verified server-side against Cloudflare BEFORE creating the
+        // Firebase account — a client-side-only check could be
+        // bypassed by anyone calling createUserWithEmailAndPassword
+        // directly, skipping the widget entirely.
+        const r = await fetch(`${window.BACKEND_URL}/api/verify-turnstile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: turnstileToken }),
+        });
+        const verify = await r.json();
+        if (!verify.success) throw new Error(verify.error || 'Verification failed');
+
         await createUserWithEmailAndPassword(auth, email, pass);
         await backendFetch('/api/user/init', { method: 'POST' });
         window.location.href = '/store.php';
     } catch (e) {
         toast(e.message, 'error');
         setButtonLoading(btn, false);
+        if (window.turnstile) window.turnstile.reset();
+        turnstileToken = null;
+        btn.disabled = true;
     }
 };
 
