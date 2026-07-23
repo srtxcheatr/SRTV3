@@ -9,7 +9,7 @@ define('BACKEND_URL', 'https://reprov1.onrender.com'); // ← your Node backend 
 
 define('BANNERS', [
     ['image' => 'https://i.ibb.co/9HmdjJr1/file-000000008a6481f588e660845aa6efa9.png', 'link' => 'https://your-banner-1-target-link.example.com'],
-    ['image' => 'https://i.ibb.co/xqfpdwps/1784804121500.png', 'link' => 'https://your-banner-2-target-link.example.com'],
+    ['image' => 'https://i.ibb.co/fdnhLZhS/1784804121500.png', 'link' => 'https://your-banner-2-target-link.example.com'],
 ]);
 
 
