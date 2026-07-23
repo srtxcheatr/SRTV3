@@ -1,8 +1,4 @@
-// assets/js/app.js — shared across every page. Firebase Auth still
-// runs client-side (that's normal and fine — it's how Firebase Auth
-// works everywhere), but it NEVER touches Firestore directly anymore.
-// Every read/write goes through your Node backend at window.BACKEND_URL.
-
+// assets/js/app.js — shared across every page.
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
     getAuth, onAuthStateChanged, signOut,
@@ -36,6 +32,13 @@ export async function backendFetch(path, options = {}) {
             ...(options.headers || {}),
         },
     });
+
+    // Handle Cloudflare / HTML Challenge intercept safely
+    const contentType = r.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+        throw new Error('Security check or invalid server response. Please try refreshing.');
+    }
+
     const d = await r.json();
     if (!d.success) throw new Error(d.error || 'Request failed');
     return d;
@@ -43,18 +46,25 @@ export async function backendFetch(path, options = {}) {
 
 /**
  * Every page except home.php calls this on load. Redirects to
- * /home.php if not signed in, and calls back with the uid once
- * Firebase confirms the session — this is a full page each time
- * (traditional multi-page nav), so there's no shared in-memory state
- * between pages; each page re-checks auth on its own.
+ * /home.php if not signed in, and calls back with the user once
+ * Firebase confirms the session.
  */
 export function requireAuth(onReady) {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            window.location.href = '/home.php';
+            unsubscribe(); // Detach listener before redirecting to avoid infinite loop
+            if (window.location.pathname !== '/home.php') {
+                window.location.href = '/home.php';
+            }
             return;
         }
-        onReady(user);
+        
+        try {
+            await onReady(user);
+        } catch (err) {
+            console.error('Error in page init:', err);
+            toast(err.message || 'Failed to load page data', 'error');
+        }
     });
 }
 
@@ -73,8 +83,16 @@ export function toast(msg, kind) {
 }
 
 export async function doLogout() {
-    await signOut(auth);
-    window.location.href = '/home.php';
+    try {
+        // Clear local caches first so listeners don't re-trigger background fetches
+        localStorage.clear();
+        sessionStorage.clear();
+        await signOut(auth);
+    } catch (e) {
+        console.error('Logout error:', e);
+    } finally {
+        window.location.href = '/home.php';
+    }
 }
 window.doLogout = doLogout;
 
@@ -90,12 +108,6 @@ export function esc(s) {
 }
 
 // ---- Hacker-style button loading state ----
-// Scrambles the button's own text into random characters that
-// gradually "resolve" back to readable text while a request is in
-// flight, instead of just going blank/disabled with no feedback —
-// exists because users kept thinking the site was frozen when
-// Render's free tier had a slow cold start and nothing on screen
-// changed after tapping a button.
 const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#________';
 
 export function setButtonLoading(btn, loading) {
