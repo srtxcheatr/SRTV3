@@ -8,7 +8,7 @@ define('DEVELOPER_URL', 'https://srtxcheatr.github.io/srtxcheats/');
 define('BACKEND_URL', 'https://reprov1.onrender.com'); // ← your Node backend URL
 
 define('BANNERS', [
-    ['image' => 'https://ibb.co/s9pXrhVN', 'link' => 'https://your-banner-1-target-link.example.com'],
+    ['image' => 'https://i.ibb.co/9HmdjJr1/file-000000008a6481f588e660845aa6efa9.png', 'link' => 'https://your-banner-1-target-link.example.com'],
     ['image' => 'https://your-banner-2-image-direct-link.example.com/banner2.jpg', 'link' => 'https://your-banner-2-target-link.example.com'],
 ]);
 
