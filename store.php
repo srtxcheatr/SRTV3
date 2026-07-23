@@ -8,6 +8,21 @@ require __DIR__ . '/includes/nav.php';
 <div class="term-window">
     <div class="term-content">
 
+        <div class="banner-carousel" id="bannerCarousel">
+            <div class="banner-track" id="bannerTrack">
+                <?php foreach (BANNERS as $b): ?>
+                <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank" class="banner-slide">
+                    <img src="<?= htmlspecialchars($b['image']) ?>" alt="banner" loading="lazy">
+                </a>
+                <?php endforeach; ?>
+            </div>
+            <div class="banner-dots" id="bannerDots">
+                <?php foreach (BANNERS as $i => $b): ?>
+                <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
         <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
             <div>
                 <div class="dim" style="font-size:11px"><i class="fas fa-wallet"></i> balance</div>
@@ -32,11 +47,13 @@ require __DIR__ . '/includes/nav.php';
         <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openTopup" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-coins"></i> ./topup.sh</button>
             <button class="btn btn-ghost" id="openProfile" style="font-size:12px;flex:1;min-width:100px"><i class="fas fa-user-edit"></i> ./profile.sh</button>
+            <!-- Removed ./keys.sh -->
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
             <button class="btn btn-ghost" id="openHelp" style="font-size:12px;flex:1"><i class="fas fa-life-ring"></i> ./help.sh</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:12px;flex:1"><i class="fas fa-key"></i> ./passwd.sh</button>
-            <a href="https://srtxcheatr.github.io/srtxcheats/" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
+            <!-- Removed ./apk.sh -->
+            <a href="https://srtxcheat.github.io/About" target="_blank" class="btn btn-ghost" style="font-size:12px;flex:1;text-decoration:none"><i class="fas fa-code"></i> ./about.sh</a>
         </div>
 
         <div class="prompt-header"><i class="fas fa-folder-open"></i> ls -la /catalog</div>
@@ -76,33 +93,16 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Simple Indeterminate Loading Modal ---- -->
+<!-- ---- Delivery progress modal ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:380px;margin:auto;text-align:center;padding:24px 20px">
-        <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
-            <i class="fas fa-box-open" style="color:var(--amber)"></i> Processing Order...
-        </div>
-        
-        <!-- Loop driving track animation -->
+    <div class="panel" style="max-width:400px;margin:auto;text-align:center">
+        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck fa-fw fa-pulse" style="color:var(--amber)"></i> delivering key...</div>
         <div class="delivery-track">
             <div class="delivery-road"></div>
-            <div class="delivery-truck">
-                <svg width="34" height="28" viewBox="0 0 24 24" style="display:block;filter:drop-shadow(0 0 8px #00ff88);">
-                    <defs>
-                        <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#ff007f" />
-                            <stop offset="50%" stop-color="#7928ca" />
-                            <stop offset="100%" stop-color="#00dfd8" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#truckGrad)" d="M20 8h-3V4H1v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-6l-3-3zM6 18.5A1.5 1.5 0 1 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM17 12V9.5h2.2l1.8 1.8V12z"/>
-                </svg>
-            </div>
+            <div class="delivery-truck" id="deliveryTruck"><i class="fas fa-rocket fa-fw fa-spin" style="color:var(--green);font-size:28px"></i></div>
         </div>
-
-        <div class="dim" style="font-size:12px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px">
-            <i class="fas fa-spinner fa-spin" style="color:var(--green)"></i> Please wait, delivering key...
-        </div>
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:10px"><i class="fas fa-sync-alt fa-spin"></i> Connecting to server...</div>
+        <div class="dim" id="deliveryPct" style="font-family:var(--font-display);font-size:20px;margin-top:6px">0%</div>
     </div>
 </div>
 
@@ -212,7 +212,7 @@ require __DIR__ . '/includes/nav.php';
     color: var(--green); border-color: var(--border-strong);
     background: rgba(52,227,122,0.08);
 }
-/* ---- catalog cards ---- */
+/* ---- catalog cards — big hero image, like a real product card ---- */
 .cat-row {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     margin-bottom: 14px; overflow: hidden;
@@ -252,36 +252,54 @@ require __DIR__ . '/includes/nav.php';
     color: var(--cyan); text-decoration: none;
 }
 .apk-update-row:active { background: var(--panel2); }
+/* ---- banner carousel ---- */
+.banner-carousel {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--border); margin-bottom: 14px;
+}
+.banner-track {
+    display: flex; transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.banner-slide {
+    flex: 0 0 100%; aspect-ratio: 21 / 8; display: block; background: #040a06;
+}
+.banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.banner-dots {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px;
+}
+.banner-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.35);
+    transition: background .2s, width .2s;
+}
+.banner-dot.active { background: var(--green); width: 16px; border-radius: 3px; }
+
 .qr-wrap {
     background: #040a06; border: 1px solid var(--border); border-radius: var(--radius-sm);
     padding: 12px; margin-bottom: 12px; text-align: center;
 }
 .qr-wrap img { width: 160px; height: 160px; object-fit: contain; border-radius: 6px; }
 
-/* ---- continuous vehicle track animation ---- */
+/* ---- delivery truck animation ---- */
 .delivery-track {
-    position: relative; height: 50px; margin: 10px 0;
-    background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden;
-    border: 1px solid var(--border-strong);
+    position: relative; height: 50px; margin: 20px 0 6px;
+    background: rgba(255,255,255,0.03); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border);
 }
 .delivery-road {
-    position: absolute; bottom: 10px; left: 0; right: 0; height: 2px;
+    position: absolute; bottom: 10px; left: 6%; right: 6%; height: 2px;
     background: repeating-linear-gradient(to right, var(--text3) 0 8px, transparent 8px 16px);
 }
 .delivery-truck {
-    position: absolute; bottom: 8px;
-    animation: driveLoop 2s ease-in-out infinite;
-}
-
-@keyframes driveLoop {
-    0% { left: -40px; opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { left: 100%; opacity: 0; }
+    position: absolute; bottom: 4px; left: 0%; font-size: 26px;
+    transition: left 0.4s cubic-bezier(0.22,1,0.36,1);
+    filter: drop-shadow(0 0 8px var(--secondary-glow));
 }
 
 /* ---- button loading states ---- */
-.btn { position: relative; }
+.btn {
+    position: relative;
+}
 .btn .btn-spinner {
     display: inline-flex;
     align-items: center;
@@ -289,7 +307,8 @@ require __DIR__ . '/includes/nav.php';
     margin-left: 8px;
 }
 .btn .btn-spinner .spinner {
-    width: 16px; height: 16px;
+    width: 16px;
+    height: 16px;
     border: 2px solid rgba(255,255,255,0.2);
     border-top-color: #fff;
     border-radius: 50%;
@@ -321,6 +340,7 @@ window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
 window.__toastCopy = () => toast('Copied', 'success');
 
+// ---- button loading helpers ----
 function setLoading(btn, loading) {
     if (!btn) return;
     if (loading) {
@@ -332,9 +352,20 @@ function setLoading(btn, loading) {
     }
 }
 
-async function safeFetch(endpoint, options = {}) {
-    return await backendFetch(endpoint, options);
-}
+// ---- Banner carousel: auto-swipe every 4s, tap to open link ----
+(function initCarousel() {
+    const track = document.getElementById('bannerTrack');
+    const dots = document.querySelectorAll('.banner-dot');
+    const slideCount = track ? track.children.length : 0;
+    if (!track || slideCount < 2) return; // nothing to swipe with 0-1 banners
+
+    let idx = 0;
+    setInterval(() => {
+        idx = (idx + 1) % slideCount;
+        track.style.transform = `translateX(-${idx * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }, 4000);
+})();
 
 requireAuth(async (user) => {
     currentUid = user.uid;
@@ -343,7 +374,7 @@ requireAuth(async (user) => {
 
 async function loadBalance() {
     try {
-        const d = await safeFetch('/api/user/balance');
+        const d = await backendFetch('/api/user/balance');
         userState = d;
         document.getElementById('balAmount').textContent = d.balance;
         document.getElementById('balBar').style.width = Math.min(100, d.balance / 10) + '%';
@@ -383,10 +414,6 @@ function setupTopupLock(hasCompletedFirstTopup) {
 async function loadCatalog() {
     try {
         const r = await fetch(`${window.BACKEND_URL}/api/catalog`);
-        const contentType = r.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("Invalid catalog endpoint");
-        }
         const d = await r.json();
         catalog = d.catalog;
         renderCatalog();
@@ -414,6 +441,8 @@ function renderCatalog() {
     const filteredEntries = Object.entries(groups).filter(([row, items]) => {
         if (activeTag !== 'ALL' && tagOf(row) !== activeTag) return false;
         if (!q) return true;
+        // Matches against the row name AND every duration's product
+        // name, so a search for e.g. a specific variant still finds it.
         return row.toLowerCase().includes(q) || items.some((it) => it.name.toLowerCase().includes(q));
     });
 
@@ -488,43 +517,65 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Smooth Silent Checkout Handler ----
+// ---- Checkout with real progress polling ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
 
+    // Close the checkout modal immediately, before any network call —
+    // this is what actually prevents accidental double-taps. Waiting
+    // until after a successful response meant a failed/slow request
+    // left the modal (and a clickable button) sitting on screen.
     closeModal('checkoutModal');
     openModal('deliveryModal');
+    setTruckProgress(0, '<i class="fas fa-sync-alt fa-spin"></i> Connecting to server...');
     setLoading(confirmBtn, true);
 
     try {
-        const res = await safeFetch('/api/purchase/checkout', {
+        const start = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
+        const jobId = start.jobId;
 
+        const result = await pollJob(jobId);
         closeModal('deliveryModal');
 
-        if (!res || !res.key) throw new Error(res?.error || 'Purchase failed');
+        if (!result.success) {
+            toast(result.error || 'Purchase failed', 'error');
+            return;
+        }
 
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = res.key;
+        document.getElementById('keyValue').textContent = result.key;
         openModal('keyModal');
-        
-        if (res.newBalance !== undefined) {
-            document.getElementById('balAmount').textContent = res.newBalance;
-            document.getElementById('balBar').style.width = Math.min(100, res.newBalance / 10) + '%';
-        }
+        document.getElementById('balAmount').textContent = result.newBalance;
+        document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
     } catch (e) {
         closeModal('deliveryModal');
-        toast(e.message || 'Error occurred during processing', 'error');
+        toast(e.message, 'error');
     } finally {
         setLoading(confirmBtn, false);
         pendingCheckout = null;
     }
 };
+
+function setTruckProgress(pct, label) {
+    document.getElementById('deliveryTruck').style.left = `calc(${pct}% - ${pct * 0.2}px)`;
+    document.getElementById('deliveryPct').textContent = pct + '%';
+    if (label) document.getElementById('deliveryLabel').innerHTML = label;
+}
+
+async function pollJob(jobId) {
+    while (true) {
+        const d = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+        setTruckProgress(d.percent, d.label);
+        if (d.done) return d;
+        await new Promise((r) => setTimeout(r, 500));
+    }
+}
 
 // ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
@@ -535,7 +586,7 @@ topupBtn.onclick = async () => {
     const txCode = document.getElementById('topupTx').value.trim();
     setLoading(topupBtn, true);
     try {
-        await safeFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
+        await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
         toast('Submitted — awaiting admin approval', 'success');
         closeModal('topupModal');
     } catch (e) {
@@ -553,7 +604,7 @@ profileBtn.onclick = async () => {
     const phone = document.getElementById('profPhone').value.trim();
     setLoading(profileBtn, true);
     try {
-        await safeFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
+        await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
         toast('Saved', 'success');
         closeModal('profileModal');
     } catch (e) {
@@ -595,7 +646,7 @@ reportBtn.onclick = async () => {
     if (!problem) return toast('Please describe the problem', 'error');
     setLoading(reportBtn, true);
     try {
-        await safeFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
         toast('Report sent', 'success');
         document.getElementById('problemText').value = '';
         closeModal('helpModal');
