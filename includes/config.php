@@ -2,7 +2,6 @@
 // includes/config.php — the only place these values live. Every page
 // includes this, so changing your backend URL means editing ONE file.
 
-
 define('DEVELOPER_URL', 'https://srtxcheatr.github.io/srtxcheats/');
 
 define('BACKEND_URL', 'https://reprov1.onrender.com'); // ← your Node backend URL
@@ -18,8 +17,6 @@ define('BANNERS', [
 // copy the "Site Key" (public, safe to put here). The matching
 // Secret Key goes in Render as TURNSTILE_SECRET_KEY, NOT here.
 define('TURNSTILE_SITE_KEY', '0x4AAAAAAD7qtHsXZ5GrNpLY); // ← EDIT
-
-
 
 
 define('FIREBASE_CONFIG_JSON', json_encode([
