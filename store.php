@@ -440,12 +440,8 @@ function setupTopupLock(hasCompletedFirstTopup) {
 
 async function loadCatalog() {
     try {
-        // Authenticated call — returns CATALOG_RESELLER (your reseller
-        // prices) if this account's role is 'reseller', otherwise the
-        // normal retail CATALOG. Role lives in Firestore and is only
-        // ever changed by the admin, so this always reflects the
-        // current, real role — nothing to trust on the client here.
-        const d = await backendFetch('/api/user/catalog');
+        const r = await fetch(`${window.BACKEND_URL}/api/catalog`);
+        const d = await r.json();
         catalog = d.catalog;
         renderCatalog();
     } catch (e) {
