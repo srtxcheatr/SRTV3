@@ -443,11 +443,6 @@ function setupTopupLock(hasCompletedFirstTopup) {
 
 async function loadCatalog() {
     try {
-        // Authenticated call — returns CATALOG_RESELLER (your reseller
-        // prices) if this account's role is 'reseller', otherwise the
-        // normal retail CATALOG. Role lives in Firestore and is only
-        // ever changed by the admin, so this always reflects the
-        // current, real role — nothing to trust on the client here.
         const d = await backendFetch('/api/user/catalog');
         catalog = d.catalog;
         renderCatalog();
@@ -549,7 +544,14 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with job polling ----
+// ---- Helper to get auth token for manual fetch ----
+async function getToken() {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not logged in');
+    return await user.getIdToken(true);
+}
+
+// ---- Checkout with job polling (using plain fetch for status) ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -566,18 +568,26 @@ confirmBtn.onclick = async () => {
     document.getElementById('deliveryLabel').textContent = 'Starting...';
 
     try {
-        // 1. Start the job
+        // 1. Start the job using backendFetch (it expects success: true)
         const startRes = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
         const jobId = startRes.jobId;
 
-        // 2. Poll for status
+        // 2. Poll status using raw fetch (no automatic error throwing)
         let done = false;
         let result = null;
+        const token = await getToken();
         while (!done) {
-            const status = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+            const resp = await fetch(`${window.BACKEND_URL}/api/purchase/checkout/status/${jobId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!resp.ok) {
+                throw new Error(`Status request failed (HTTP ${resp.status})`);
+            }
+            const status = await resp.json();
+
             // Update progress UI
             document.getElementById('deliveryBar').style.width = status.percent + '%';
             document.getElementById('deliveryPct').textContent = status.percent + '%';
@@ -594,6 +604,7 @@ confirmBtn.onclick = async () => {
         closeModal('deliveryModal');
 
         if (!result.success) {
+            // Job failed – show error from result.error
             throw new Error(result.error || 'Purchase failed');
         }
 
