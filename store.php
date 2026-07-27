@@ -93,13 +93,13 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ---- Running Vehicle Delivery Modal ---- -->
+<!-- ---- Running Vehicle Delivery Modal with Progress ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:380px;margin:auto;text-align:center;padding:24px 20px">
+    <div class="panel" style="max-width:400px;margin:auto;text-align:center;padding:24px 20px">
         <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
             <i class="fas fa-shipping-fast" style="color:var(--amber)"></i> Fetching Access Key...
         </div>
-        
+
         <div class="delivery-track">
             <div class="delivery-road"></div>
             <div class="delivery-truck">
@@ -116,9 +116,12 @@ require __DIR__ . '/includes/nav.php';
             </div>
         </div>
 
-        <div class="dim" style="font-size:12px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px">
-            <i class="fas fa-spinner fa-spin" style="color:var(--green)"></i> Processing transaction with server...
+        <!-- Progress bar and status -->
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin:12px 0 8px">Connecting to server...</div>
+        <div style="height:6px;background:rgba(57,255,136,0.1);border-radius:99px;overflow:hidden;margin-bottom:6px">
+            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green-dim),var(--green));box-shadow:0 0 10px rgba(52,227,122,0.5);transition:width .4s cubic-bezier(0.22,1,0.36,1)"></div>
         </div>
+        <div class="mono-num" id="deliveryPct" style="font-size:20px;font-weight:700;color:var(--green)">0%</div>
     </div>
 </div>
 
@@ -546,7 +549,7 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// Checkout direct execution with fallback error display modal
+// ---- Checkout with job polling ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -557,26 +560,54 @@ confirmBtn.onclick = async () => {
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
+    // Reset progress
+    document.getElementById('deliveryBar').style.width = '0%';
+    document.getElementById('deliveryPct').textContent = '0%';
+    document.getElementById('deliveryLabel').textContent = 'Starting...';
+
     try {
-        const res = await backendFetch('/api/purchase/checkout', {
+        // 1. Start the job
+        const startRes = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
+        const jobId = startRes.jobId;
+
+        // 2. Poll for status
+        let done = false;
+        let result = null;
+        while (!done) {
+            const status = await backendFetch(`/api/purchase/checkout/status/${jobId}`);
+            // Update progress UI
+            document.getElementById('deliveryBar').style.width = status.percent + '%';
+            document.getElementById('deliveryPct').textContent = status.percent + '%';
+            document.getElementById('deliveryLabel').textContent = status.label || 'Processing...';
+
+            if (status.done) {
+                done = true;
+                result = status;
+                break;
+            }
+            await new Promise(r => setTimeout(r, 500));
+        }
 
         closeModal('deliveryModal');
 
-        if (!res || !res.key) {
-            throw new Error(res?.error || 'Purchase failed or out of stock');
+        if (!result.success) {
+            throw new Error(result.error || 'Purchase failed');
         }
 
+        // Success – show key
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = res.key;
+        document.getElementById('keyValue').textContent = result.key;
         openModal('keyModal');
 
-        if (res.newBalance !== undefined) {
-            document.getElementById('balAmount').textContent = res.newBalance;
-            document.getElementById('balBar').style.width = Math.min(100, res.newBalance / 10) + '%';
+        // Update balance
+        if (result.newBalance !== undefined) {
+            document.getElementById('balAmount').textContent = result.newBalance;
+            document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
         }
+
     } catch (e) {
         closeModal('deliveryModal');
         document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
@@ -587,7 +618,7 @@ confirmBtn.onclick = async () => {
     }
 };
 
-// Top-up
+// ---- Top-up ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
@@ -606,7 +637,7 @@ topupBtn.onclick = async () => {
     }
 };
 
-// Profile
+// ---- Profile ----
 document.getElementById('openProfile').onclick = () => openModal('profileModal');
 const profileBtn = document.getElementById('saveProfile');
 profileBtn.onclick = async () => {
@@ -624,7 +655,7 @@ profileBtn.onclick = async () => {
     }
 };
 
-// Change password
+// ---- Change password ----
 document.getElementById('openPassword').onclick = () => openModal('passwordModal');
 const passBtn = document.getElementById('savePassword');
 passBtn.onclick = async () => {
@@ -648,7 +679,7 @@ passBtn.onclick = async () => {
     }
 };
 
-// Help / Report
+// ---- Help / Report ----
 document.getElementById('openHelp').onclick = () => openModal('helpModal');
 const reportBtn = document.getElementById('submitReport');
 reportBtn.onclick = async () => {
