@@ -1,433 +1,439 @@
-<?php
-$pageTitle = 'Store — SRT X CHEATS';
-$currentPage = 'store';
-require __DIR__ . '/includes/head.php';
-require __DIR__ . '/includes/nav.php';   // use the fixed nav.php below
-?>
+/* ==============================================================
+   SRT X CHEATS — Glassmorphic Neon Blue & Purple Cyber Design
+   ============================================================== */
 
-<div class="term-window">
-    <div class="term-content">
+:root {
+    /* Color Palette - Dark Theme */
+    --bg-main: #070714;
+    --bg-gradient: radial-gradient(circle at 50% 0%, #170d38 0%, #080718 60%, #03020a 100%);
+    --glass-bg: rgba(18, 16, 38, 0.65);
+    --glass-panel: rgba(26, 23, 53, 0.75);
+    --glass-border: rgba(168, 85, 247, 0.22);
+    --glass-border-hover: rgba(0, 240, 255, 0.5);
+    
+    --neon-blue: #00f0ff;
+    --neon-purple: #a855f7;
+    --neon-pink: #ec4899;
+    --neon-amber: #ffb454;
+    --neon-red: #ff4757;
+    --neon-green: #2ed573;
+    
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
 
-        <!-- Banner Carousel -->
-        <div class="banner-carousel" id="bannerCarousel">
-            <div class="banner-track" id="bannerTrack">
-                <?php foreach (BANNERS as $b): ?>
-                <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank" class="banner-slide">
-                    <img src="<?= htmlspecialchars($b['image']) ?>" alt="banner" loading="lazy">
-                </a>
-                <?php endforeach; ?>
-            </div>
-            <div class="banner-dots" id="bannerDots">
-                <?php foreach (BANNERS as $i => $b): ?>
-                <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
-                <?php endforeach; ?>
-            </div>
-        </div>
+    --font-heading: 'Orbitron', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
 
-        <!-- Balance Panel (new UI) -->
-        <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-            <div>
-                <div class="dim" style="font-size:11px"><i class="fas fa-wallet" style="color:var(--neon-amber)"></i> BALANCE</div>
-                <div style="color:var(--neon-amber);font-weight:800;font-size:22px" class="mono-num">Rs <span id="balAmount">—</span></div>
-            </div>
-            <div style="flex:1;min-width:80px">
-                <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.08);overflow:hidden">
-                    <div id="balBar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--neon-amber),var(--neon-purple));transition:width 0.4s ease"></div>
-                </div>
-            </div>
-            <div style="text-align:right">
-                <div class="dim" style="font-size:11px"><i class="fas fa-signal" style="color:var(--neon-green)"></i> STATUS</div>
-                <div id="statusVal" style="font-weight:700;font-size:13px;color:var(--neon-green)">—</div>
-            </div>
-        </div>
-
-        <!-- Announcement Panel -->
-        <div class="panel" id="noticePanel">
-            <div class="prompt-header"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</div>
-            <div id="noticeText" style="font-size:12px;color:var(--text-secondary)">Loading announcements...</div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <button class="btn btn-ghost" id="openTopup"><i class="fas fa-coins" style="color:var(--neon-amber)"></i> Add Balance</button>
-            <button class="btn btn-ghost" id="openProfile"><i class="fas fa-user-gear" style="color:var(--neon-blue)"></i> Profile</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
-            <button class="btn btn-ghost" id="openHelp" style="font-size:11px"><i class="fas fa-headset"></i> Support</button>
-            <button class="btn btn-ghost" id="openPassword" style="font-size:11px"><i class="fas fa-shield-halved"></i> Password</button>
-            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px"><i class="fas fa-code"></i> About</a>
-        </div>
-
-        <!-- Catalog Header -->
-        <div class="prompt-header"><i class="fas fa-gamepad"></i> PRODUCTS CATALOG</div>
-        <div style="position:relative;margin-bottom:10px">
-            <i class="fas fa-magnifying-glass" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
-            <input type="text" id="catalogSearch" placeholder="Search product cheats..." style="padding-left:38px">
-        </div>
-
-        <div id="catFilters" style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
-            <button class="cat-filter active" data-tag="ALL"><i class="fas fa-layer-group"></i> ALL</button>
-            <button class="cat-filter" data-tag="ROOT"><i class="fas fa-mobile-screen-button"></i> ROOT</button>
-            <button class="cat-filter" data-tag="NONROOT"><i class="fas fa-mobile-button"></i> NONROOT</button>
-            <button class="cat-filter" data-tag="PC"><i class="fas fa-desktop"></i> PC</button>
-            <button class="cat-filter" data-tag="IOS"><i class="fab fa-apple"></i> IOS</button>
-        </div>
-
-        <!-- Catalog List -->
-        <div id="catalogList">
-            <div class="dim" style="text-align:center;padding:30px">
-                <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--neon-blue);margin-bottom:8px"></i>
-                <div>Loading catalog options...</div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<!-- ---- All Modals (same as your new design, keep them) ---- -->
-<!-- ... (all modals: checkout, delivery, key, topup, profile, help, password, error) ... -->
-<!-- I'll omit them here for brevity – copy them from your new store.php or the previous answer -->
-
-<!-- ---- JavaScript (exact old logic with new UI bindings) ---- -->
-<script type="module">
-import {
-    requireAuth, backendFetch, toast, esc,
-    auth, EmailAuthProvider, reauthenticateWithCredential, updatePassword,
-} from '/assets/js/app.js';
-
-// Global functions for inline onclick in HTML
-window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
-window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
-window.__toastCopy = () => toast('Copied!', 'success');
-
-// Loading helper
-function setLoading(btn, loading) {
-    if (!btn) return;
-    if (loading) {
-        btn.classList.add('loading');
-        btn.disabled = true;
-    } else {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-    }
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --glow-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.25);
+    --cyan-glow: 0 0 20px rgba(0, 240, 255, 0.35);
 }
 
-// ---- Banner Carousel Auto-Slide ----
-(function initCarousel() {
-    const track = document.getElementById('bannerTrack');
-    const dots = document.querySelectorAll('.banner-dot');
-    if (!track || dots.length < 2) return;
-    let idx = 0;
-    setInterval(() => {
-        idx = (idx + 1) % dots.length;
-        track.style.transform = `translateX(-${idx * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-    }, 4000);
-})();
+[data-theme="light"] {
+    --bg-main: #f0f4f8;
+    --bg-gradient: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f1f5f9 60%, #e2e8f0 100%);
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-panel: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(124, 58, 237, 0.2);
+    --glass-border-hover: rgba(6, 182, 212, 0.5);
 
-// ---- Global Logout (used by nav) ----
-window.doLogout = async function() {
-    try {
-        await auth.signOut();
-    } catch (e) {
-        console.error('Logout error:', e);
-    }
-    window.location.href = '/home.php';
-};
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
 
-// ---- State ----
-let userState = {};
-let catalog = {};
-let pendingCheckout = null;
-let currentUid = '';
-
-// ---- Main auth & data load ----
-requireAuth(async (user) => {
-    currentUid = user.uid;
-    await Promise.all([loadBalance(), loadCatalog()]);
-});
-
-// ---- Load balance and profile ----
-async function loadBalance() {
-    try {
-        const d = await backendFetch('/api/user/balance');
-        userState = d;
-        document.getElementById('balAmount').textContent = d.balance;
-        const bar = document.getElementById('balBar');
-        if (bar) bar.style.width = Math.min(100, (d.balance / 10)) + '%';
-        const statusEl = document.getElementById('statusVal');
-        statusEl.textContent = d.requestStatus || 'Active';
-        statusEl.style.color = d.requestStatus === 'Active' ? 'var(--neon-green)' :
-                               d.requestStatus === 'Pending' ? 'var(--neon-amber)' : 'var(--neon-red)';
-        document.getElementById('noticeText').textContent = d.adminMessage || 'Welcome to SRT X CHEATS.';
-        document.getElementById('profName').value = d.profileName || '';
-        document.getElementById('profPhone').value = d.profilePhone || '';
-        document.getElementById('profEmail').value = d.email || '';
-        document.getElementById('profUid').value = currentUid;
-        document.getElementById('payName').value = d.profileName || '';
-        document.getElementById('payWA').value = d.profilePhone || '';
-        setupTopupLock(d.hasCompletedFirstTopup);
-    } catch (e) {
-        toast(e.message, 'error');
-    }
+    --glow-shadow: 0 8px 32px 0 rgba(124, 58, 237, 0.12);
 }
 
-function setupTopupLock(hasCompletedFirstTopup) {
-    const amountInput = document.getElementById('topupAmount');
-    const hint = document.getElementById('topupHint');
-    if (!hasCompletedFirstTopup) {
-        amountInput.value = 1000;
-        amountInput.readOnly = true;
-        amountInput.style.opacity = '0.6';
-        hint.textContent = 'First top‑up is fixed at Rs 1,000. After approval you can top up any amount.';
-    } else {
-        amountInput.readOnly = false;
-        amountInput.style.opacity = '1';
-        amountInput.value = 100;
-        hint.textContent = 'Pay via eSewa, then submit your transaction ID. Admin verifies and credits shortly.';
-    }
+/* Global Setup */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+    background: var(--bg-main);
+    background-image: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-// ---- Load catalog ----
-async function loadCatalog() {
-    try {
-        const d = await backendFetch('/api/user/catalog');
-        catalog = d.catalog || {};
-        renderCatalog();
-    } catch (e) {
-        document.getElementById('catalogList').innerHTML = `<div class="dim" style="text-align:center;padding:30px;color:var(--neon-red)"><i class="fas fa-exclamation-triangle"></i> Failed to load catalog</div>`;
-    }
+/* Glowing Ambient Particles Background */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: pulseGlow 10s infinite alternate;
+}
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: pulseGlow 8s infinite alternate-reverse;
 }
 
-// ---- Catalog rendering (old logic) ----
-let searchQuery = '';
-let activeTag = 'ALL';
-
-const tagOf = (row) => /root/i.test(row) && !/non ?root/i.test(row) ? 'ROOT'
-    : /ios/i.test(row) ? 'IOS'
-    : /pc/i.test(row) ? 'PC'
-    : 'NONROOT';
-
-function renderCatalog() {
-    const groups = {};
-    for (const [sku, p] of Object.entries(catalog)) {
-        if (!groups[p.row]) groups[p.row] = [];
-        groups[p.row].push({ sku, ...p });
-    }
-
-    const q = searchQuery.trim().toLowerCase();
-    const filteredEntries = Object.entries(groups).filter(([row, items]) => {
-        if (activeTag !== 'ALL' && tagOf(row) !== activeTag) return false;
-        if (!q) return true;
-        return row.toLowerCase().includes(q) || items.some(it => it.name.toLowerCase().includes(q));
-    });
-
-    const container = document.getElementById('catalogList');
-    if (!filteredEntries.length) {
-        container.innerHTML = '<div class="dim" style="text-align:center;padding:30px"><i class="fas fa-box-open"></i> No products match.</div>';
-        return;
-    }
-
-    let html = '';
-    filteredEntries.forEach(([row, items], gi) => {
-        const prices = items.map(it => it.price);
-        const priceRange = Math.min(...prices) === Math.max(...prices)
-            ? `Rs ${prices[0]}`
-            : `Rs ${Math.min(...prices)} – ${Math.max(...prices)}`;
-        html += `
-        <div class="cat-row" id="cat-${gi}">
-            <div class="cat-head" onclick="document.getElementById('cat-${gi}').classList.toggle('open')">
-                <div class="cat-img">
-                    <img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy">
-                    <span class="cat-tag-badge">${tagOf(row)}</span>
-                </div>
-                <div class="cat-info">
-                    <div style="flex:1">
-                        <div class="name">${esc(row)}</div>
-                        <div class="price-range">${priceRange}</div>
-                    </div>
-                    <span class="cat-arrow"><i class="fas fa-chevron-right"></i></span>
-                </div>
-            </div>
-            <div class="cat-body">
-                ${items.map(it => `
-                    <div class="dur-row" onclick="window.__startCheckout('${it.sku}')">
-                        <span>${esc(it.name)} <span class="dim">· ${esc(it.duration)}</span></span>
-                        <span class="price">Rs ${it.price}</span>
-                    </div>
-                `).join('')}
-                ${items[0].apkUrl ? `
-                    <a href="${esc(items[0].apkUrl)}" target="_blank" class="apk-update-row" onclick="event.stopPropagation()">
-                        <i class="fas fa-download"></i> APK Update — ${esc(row)}
-                    </a>
-                ` : ''}
-            </div>
-        </div>`;
-    });
-    container.innerHTML = html;
+@keyframes pulseGlow {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+    100% { transform: scale(1.2) translate(30px, -30px); opacity: 1; }
 }
 
-// ---- Search & filter events ----
-document.getElementById('catalogSearch').addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    renderCatalog();
-});
-document.getElementById('catFilters').addEventListener('click', (e) => {
-    const btn = e.target.closest('.cat-filter');
-    if (!btn) return;
-    document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeTag = btn.dataset.tag;
-    renderCatalog();
-});
+a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
 
-// ---- Start checkout (global) ----
-window.__startCheckout = (sku) => {
-    const p = catalog[sku];
-    if (!p) return toast('Product not found', 'error');
-    pendingCheckout = { sku, ...p };
-    document.getElementById('checkoutSummary').innerHTML = `
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-cube"></i> Product</span><span>${esc(p.name)}</span></div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-clock"></i> Duration</span><span>${esc(p.duration)}</span></div>
-        <div style="display:flex;justify-content:space-between"><span class="dim"><i class="fas fa-tag"></i> Price</span><span class="price" style="color:var(--neon-amber);font-weight:700">Rs ${p.price}</span></div>
-    `;
-    openModal('checkoutModal');
-};
+/* Header Navigation Bar */
+.glass-nav-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 12px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
 
-// ---- Confirm purchase ----
-const confirmBtn = document.getElementById('confirmBuyBtn');
-confirmBtn.onclick = async () => {
-    if (!pendingCheckout) return;
-    const name = document.getElementById('payName').value.trim();
-    const waNum = document.getElementById('payWA').value.trim();
-    if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
+.nav-container {
+    max-width: 520px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-    closeModal('checkoutModal');
-    openModal('deliveryModal');
-    setLoading(confirmBtn, true);
+/* Brand Top-Left Logo */
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo-img-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--neon-cyan, #00f0ff), var(--neon-purple));
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+}
+.site-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.brand-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+}
+.neon-cyan { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,240,255,0.6); }
+.brand-sub {
+    font-size: 10px;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    line-height: 1;
+}
 
-    try {
-        const res = await backendFetch('/api/purchase/checkout', {
-            method: 'POST',
-            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
-        });
+/* Nav Actions */
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.nav-links { display: flex; gap: 6px; }
+.nav-item {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+.nav-item:hover, .nav-item.active {
+    color: var(--text-primary);
+    background: rgba(168, 85, 247, 0.15);
+    border-color: var(--glass-border);
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
 
-        closeModal('deliveryModal');
+/* Dark/Light Mode Switcher */
+.theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-panel);
+    color: var(--neon-amber);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+.theme-toggle-btn:hover {
+    transform: rotate(15deg) scale(1.05);
+    box-shadow: 0 0 12px rgba(255, 180, 84, 0.4);
+}
+[data-theme="dark"] .sun-icon { display: block; }
+[data-theme="dark"] .moon-icon { display: none; }
+[data-theme="light"] .sun-icon { display: none; }
+[data-theme="light"] .moon-icon { display: block; color: var(--neon-purple); }
 
-        if (!res || !res.key) {
-            throw new Error(res?.error || 'Purchase failed or out of stock');
-        }
+.btn-logout {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,71,87,0.3);
+    background: rgba(255,71,87,0.1);
+    color: var(--neon-red);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.3s;
+}
+.btn-logout:hover {
+    background: var(--neon-red);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(255, 71, 87, 0.5);
+}
 
-        document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = res.key;
-        openModal('keyModal');
+/* Glass Main Container */
+.term-window {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 0 16px 40px;
+    position: relative;
+    z-index: 2;
+}
 
-        if (res.newBalance !== undefined) {
-            document.getElementById('balAmount').textContent = res.newBalance;
-            const bar = document.getElementById('balBar');
-            if (bar) bar.style.width = Math.min(100, (res.newBalance / 10)) + '%';
-        }
-    } catch (e) {
-        closeModal('deliveryModal');
-        document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
-        openModal('errorModal');
-    } finally {
-        setLoading(confirmBtn, false);
-        pendingCheckout = null;
-    }
-};
+/* Glass Panel Card */
+.panel {
+    background: var(--glass-panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--glow-shadow);
+    transition: all 0.3s ease;
+}
+.panel:hover {
+    border-color: var(--glass-border-hover);
+}
 
-// ---- Topup ----
-document.getElementById('openTopup').onclick = () => openModal('topupModal');
-const topupBtn = document.getElementById('submitTopup');
-topupBtn.onclick = async () => {
-    const amount = parseInt(document.getElementById('topupAmount').value, 10);
-    const esewaId = document.getElementById('topupEsewa').value.trim();
-    const txCode = document.getElementById('topupTx').value.trim();
-    if (!amount || !esewaId || !txCode) return toast('Fill all fields', 'error');
-    setLoading(topupBtn, true);
-    try {
-        await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
-        toast('Submitted — awaiting admin approval', 'success');
-        closeModal('topupModal');
-    } catch (e) {
-        toast(e.message, 'error');
-    } finally {
-        setLoading(topupBtn, false);
-    }
-};
+/* Prompt / Section Header */
+.prompt-header {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--neon-blue);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
+}
 
-// ---- Profile ----
-document.getElementById('openProfile').onclick = () => openModal('profileModal');
-const profileBtn = document.getElementById('saveProfile');
-profileBtn.onclick = async () => {
-    const name = document.getElementById('profName').value.trim();
-    const phone = document.getElementById('profPhone').value.trim();
-    setLoading(profileBtn, true);
-    try {
-        await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
-        toast('Profile saved', 'success');
-        closeModal('profileModal');
-        loadBalance(); // refresh
-    } catch (e) {
-        toast(e.message, 'error');
-    } finally {
-        setLoading(profileBtn, false);
-    }
-};
+/* Modern Animated Buttons */
+.btn {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.btn-solid {
+    background: linear-gradient(135deg, var(--neon-purple), #7c3aed);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+}
+.btn-solid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+}
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+}
+.btn-ghost:hover {
+    background: rgba(0, 240, 255, 0.1);
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+    transform: translateY(-2px);
+}
+.btn-danger {
+    background: rgba(255, 71, 87, 0.15);
+    color: var(--neon-red);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+}
+.btn-danger:hover {
+    background: var(--neon-red);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+}
 
-// Copy UID
-document.getElementById('copyUidBtn')?.addEventListener('click', () => {
-    const uid = document.getElementById('profUid').value;
-    if (uid) {
-        navigator.clipboard.writeText(uid);
-        toast('UID copied!', 'success');
-    }
-});
+/* Input Fields */
+.field { margin-bottom: 12px; }
+.field label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+input, textarea, select {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    box-shadow: var(--cyan-glow);
+}
 
-// ---- Change password ----
-document.getElementById('openPassword').onclick = () => openModal('passwordModal');
-const passBtn = document.getElementById('savePassword');
-passBtn.onclick = async () => {
-    const curPass = document.getElementById('curPass').value;
-    const newPass = document.getElementById('newPass').value;
-    if (!curPass || !newPass) return toast('Fill both fields', 'error');
-    if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
-    setLoading(passBtn, true);
-    try {
-        const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
-        await reauthenticateWithCredential(auth.currentUser, cred);
-        await updatePassword(auth.currentUser, newPass);
-        toast('Password updated', 'success');
-        closeModal('passwordModal');
-        document.getElementById('curPass').value = '';
-        document.getElementById('newPass').value = '';
-    } catch (e) {
-        toast(e.code === 'auth/wrong-password' ? 'Current password is incorrect' : e.message, 'error');
-    } finally {
-        setLoading(passBtn, false);
-    }
-};
+/* Category Filter Badges */
+.cat-filter {
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+.cat-filter.active, .cat-filter:hover {
+    background: linear-gradient(135deg, var(--neon-blue), #0284c7);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
 
-// ---- Help / Report ----
-document.getElementById('openHelp').onclick = () => openModal('helpModal');
-const reportBtn = document.getElementById('submitReport');
-reportBtn.onclick = async () => {
-    const problem = document.getElementById('problemText').value.trim();
-    if (!problem) return toast('Please describe the problem', 'error');
-    setLoading(reportBtn, true);
-    try {
-        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
-        toast('Report sent', 'success');
-        document.getElementById('problemText').value = '';
-        closeModal('helpModal');
-    } catch (e) {
-        toast(e.message, 'error');
-    } finally {
-        setLoading(reportBtn, false);
-    }
-};
-</script>
+/* Banner Carousel */
+.banner-carousel {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid var(--glass-border);
+    position: relative;
+    box-shadow: var(--glow-shadow);
+}
+.banner-track { display: flex; transition: transform 0.4s ease-in-out; }
+.banner-slide { min-width: 100%; }
+.banner-slide img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.banner-dots {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+}
+.banner-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.banner-dot.active {
+    width: 20px;
+    border-radius: 10px;
+    background: var(--neon-blue);
+    box-shadow: 0 0 8px var(--neon-blue);
+}
 
-</body>
-</html>
+/* Modal Overlay & Animations */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(4, 3, 12, 0.75);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.3s ease forwards;
+}
+.modal-overlay.hidden { display: none !important; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Toast Message */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--glass-panel);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.toast.show { display: flex; align-items: center; gap: 8px; animation: slideUp 0.3s ease; }
+.toast.error { border-color: var(--neon-red); color: var(--neon-red); }
+.toast.success { border-color: var(--neon-green); color: var(--neon-green); }
+
+@keyframes slideUp {
+    from { transform: translate(-50%, 20px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.dim { color: var(--text-muted); }
+.hidden { display: none !important; }
+.mono-num { font-family: var(--font-mono); }
