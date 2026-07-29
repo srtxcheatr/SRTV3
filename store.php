@@ -565,48 +565,27 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Confirm purchase ----
+// Checkout direct execution with fallback error display modal
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
-    if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
 
     closeModal('checkoutModal');
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
     try {
-        // ✅ Get the Firebase ID token
-        const token = await auth.currentUser.getIdToken();
-
-        // ✅ Send the request with explicit Authorization header
-        const response = await fetch('/api/purchase/checkout', {
+        const res = await backendFetch('/api/purchase/checkout', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                // If your backend uses CSRF tokens, include them here
-            },
-            credentials: 'same-origin', // or 'include' if using cookies
-            body: JSON.stringify({
-                sku: pendingCheckout.sku,
-                name: name,
-                waNum: waNum,
-            }),
+            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
-
-        const res = await response.json();
 
         closeModal('deliveryModal');
 
-        if (!response.ok) {
-            throw new Error(res?.error || `Server error (${response.status})`);
-        }
-
-        if (!res.key) {
-            throw new Error(res?.error || 'Purchase failed – no key returned');
+        if (!res || !res.key) {
+            throw new Error(res?.error || 'Purchase failed or out of stock');
         }
 
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
@@ -615,8 +594,7 @@ confirmBtn.onclick = async () => {
 
         if (res.newBalance !== undefined) {
             document.getElementById('balAmount').textContent = res.newBalance;
-            const bar = document.getElementById('balBar');
-            if (bar) bar.style.width = Math.min(100, (res.newBalance / 10)) + '%';
+            document.getElementById('balBar').style.width = Math.min(100, res.newBalance / 10) + '%';
         }
     } catch (e) {
         closeModal('deliveryModal');
@@ -627,6 +605,7 @@ confirmBtn.onclick = async () => {
         pendingCheckout = null;
     }
 };
+
 
 // ---- Topup ----
 document.getElementById('openTopup').onclick = () => openModal('topupModal');
