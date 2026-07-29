@@ -561,57 +561,100 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout using app standard backendFetch ----
-const confirmBtn = document.getElementById('confirmBuyBtn');
-if (confirmBtn) {
-    confirmBtn.onclick = async () => {
-        if (!pendingCheckout) return;
-        const name = document.getElementById('payName').value.trim();
-        const waNum = document.getElementById('payWA').value.trim();
-        if (!name || !waNum) {
-            toast('Please fill name and WhatsApp', 'error');
-            return;
-        }
-
-        closeModal('checkoutModal');
-        openModal('deliveryModal');
-        setLoading(confirmBtn, true);
-
-        try {
-            const res = await backendFetch('/api/purchase/checkout', {
-                method: 'POST',
-                body: JSON.stringify({
-                    sku: pendingCheckout.sku,
-                    name: name,
-                    waNum: waNum,
-                }),
-            });
-
-            closeModal('deliveryModal');
-
-            if (!res || !res.key) {
-                throw new Error(res?.error || 'Purchase failed – no key returned');
-            }
-
-            document.getElementById('keyProductName').textContent = pendingCheckout.name;
-            document.getElementById('keyValue').textContent = res.key;
-            openModal('keyModal');
-
-            if (res.newBalance !== undefined) {
-                document.getElementById('balAmount').textContent = res.newBalance;
-                const bar = document.getElementById('balBar');
-                if (bar) bar.style.width = Math.min(100, res.newBalance / 10) + '%';
-            }
-        } catch (e) {
-            closeModal('deliveryModal');
-            document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
-            openModal('errorModal');
-        } finally {
-            setLoading(confirmBtn, false);
-            pendingCheckout = null;
-        }
-    };
+// ---- Helper to get auth token ----
+async function getToken() {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not logged in');
+    return await user.getIdToken(true);
 }
+
+// ---- Checkout with job polling using explicit token ----
+const confirmBtn = document.getElementById('confirmBuyBtn');
+confirmBtn.onclick = async () => {
+    if (!pendingCheckout) return;
+    const name = document.getElementById('payName').value.trim();
+    const waNum = document.getElementById('payWA').value.trim();
+
+    closeModal('checkoutModal');
+    openModal('deliveryModal');
+    setLoading(confirmBtn, true);
+
+    // Reset progress
+    document.getElementById('deliveryBar').style.width = '0%';
+    document.getElementById('deliveryPct').textContent = '0%';
+    document.getElementById('deliveryLabel').textContent = 'Starting...';
+
+    try {
+        const token = await getToken();
+
+        // 1. Start the job using plain fetch with token
+        const startResp = await fetch('/api/purchase/checkout/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
+        });
+        if (!startResp.ok) {
+            const errData = await startResp.json().catch(() => ({}));
+            throw new Error(errData.error || `Start failed (HTTP ${startResp.status})`);
+        }
+        const startRes = await startResp.json();
+        const jobId = startRes.jobId;
+
+        // 2. Poll status using the same token
+        let done = false;
+        let result = null;
+        while (!done) {
+            const statusResp = await fetch(`/api/purchase/checkout/status/${jobId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!statusResp.ok) {
+                throw new Error(`Status request failed (HTTP ${statusResp.status})`);
+            }
+            const status = await statusResp.json();
+
+            // Update progress UI
+            document.getElementById('deliveryBar').style.width = status.percent + '%';
+            document.getElementById('deliveryPct').textContent = status.percent + '%';
+            document.getElementById('deliveryLabel').textContent = status.label || 'Processing...';
+
+            if (status.done) {
+                done = true;
+                result = status;
+                break;
+            }
+            await new Promise(r => setTimeout(r, 500));
+        }
+
+        closeModal('deliveryModal');
+
+        if (!result.success) {
+            throw new Error(result.error || 'Purchase failed');
+        }
+
+        // Success – show key
+        document.getElementById('keyProductName').textContent = pendingCheckout.name;
+        document.getElementById('keyValue').textContent = result.key;
+        openModal('keyModal');
+
+        // Update balance
+        if (result.newBalance !== undefined) {
+            document.getElementById('balAmount').textContent = result.newBalance;
+            document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
+        }
+
+    } catch (e) {
+        closeModal('deliveryModal');
+        document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
+        openModal('errorModal');
+    } finally {
+        setLoading(confirmBtn, false);
+        pendingCheckout = null;
+    }
+};
 
 // ---- Topup ----
 document.getElementById('openTopup')?.addEventListener('click', () => openModal('topupModal'));
