@@ -2,7 +2,7 @@
 $pageTitle = 'Store — SRT X CHEATS';
 $currentPage = 'store';
 require __DIR__ . '/includes/head.php';
-require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
+require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 ?>
 
 <div class="term-window">
@@ -84,7 +84,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
     </div>
 </div>
 
-<!-- ============ ALL MODALS (from your new design) ============ -->
+<!-- ============ ALL MODALS ============ -->
 
 <!-- Checkout Modal -->
 <div id="checkoutModal" class="modal-overlay hidden">
@@ -101,15 +101,27 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
     </div>
 </div>
 
-<!-- Delivery Modal -->
+<!-- ---- Delivery Modal (Old Truck Animation) ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:380px;width:100%;text-align:center;padding:24px">
-        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck-fast" style="color:var(--neon-blue)"></i> GENERATING KEY...</div>
-        <div class="dim" id="deliveryLabel" style="margin:12px 0 10px">Connecting to server...</div>
-        <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;margin-bottom:12px">
-            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));transition:width .4s"></div>
+    <div class="panel" style="max-width:400px;width:100%;text-align:center;padding:24px 20px">
+        <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
+            <i class="fas fa-shipping-fast" style="color:var(--neon-amber)"></i> Fetching Access Key...
         </div>
-        <div class="mono-num" id="deliveryPct" style="font-size:22px;font-weight:800;color:var(--neon-blue)">0%</div>
+        <div class="delivery-track">
+            <div class="delivery-road"></div>
+            <div class="delivery-truck">
+                <svg width="36" height="28" viewBox="0 0 24 24" style="display:block;filter:drop-shadow(0 0 8px #00ff88);">
+                    <defs>
+                        <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ff007f" />
+                            <stop offset="50%" stop-color="#7928ca" />
+                            <stop offset="100%" stop-color="#00dfd8" />
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#truckGrad)" d="M20 8h-3V4H1v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-6l-3-3zM6 18.5A1.5 1.5 0 1 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM17 12V9.5h2.2l1.8 1.8V12z"/>
+                </svg>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -203,9 +215,9 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
     </div>
 </div>
 
-<!-- ============ INLINE CSS FOR CATALOG CARDS & MODALS ============ -->
+<!-- ============ INLINE CSS ============ -->
 <style>
-/* ----- Catalog Card Styles (from old code) ----- */
+/* ----- Catalog Card Styles ----- */
 .cat-row {
     background: var(--glass-panel);
     border: 1px solid var(--glass-border);
@@ -264,7 +276,28 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
 }
 .apk-update-row:hover { background: rgba(0,240,255,0.05); }
 
-/* ----- Modal overlay fixes ----- */
+/* ----- Delivery Truck Animation ----- */
+.delivery-track {
+    position: relative; height: 50px; margin: 12px 0;
+    background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+.delivery-road {
+    position: absolute; bottom: 10px; left: 0; right: 0; height: 2px;
+    background: repeating-linear-gradient(to right, var(--text-muted) 0 8px, transparent 8px 16px);
+}
+.delivery-truck {
+    position: absolute; bottom: 8px;
+    animation: driveContinuous 2s ease-in-out infinite;
+}
+@keyframes driveContinuous {
+    0% { left: -40px; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
+
+/* ----- Modal overlay ----- */
 .modal-overlay {
     position: fixed; inset: 0; z-index: 999;
     background: rgba(4,3,12,0.75);
@@ -279,7 +312,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
     to { opacity: 1; transform: scale(1); }
 }
 
-/* ----- Button loading states (already in your CSS, but ensure) ----- */
+/* ----- Button loading states ----- */
 .btn .btn-spinner { display: none; }
 .btn.loading .btn-text { visibility: hidden; }
 .btn.loading .btn-spinner { display: inline-flex; align-items: center; gap: 6px; }
@@ -292,7 +325,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ----- Banner carousel (already defined, but ensure) ----- */
+/* ----- Banner Carousel ----- */
 .banner-carousel {
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -326,7 +359,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
 }
 </style>
 
-<!-- ============ JAVASCRIPT (same as old working code) ============ -->
+<!-- ============ JAVASCRIPT ============ -->
 <script type="module">
 import {
     requireAuth, backendFetch, toast, esc,
@@ -541,7 +574,7 @@ confirmBtn.onclick = async () => {
     if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
 
     closeModal('checkoutModal');
-    openModal('deliveryModal');
+    openModal('deliveryModal');   // Truck animation starts playing automatically
     setLoading(confirmBtn, true);
 
     try {
