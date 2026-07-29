@@ -113,25 +113,36 @@ function renderHistory(items) {
         return;
     }
 
-    el.innerHTML = items.map(it => `
-        <div class="log-entry">
-            <div class="top">
-                <span class="name">${esc(it.name || '—')}</span>
-                <span class="price mono-num">Rs ${it.price ?? '—'}</span>
-            </div>
-            <div class="meta">${esc(it.duration || 'Standard')} · ${fmtDate(it.at)}</div>
-            ${it.key ? `
-                <div class="key-wrap">
-                    <div class="key-box">${esc(it.key)}</div>
-                    <button class="btn btn-ghost copy-key-btn" data-key="${esc(it.key)}">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                </div>
-            ` : ''}
-        </div>
-    `).join('');
+    el.innerHTML = items.map(it => {
+        // Normalize the key: if array, join; if string, strip spaces
+        let keyStr = '';
+        if (it.key) {
+            keyStr = Array.isArray(it.key) ? it.key.join('') : String(it.key);
+            keyStr = keyStr.replace(/\s+/g, ''); // remove all spaces/newlines
+        }
 
-    // Attach click listener for Copy Buttons
+        const keyHtml = keyStr ? `
+            <div class="key-wrap">
+                <div class="key-box">${esc(keyStr)}</div>
+                <button class="btn btn-ghost copy-key-btn" data-key="${esc(keyStr)}">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+        ` : '';
+
+        return `
+            <div class="log-entry">
+                <div class="top">
+                    <span class="name">${esc(it.name || '—')}</span>
+                    <span class="price mono-num">Rs ${it.price ?? '—'}</span>
+                </div>
+                <div class="meta">${esc(it.duration || 'Standard')} · ${fmtDate(it.at)}</div>
+                ${keyHtml}
+            </div>
+        `;
+    }).join('');
+
+    // Attach click listeners for Copy buttons
     document.querySelectorAll('.copy-key-btn').forEach(btn => {
         btn.onclick = () => {
             const keyText = btn.dataset.key;
