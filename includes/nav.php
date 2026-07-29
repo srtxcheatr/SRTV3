@@ -1,10 +1,10 @@
 <?php
-// includes/nav.php — Header with Top-Left Logo & Dark/Light Mode Switcher
+// includes/nav.php — Store Header & Navigation
 $breadcrumb = $breadcrumb ?? $currentPage;
 ?>
 <header class="glass-nav-header">
     <div class="nav-container">
-        <a href="<?= $currentPage === 'home' ? '/home.php' : '/store.php' ?>" class="brand-logo">
+        <a href="<?= $currentPage === 'home' ? '/home.php' : '/index.php' ?>" class="brand-logo">
             <div class="logo-img-wrap">
                 <img src="https://i.ibb.co/9HmdjJr1/file-000000008a6481f588e660845aa6efa9.png" alt="SRT X CHEATS Logo" class="site-logo">
             </div>
@@ -17,7 +17,7 @@ $breadcrumb = $breadcrumb ?? $currentPage;
         <div class="nav-actions">
             <?php if ($currentPage !== 'home'): ?>
             <nav class="nav-links">
-                <a href="/store.php" class="nav-item <?= $currentPage === 'store' ? 'active' : '' ?>">
+                <a href="/index.php" class="nav-item <?= ($currentPage === 'store' || $currentPage === 'index') ? 'active' : '' ?>">
                     <i class="fas fa-store"></i> <span class="nav-text">Store</span>
                 </a>
                 <a href="/history.php" class="nav-item <?= $currentPage === 'history' ? 'active' : '' ?>">
