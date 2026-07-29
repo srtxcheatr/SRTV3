@@ -6,179 +6,54 @@ require __DIR__ . '/includes/nav.php';
 ?>
 
 <div class="term-window">
-    <div class="term-content">
-
-        <div id="boot" style="padding-top:40px">
-            <div style="color:var(--green);font-weight:800;font-size:20px;letter-spacing:1px;margin-bottom:2px">
-                &gt; SRT<span style="color:var(--cyan)">X</span>CHEATS <span style="filter:saturate(1.4)">🇳🇵</span>
-            </div>
-            <div class="dim" style="font-size:12px;margin-bottom:18px">$ visitor@srtxcheats:~ connect --store</div>
-            <div id="bootLines" style="display:flex;flex-direction:column;gap:2px;min-height:120px;font-size:13px"></div>
-            <div style="margin-top:14px;height:3px;background:rgba(57,255,136,0.1);border-radius:99px;overflow:hidden">
-                <div id="bootBar" style="height:100%;width:0;background:linear-gradient(90deg,var(--green-dim),var(--green));transition:width .3s ease"></div>
-            </div>
+    <div id="boot" style="padding-top:30px;text-align:center">
+        <div style="margin-bottom:12px">
+            <img src="https://i.ibb.co/9HmdjJr1/file-000000008a6481f588e660845aa6efa9.png" alt="Logo" style="width:70px;height:70px;border-radius:16px;box-shadow:0 0 25px rgba(168,85,247,0.5)">
         </div>
+        <div style="font-family:var(--font-heading);font-weight:900;font-size:22px;letter-spacing:1px;margin-bottom:4px">
+            SRT<span style="color:var(--neon-blue)">X</span>CHEATS
+        </div>
+        <div class="dim" style="font-size:12px;margin-bottom:18px">Connecting to server gateway...</div>
+        <div id="bootLines" style="display:flex;flex-direction:column;gap:4px;min-height:90px;font-size:12px;font-family:var(--font-mono);color:var(--neon-blue)"></div>
+        <div style="margin-top:14px;height:4px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden">
+            <div id="bootBar" style="height:100%;width:0;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));transition:width .3s ease"></div>
+        </div>
+    </div>
 
-        <div id="authArea" class="hidden">
-            <div class="prompt-header">auth --login</div>
-
-            <div class="panel">
-                <div id="loginForm">
-                    <div class="field">
-                        <label>email</label>
-                        <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="username">
-                    </div>
-                    <div class="field">
-                        <label>password</label>
-                        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
-                    </div>
-                    <button class="btn btn-solid" id="loginBtn" style="margin-bottom:8px">login.sh</button>
-                    <button class="btn btn-ghost" id="googleBtn" style="margin-bottom:8px">auth --provider=google</button>
-                    <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:6px">
-                        <a href="#" id="forgotLink">forgot-password?</a>
-                        <a href="#" id="showSignup">./signup.sh</a>
-                    </div>
+    <div id="authArea" class="hidden">
+        <div class="panel">
+            <div class="prompt-header"><i class="fas fa-right-to-bracket"></i> ACCOUNT LOGIN</div>
+            <div id="loginForm">
+                <div class="field">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com">
                 </div>
-
-                <div id="signupForm" class="hidden">
-                    <div class="field">
-                        <label>email</label>
-                        <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="username">
-                    </div>
-                    <div class="field">
-                        <label>password (min 6 chars)</label>
-                        <input type="password" id="regPass" placeholder="••••••••" autocomplete="new-password">
-                    </div>
-                    <button class="btn btn-solid" id="signupBtn" style="margin-bottom:8px">signup.sh</button>
-                    <div style="text-align:center;font-size:11px">
-                        <a href="#" id="showLogin">./login.sh</a>
-                    </div>
+                <div class="field">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="loginPass" placeholder="••••••••">
+                </div>
+                <button class="btn btn-solid" id="loginBtn" style="margin-bottom:8px"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
+                <button class="btn btn-ghost" id="googleBtn" style="margin-bottom:12px"><i class="fab fa-google"></i> Continue with Google</button>
+                <div style="display:flex;justify-content:space-between;font-size:12px">
+                    <a href="#" id="forgotLink"><i class="fas fa-key"></i> Forgot Password?</a>
+                    <a href="#" id="openSignup"><i class="fas fa-user-plus"></i> Register Account</a>
                 </div>
             </div>
 
-            <div class="dim" style="font-size:11px;text-align:center;margin-top:10px">
-                SRT X CHEATS © 2026 · solo-dev build · Nepal 🇳🇵
+            <div id="regForm" class="hidden">
+                <div class="field">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="regEmail" placeholder="you@example.com">
+                </div>
+                <div class="field">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="regPass" placeholder="••••••••">
+                </div>
+                <button class="btn btn-solid" id="signupBtn" style="margin-bottom:12px"><i class="fas fa-user-check"></i> Create Account</button>
+                <div style="text-align:center;font-size:12px">
+                    <a href="#" id="openLogin"><i class="fas fa-arrow-left"></i> Back to Login</a>
+                </div>
             </div>
         </div>
-
     </div>
 </div>
-
-<script type="module">
-import {
-    auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-    signInWithPopup, googleProvider, sendPasswordResetEmail, backendFetch, toast, setButtonLoading,
-} from '/assets/js/app.js';
-
-// ---- Boot sequence ----
-const lines = [
-    'booting srtxcheats::store v5.0.9 ...',
-    '[ok] loading catalog',
-    '[ok] connecting to backend',
-    '[ok] securing session channel',
-    '[ok] permissions: visitor (read-only)',
-];
-const bootLines = document.getElementById('bootLines');
-lines.forEach((text, i) => {
-    const el = document.createElement('div');
-    el.style.opacity = '0';
-    el.style.animation = `bootIn .25s ease forwards`;
-    el.style.animationDelay = (i * 0.15) + 's';
-    if (text.startsWith('[ok]')) {
-        el.innerHTML = `<span style="color:var(--green);font-weight:700">[ok]</span>${text.slice(4)}`;
-    } else {
-        el.textContent = text;
-        el.className = 'dim';
-    }
-    bootLines.appendChild(el);
-});
-const style = document.createElement('style');
-style.textContent = '@keyframes bootIn { to { opacity: 1; } }';
-document.head.appendChild(style);
-requestAnimationFrame(() => { document.getElementById('bootBar').style.width = '100%'; });
-
-// ---- Auth state ----
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        window.location.href = '/store.php';
-        return;
-    }
-    setTimeout(() => {
-        document.getElementById('boot').classList.add('hidden');
-        document.getElementById('authArea').classList.remove('hidden');
-    }, 1500);
-});
-
-// ---- Form toggling ----
-document.getElementById('showSignup').onclick = (e) => {
-    e.preventDefault();
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('signupForm').classList.remove('hidden');
-};
-document.getElementById('showLogin').onclick = (e) => {
-    e.preventDefault();
-    document.getElementById('signupForm').classList.add('hidden');
-    document.getElementById('loginForm').classList.remove('hidden');
-};
-
-// ---- Login ----
-document.getElementById('loginBtn').onclick = async () => {
-    const email = document.getElementById('loginEmail').value.trim();
-    const pass = document.getElementById('loginPass').value;
-    if (!email || !pass) return toast('Fill both fields', 'error');
-    const btn = document.getElementById('loginBtn');
-    setButtonLoading(btn, true);
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        window.location.href = '/store.php';
-    } catch (e) {
-        toast(e.message, 'error');
-        setButtonLoading(btn, false);
-    }
-};
-
-// ---- Signup ----
-document.getElementById('signupBtn').onclick = async () => {
-    const email = document.getElementById('regEmail').value.trim();
-    const pass = document.getElementById('regPass').value;
-    if (!email || !pass) return toast('Fill both fields', 'error');
-    if (pass.length < 6) return toast('Password must be at least 6 characters', 'error');
-    const btn = document.getElementById('signupBtn');
-    setButtonLoading(btn, true);
-    try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        await backendFetch('/api/user/init', { method: 'POST' });
-        window.location.href = '/store.php';
-    } catch (e) {
-        toast(e.message, 'error');
-        setButtonLoading(btn, false);
-    }
-};
-
-// ---- Google ----
-document.getElementById('googleBtn').onclick = async () => {
-    try {
-        await signInWithPopup(auth, googleProvider);
-        await backendFetch('/api/user/init', { method: 'POST' });
-        window.location.href = '/store.php';
-    } catch (e) {
-        if (e.code !== 'auth/popup-closed-by-user') toast(e.message, 'error');
-    }
-};
-
-// ---- Forgot password ----
-document.getElementById('forgotLink').onclick = async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value.trim();
-    if (!email) return toast('Enter your email above first', 'error');
-    try {
-        await sendPasswordResetEmail(auth, email);
-        toast('Password reset email sent', 'success');
-    } catch (e) {
-        toast(e.message, 'error');
-    }
-};
-</script>
-
-</body>
-</html>
