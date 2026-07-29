@@ -85,6 +85,13 @@ require __DIR__ . '/includes/nav.php';
     white-space: nowrap;
     cursor: pointer;
 }
+
+.log-entry .key-box {
+    white-space: nowrap;          /* prevents line breaks */
+    overflow-x: auto;            /* scroll if too long */
+    word-break: keep-all;        /* avoids breaking inside characters */
+    /* existing styles remain */
+}
 </style>
 
 <script type="module">
