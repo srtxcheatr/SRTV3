@@ -8,7 +8,7 @@ require __DIR__ . '/includes/nav.php';
 <div class="term-window">
     <div id="boot" style="padding-top:30px;text-align:center">
         <div style="margin-bottom:12px">
-            <img src="https://i.ibb.co/9HmdjJr1/file-000000008a6481f588e660845aa6efa9.png" alt="Logo" style="width:70px;height:70px;border-radius:16px;box-shadow:0 0 25px rgba(168,85,247,0.5)">
+            <img src="https://i.postimg.cc/qqYtBD3k/file-00000000470c8208bd1a0215abff7977.png" alt="Logo" style="width:70px;height:70px;border-radius:16px;box-shadow:0 0 25px rgba(168,85,247,0.5)">
         </div>
         <div style="font-family:var(--font-heading);font-weight:900;font-size:22px;letter-spacing:1px;margin-bottom:4px">
             SRT<span style="color:var(--neon-blue)">X</span>CHEATS
