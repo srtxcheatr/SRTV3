@@ -120,12 +120,23 @@ function renderHistory(items) {
         return;
     }
 
+    console.log('Raw history:', items); // 🔍 DEBUG
+
     el.innerHTML = items.map(it => {
-        // Normalize the key: if array, join; if string, strip spaces
         let keyStr = '';
         if (it.key) {
-            keyStr = Array.isArray(it.key) ? it.key.join('') : String(it.key);
-            keyStr = keyStr.replace(/\s+/g, ''); // remove all spaces/newlines
+            if (Array.isArray(it.key)) {
+                keyStr = it.key.join('');
+            } else if (typeof it.key === 'string') {
+                keyStr = it.key.replace(/\s+/g, '');
+            } else {
+                keyStr = String(it.key);
+            }
+        }
+
+        // If the key is still a single character, log a warning
+        if (keyStr && keyStr.length <= 2) {
+            console.warn('Possible truncated key for', it.name, ':', keyStr);
         }
 
         const keyHtml = keyStr ? `
@@ -149,7 +160,7 @@ function renderHistory(items) {
         `;
     }).join('');
 
-    // Attach click listeners for Copy buttons
+    // Copy listeners
     document.querySelectorAll('.copy-key-btn').forEach(btn => {
         btn.onclick = () => {
             const keyText = btn.dataset.key;
