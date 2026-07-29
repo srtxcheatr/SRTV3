@@ -574,19 +574,39 @@ confirmBtn.onclick = async () => {
     if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
 
     closeModal('checkoutModal');
-    openModal('deliveryModal');   // Truck animation starts playing automatically
+    openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
     try {
-        const res = await backendFetch('/api/purchase/checkout', {
+        // ✅ Get the Firebase ID token
+        const token = await auth.currentUser.getIdToken();
+
+        // ✅ Send the request with explicit Authorization header
+        const response = await fetch('/api/purchase/checkout', {
             method: 'POST',
-            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                // If your backend uses CSRF tokens, include them here
+            },
+            credentials: 'same-origin', // or 'include' if using cookies
+            body: JSON.stringify({
+                sku: pendingCheckout.sku,
+                name: name,
+                waNum: waNum,
+            }),
         });
+
+        const res = await response.json();
 
         closeModal('deliveryModal');
 
-        if (!res || !res.key) {
-            throw new Error(res?.error || 'Purchase failed or out of stock');
+        if (!response.ok) {
+            throw new Error(res?.error || `Server error (${response.status})`);
+        }
+
+        if (!res.key) {
+            throw new Error(res?.error || 'Purchase failed – no key returned');
         }
 
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
