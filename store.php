@@ -3,28 +3,31 @@ $pageTitle = 'Store — SRT X CHEATS';
 $currentPage = 'store';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
+$devUrl = defined('DEVELOPER_URL') ? DEVELOPER_URL : 'https://srtxcheatr.github.io/srtxcheats/';
 ?>
 
 <div class="term-window">
     <div class="term-content">
 
-        <!-- Banner Carousel -->
         <div class="banner-carousel" id="bannerCarousel">
             <div class="banner-track" id="bannerTrack">
-                <?php foreach (BANNERS as $b): ?>
-                <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank" class="banner-slide">
-                    <img src="<?= htmlspecialchars($b['image']) ?>" alt="banner" loading="lazy">
-                </a>
-                <?php endforeach; ?>
+                <?php if (defined('BANNERS') && is_array(BANNERS)): ?>
+                    <?php foreach (BANNERS as $b): ?>
+                    <a href="<?= htmlspecialchars($b['link'] ?? '#') ?>" target="_blank" class="banner-slide">
+                        <img src="<?= htmlspecialchars($b['image'] ?? '') ?>" alt="banner" loading="lazy">
+                    </a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
             <div class="banner-dots" id="bannerDots">
-                <?php foreach (BANNERS as $i => $b): ?>
-                <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
-                <?php endforeach; ?>
+                <?php if (defined('BANNERS') && is_array(BANNERS)): ?>
+                    <?php foreach (BANNERS as $i => $b): ?>
+                    <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
 
-        <!-- Balance Panel -->
         <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
                 <div class="dim" style="font-size:11px"><i class="fas fa-wallet" style="color:var(--neon-amber)"></i> BALANCE</div>
@@ -41,13 +44,11 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
             </div>
         </div>
 
-        <!-- Announcement Panel -->
         <div class="panel" id="noticePanel">
             <div class="prompt-header"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</div>
             <div id="noticeText" style="font-size:12px;color:var(--text-secondary)">Loading announcements...</div>
         </div>
 
-        <!-- Action Buttons -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
             <button class="btn btn-ghost" id="openTopup"><i class="fas fa-coins" style="color:var(--neon-amber)"></i> Add Balance</button>
             <button class="btn btn-ghost" id="openProfile"><i class="fas fa-user-gear" style="color:var(--neon-blue)"></i> Profile</button>
@@ -55,10 +56,9 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
             <button class="btn btn-ghost" id="openHelp" style="font-size:11px"><i class="fas fa-headset"></i> Support</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:11px"><i class="fas fa-shield-halved"></i> Password</button>
-            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px"><i class="fas fa-code"></i> About</a>
+            <a href="<?= htmlspecialchars($devUrl) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px"><i class="fas fa-code"></i> About</a>
         </div>
 
-        <!-- Catalog Header -->
         <div class="prompt-header"><i class="fas fa-gamepad"></i> PRODUCTS CATALOG</div>
         <div style="position:relative;margin-bottom:10px">
             <i class="fas fa-magnifying-glass" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
@@ -73,7 +73,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
             <button class="cat-filter" data-tag="IOS"><i class="fab fa-apple"></i> IOS</button>
         </div>
 
-        <!-- Catalog List -->
         <div id="catalogList">
             <div class="dim" style="text-align:center;padding:30px">
                 <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--neon-blue);margin-bottom:8px"></i>
@@ -84,9 +83,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- ============ ALL MODALS ============ -->
-
-<!-- Checkout Modal -->
 <div id="checkoutModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-cart-shopping"></i> CONFIRM PURCHASE</div>
@@ -101,7 +97,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- ---- Delivery Modal (Old Truck Animation) ---- -->
 <div id="deliveryModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%;text-align:center;padding:24px 20px">
         <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
@@ -125,7 +120,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- Key Delivered Modal -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-key" style="color:var(--neon-green)"></i> ACCESS KEY DELIVERED</div>
@@ -135,7 +129,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- Topup Modal -->
 <div id="topupModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-qrcode"></i> TOPUP BALANCE</div>
@@ -154,7 +147,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- Profile Modal -->
 <div id="profileModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-user-gear"></i> PROFILE SETTINGS</div>
@@ -178,7 +170,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- Help / Report Modal -->
 <div id="helpModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-headset"></i> SUPPORT / REPORT</div>
@@ -192,7 +183,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- Password Modal -->
 <div id="passwordModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-shield-halved"></i> CHANGE PASSWORD</div>
@@ -206,7 +196,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- Error Modal -->
 <div id="errorModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-exclamation-triangle" style="color:var(--neon-red)"></i> SYSTEM ERROR</div>
@@ -215,7 +204,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<!-- ============ INLINE CSS ============ -->
 <style>
 /* ----- Catalog Card Styles ----- */
 .cat-row {
@@ -359,7 +347,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 }
 </style>
 
-<!-- ============ JAVASCRIPT ============ -->
 <script type="module">
 import {
     requireAuth, backendFetch, toast, esc,
@@ -383,16 +370,25 @@ function setLoading(btn, loading) {
     }
 }
 
-// ---- Banner Carousel Auto-Slide ----
+// ---- Banner Carousel Auto-Slide & Click Navigation ----
 (function initCarousel() {
     const track = document.getElementById('bannerTrack');
     const dots = document.querySelectorAll('.banner-dot');
     if (!track || dots.length < 2) return;
     let idx = 0;
-    setInterval(() => {
-        idx = (idx + 1) % dots.length;
+    
+    function updateSlide(n) {
+        idx = n;
         track.style.transform = `translateX(-${idx * 100}%)`;
         dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => updateSlide(i));
+    });
+
+    setInterval(() => {
+        updateSlide((idx + 1) % dots.length);
     }, 4000);
 })();
 
@@ -470,7 +466,7 @@ async function loadCatalog() {
     }
 }
 
-// ---- Catalog rendering (exact old logic) ----
+// ---- Catalog rendering ----
 let searchQuery = '';
 let activeTag = 'ALL';
 
@@ -509,7 +505,7 @@ function renderCatalog() {
         <div class="cat-row" id="cat-${gi}">
             <div class="cat-head" onclick="document.getElementById('cat-${gi}').classList.toggle('open')">
                 <div class="cat-img">
-                    <img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy">
+                    <img src="${esc(items[0].image || '')}" alt="${esc(row)}" loading="lazy">
                     <span class="cat-tag-badge">${tagOf(row)}</span>
                 </div>
                 <div class="cat-info">
@@ -539,11 +535,11 @@ function renderCatalog() {
 }
 
 // ---- Search & filter events ----
-document.getElementById('catalogSearch').addEventListener('input', (e) => {
+document.getElementById('catalogSearch')?.addEventListener('input', (e) => {
     searchQuery = e.target.value;
     renderCatalog();
 });
-document.getElementById('catFilters').addEventListener('click', (e) => {
+document.getElementById('catFilters')?.addEventListener('click', (e) => {
     const btn = e.target.closest('.cat-filter');
     if (!btn) return;
     document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
@@ -565,112 +561,100 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Checkout with explicit token ----
+// ---- Checkout using app standard backendFetch ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
-confirmBtn.onclick = async () => {
-    if (!pendingCheckout) return;
-    const name = document.getElementById('payName').value.trim();
-    const waNum = document.getElementById('payWA').value.trim();
-    if (!name || !waNum) {
-        toast('Please fill name and WhatsApp', 'error');
-        return;
-    }
-
-    closeModal('checkoutModal');
-    openModal('deliveryModal');
-    setLoading(confirmBtn, true);
-
-    try {
-        // 1. Get a fresh Firebase ID token
-        const token = await auth.currentUser.getIdToken();
-
-        // 2. Send request with explicit Authorization header
-        const response = await fetch('/api/purchase/checkout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'same-origin', // or 'include' if your API uses cookies
-            body: JSON.stringify({
-                sku: pendingCheckout.sku,
-                name: name,
-                waNum: waNum,
-            }),
-        });
-
-        // 3. Parse JSON response
-        const res = await response.json();
-
-        // 4. Close delivery modal
-        closeModal('deliveryModal');
-
-        // 5. Handle errors
-        if (!response.ok) {
-            throw new Error(res?.error || `Server error (${response.status})`);
-        }
-        if (!res.key) {
-            throw new Error(res?.error || 'Purchase failed – no key returned');
+if (confirmBtn) {
+    confirmBtn.onclick = async () => {
+        if (!pendingCheckout) return;
+        const name = document.getElementById('payName').value.trim();
+        const waNum = document.getElementById('payWA').value.trim();
+        if (!name || !waNum) {
+            toast('Please fill name and WhatsApp', 'error');
+            return;
         }
 
-        // 6. Show key
-        document.getElementById('keyProductName').textContent = pendingCheckout.name;
-        document.getElementById('keyValue').textContent = res.key;
-        openModal('keyModal');
+        closeModal('checkoutModal');
+        openModal('deliveryModal');
+        setLoading(confirmBtn, true);
 
-        // 7. Update balance if returned
-        if (res.newBalance !== undefined) {
-            document.getElementById('balAmount').textContent = res.newBalance;
-            document.getElementById('balBar').style.width = Math.min(100, res.newBalance / 10) + '%';
+        try {
+            const res = await backendFetch('/api/purchase/checkout', {
+                method: 'POST',
+                body: JSON.stringify({
+                    sku: pendingCheckout.sku,
+                    name: name,
+                    waNum: waNum,
+                }),
+            });
+
+            closeModal('deliveryModal');
+
+            if (!res || !res.key) {
+                throw new Error(res?.error || 'Purchase failed – no key returned');
+            }
+
+            document.getElementById('keyProductName').textContent = pendingCheckout.name;
+            document.getElementById('keyValue').textContent = res.key;
+            openModal('keyModal');
+
+            if (res.newBalance !== undefined) {
+                document.getElementById('balAmount').textContent = res.newBalance;
+                const bar = document.getElementById('balBar');
+                if (bar) bar.style.width = Math.min(100, res.newBalance / 10) + '%';
+            }
+        } catch (e) {
+            closeModal('deliveryModal');
+            document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
+            openModal('errorModal');
+        } finally {
+            setLoading(confirmBtn, false);
+            pendingCheckout = null;
         }
+    };
+}
 
-    } catch (e) {
-        closeModal('deliveryModal');
-        document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
-        openModal('errorModal');
-    } finally {
-        setLoading(confirmBtn, false);
-        pendingCheckout = null;
-    }
-};
 // ---- Topup ----
-document.getElementById('openTopup').onclick = () => openModal('topupModal');
+document.getElementById('openTopup')?.addEventListener('click', () => openModal('topupModal'));
 const topupBtn = document.getElementById('submitTopup');
-topupBtn.onclick = async () => {
-    const amount = parseInt(document.getElementById('topupAmount').value, 10);
-    const esewaId = document.getElementById('topupEsewa').value.trim();
-    const txCode = document.getElementById('topupTx').value.trim();
-    if (!amount || !esewaId || !txCode) return toast('Fill all fields', 'error');
-    setLoading(topupBtn, true);
-    try {
-        await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
-        toast('Submitted — awaiting admin approval', 'success');
-        closeModal('topupModal');
-    } catch (e) {
-        toast(e.message, 'error');
-    } finally {
-        setLoading(topupBtn, false);
-    }
-};
+if (topupBtn) {
+    topupBtn.onclick = async () => {
+        const amount = parseInt(document.getElementById('topupAmount').value, 10);
+        const esewaId = document.getElementById('topupEsewa').value.trim();
+        const txCode = document.getElementById('topupTx').value.trim();
+        if (!amount || !esewaId || !txCode) return toast('Fill all fields', 'error');
+        setLoading(topupBtn, true);
+        try {
+            await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
+            toast('Submitted — awaiting admin approval', 'success');
+            closeModal('topupModal');
+        } catch (e) {
+            toast(e.message, 'error');
+        } finally {
+            setLoading(topupBtn, false);
+        }
+    };
+}
 
 // ---- Profile ----
-document.getElementById('openProfile').onclick = () => openModal('profileModal');
+document.getElementById('openProfile')?.addEventListener('click', () => openModal('profileModal'));
 const profileBtn = document.getElementById('saveProfile');
-profileBtn.onclick = async () => {
-    const name = document.getElementById('profName').value.trim();
-    const phone = document.getElementById('profPhone').value.trim();
-    setLoading(profileBtn, true);
-    try {
-        await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
-        toast('Profile saved', 'success');
-        closeModal('profileModal');
-        loadBalance(); // refresh
-    } catch (e) {
-        toast(e.message, 'error');
-    } finally {
-        setLoading(profileBtn, false);
-    }
-};
+if (profileBtn) {
+    profileBtn.onclick = async () => {
+        const name = document.getElementById('profName').value.trim();
+        const phone = document.getElementById('profPhone').value.trim();
+        setLoading(profileBtn, true);
+        try {
+            await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
+            toast('Profile saved', 'success');
+            closeModal('profileModal');
+            loadBalance();
+        } catch (e) {
+            toast(e.message, 'error');
+        } finally {
+            setLoading(profileBtn, false);
+        }
+    };
+}
 
 // Copy UID
 document.getElementById('copyUidBtn')?.addEventListener('click', () => {
@@ -682,47 +666,51 @@ document.getElementById('copyUidBtn')?.addEventListener('click', () => {
 });
 
 // ---- Change password ----
-document.getElementById('openPassword').onclick = () => openModal('passwordModal');
+document.getElementById('openPassword')?.addEventListener('click', () => openModal('passwordModal'));
 const passBtn = document.getElementById('savePassword');
-passBtn.onclick = async () => {
-    const curPass = document.getElementById('curPass').value;
-    const newPass = document.getElementById('newPass').value;
-    if (!curPass || !newPass) return toast('Fill both fields', 'error');
-    if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
-    setLoading(passBtn, true);
-    try {
-        const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
-        await reauthenticateWithCredential(auth.currentUser, cred);
-        await updatePassword(auth.currentUser, newPass);
-        toast('Password updated', 'success');
-        closeModal('passwordModal');
-        document.getElementById('curPass').value = '';
-        document.getElementById('newPass').value = '';
-    } catch (e) {
-        toast(e.code === 'auth/wrong-password' ? 'Current password is incorrect' : e.message, 'error');
-    } finally {
-        setLoading(passBtn, false);
-    }
-};
+if (passBtn) {
+    passBtn.onclick = async () => {
+        const curPass = document.getElementById('curPass').value;
+        const newPass = document.getElementById('newPass').value;
+        if (!curPass || !newPass) return toast('Fill both fields', 'error');
+        if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
+        setLoading(passBtn, true);
+        try {
+            const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
+            await reauthenticateWithCredential(auth.currentUser, cred);
+            await updatePassword(auth.currentUser, newPass);
+            toast('Password updated', 'success');
+            closeModal('passwordModal');
+            document.getElementById('curPass').value = '';
+            document.getElementById('newPass').value = '';
+        } catch (e) {
+            toast((e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') ? 'Current password is incorrect' : e.message, 'error');
+        } finally {
+            setLoading(passBtn, false);
+        }
+    };
+}
 
 // ---- Help / Report ----
-document.getElementById('openHelp').onclick = () => openModal('helpModal');
+document.getElementById('openHelp')?.addEventListener('click', () => openModal('helpModal'));
 const reportBtn = document.getElementById('submitReport');
-reportBtn.onclick = async () => {
-    const problem = document.getElementById('problemText').value.trim();
-    if (!problem) return toast('Please describe the problem', 'error');
-    setLoading(reportBtn, true);
-    try {
-        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
-        toast('Report sent', 'success');
-        document.getElementById('problemText').value = '';
-        closeModal('helpModal');
-    } catch (e) {
-        toast(e.message, 'error');
-    } finally {
-        setLoading(reportBtn, false);
-    }
-};
+if (reportBtn) {
+    reportBtn.onclick = async () => {
+        const problem = document.getElementById('problemText').value.trim();
+        if (!problem) return toast('Please describe the problem', 'error');
+        setLoading(reportBtn, true);
+        try {
+            await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+            toast('Report sent', 'success');
+            document.getElementById('problemText').value = '';
+            closeModal('helpModal');
+        } catch (e) {
+            toast(e.message, 'error');
+        } finally {
+            setLoading(reportBtn, false);
+        }
+    };
+}
 </script>
 
 </body>
