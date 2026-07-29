@@ -4,7 +4,7 @@ $breadcrumb = $breadcrumb ?? $currentPage;
 ?>
 <header class="glass-nav-header">
     <div class="nav-container">
-        <a href="/store.php" class="brand-logo">
+        <a href="<?= $currentPage === 'home' ? '/home.php' : '/store.php' ?>" class="brand-logo">
             <div class="logo-img-wrap">
                 <img src="https://i.ibb.co/9HmdjJr1/file-000000008a6481f588e660845aa6efa9.png" alt="SRT X CHEATS Logo" class="site-logo">
             </div>
@@ -26,13 +26,13 @@ $breadcrumb = $breadcrumb ?? $currentPage;
             </nav>
             <?php endif; ?>
 
-            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
                 <i class="fas fa-moon moon-icon"></i>
                 <i class="fas fa-sun sun-icon"></i>
             </button>
 
             <?php if ($currentPage !== 'home'): ?>
-            <button type="button" class="btn-logout" onclick="doLogout()" title="Logout">
+            <button type="button" class="btn-logout" id="logoutBtn" title="Logout">
                 <i class="fas fa-right-from-bracket"></i>
             </button>
             <?php endif; ?>
