@@ -19,76 +19,84 @@ require __DIR__ . '/includes/nav.php';
 
 <style>
 .log-entry {
-    background: var(--glass-panel);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-md);
+    background: var(--glass-panel, #0c1310);
+    border: 1px solid var(--glass-border, rgba(57,255,136,0.14));
+    border-radius: var(--radius-md, 8px);
     padding: 14px;
     margin-bottom: 10px;
     transition: all 0.3s ease;
 }
+
 .log-entry:hover {
-    border-color: var(--neon-blue);
+    border-color: var(--neon-blue, #00f0ff);
     box-shadow: 0 4px 15px rgba(0, 240, 255, 0.15);
 }
+
 .log-entry .top { 
     display: flex; 
     justify-content: space-between; 
-    align-items: center;
+    align-items: center; 
     margin-bottom: 6px; 
 }
+
 .log-entry .name { 
     font-weight: 700; 
-    color: var(--text-primary); 
+    color: var(--text-primary, #fff); 
     font-size: 13px; 
 }
+
 .log-entry .price { 
-    color: var(--neon-amber); 
+    color: var(--neon-amber, #ffb454); 
     font-weight: 800; 
-    font-family: var(--font-mono); 
+    font-family: var(--font-mono, monospace); 
 }
+
 .log-entry .meta { 
-    color: var(--text-muted); 
+    color: var(--text-muted, #8a9a90); 
     font-size: 11px; 
     margin-bottom: 8px; 
 }
 
-/* Key Wrapper & Box Layout */
+/* Key Section Flex Layout Fix */
 .log-entry .key-wrap {
-    display: flex;
-    gap: 6px;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
     margin-top: 6px;
 }
-.log-entry .key-box {
-    flex: 1;
+
+/* Forces Key Box to take up remaining space */
+.log-entry .key-box,
+.log-entry .key {
+    flex: 1 1 auto !important;
+    min-width: 0 !important; /* CRITICAL: Prevents key box from squishing */
     background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
+    border-radius: var(--radius-sm, 6px);
     padding: 8px 10px;
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     font-weight: 700;
-    color: var(--neon-green);
+    color: var(--neon-green, #10b981);
     font-size: 12px;
-    white-space: nowrap;
-    overflow-x: auto;
-    word-break: keep-all;
+    white-space: nowrap !important;
+    overflow-x: auto !important;
+    word-break: keep-all !important;
 }
 
-/* Copy Button Styling */
+/* Restricts button from taking up full width */
+.log-entry .key-wrap button,
 .copy-key-btn {
-    padding: 6px 10px;
-    font-size: 11px;
+    flex: 0 0 auto !important; /* Prevents button from stretching */
+    width: auto !important;
+    padding: 8px 14px;
+    font-size: 12px;
     white-space: nowrap;
     cursor: pointer;
 }
-
-/* Light Mode Override Support */
-[data-theme="light"] .log-entry .key-box {
-    background: #f0fdf4;
-    border-color: #86efac;
-    color: #15803d;
-}
 </style>
+
 
 <script type="module">
 import { requireAuth, backendFetch, toast, fmtDate, esc } from '/assets/js/app.js';
