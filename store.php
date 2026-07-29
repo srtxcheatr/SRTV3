@@ -55,7 +55,7 @@ require __DIR__ . '/includes/nav.php';
     <div class="prompt-header"><i class="fas fa-gamepad"></i> PRODUCTS CATALOG</div>
     <div style="position:relative;margin-bottom:10px">
         <i class="fas fa-magnifying-glass" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
-        <input type="text" id="catalogSearch" placeholder="Search products..." style="padding-left:38px">
+        <input type="text" id="catalogSearch" placeholder="Search product cheats..." style="padding-left:38px">
     </div>
 
     <div id="catFilters" style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
@@ -88,7 +88,7 @@ require __DIR__ . '/includes/nav.php';
 <div id="deliveryModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:380px;width:100%;text-align:center;padding:24px">
         <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck-fast" style="color:var(--neon-blue)"></i> GENERATING KEY...</div>
-        <div class="dim" id="deliveryLabel" style="margin:12px 0 10px">Connecting...</div>
+        <div class="dim" id="deliveryLabel" style="margin:12px 0 10px">Connecting to server...</div>
         <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;margin-bottom:12px">
             <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));transition:width .4s"></div>
         </div>
@@ -159,20 +159,25 @@ let catalogCache = [];
 let activeTag = 'ALL';
 let pendingPurchase = null;
 
-// Modal Helpers
 const openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
 const closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 
-window.openModal = openModal;
-window.closeModal = closeModal;
+function setSafeText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
+function setSafeHtml(id, html) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+}
 
-// Bind Modal Close Buttons
-document.getElementById('closeCheckout').onclick = () => closeModal('checkoutModal');
-document.getElementById('closeKey').onclick = () => closeModal('keyModal');
-document.getElementById('closeTopup').onclick = () => closeModal('topupModal');
-document.getElementById('closeProfile').onclick = () => closeModal('profileModal');
-document.getElementById('closeHelp').onclick = () => closeModal('helpModal');
-document.getElementById('closePassword').onclick = () => closeModal('passwordModal');
+// Modal Click Bindings
+document.getElementById('closeCheckout')?.addEventListener('click', () => closeModal('checkoutModal'));
+document.getElementById('closeKey')?.addEventListener('click', () => closeModal('keyModal'));
+document.getElementById('closeTopup')?.addEventListener('click', () => closeModal('topupModal'));
+document.getElementById('closeProfile')?.addEventListener('click', () => closeModal('profileModal'));
+document.getElementById('closeHelp')?.addEventListener('click', () => closeModal('helpModal'));
+document.getElementById('closePassword')?.addEventListener('click', () => closeModal('passwordModal'));
 
 document.getElementById('logoutBtn')?.addEventListener('click', async () => {
     await signOut(auth);
@@ -216,22 +221,38 @@ document.getElementById('logoutBtn')?.addEventListener('click', async () => {
     }, { passive: true });
 })();
 
-// Main Auth Load
+// Main Auth & Data Fetching
 requireAuth(async () => {
-    await Promise.all([loadUser(), loadCatalog(), loadNotice()]);
+    loadUser();
+    loadCatalog();
+    loadNotice();
 });
 
 async function loadUser() {
     try {
-        const u = await backendFetch('/api/user/me');
-        userCache = u;
-        document.getElementById('balAmount').textContent = u.balance ?? 0;
-        document.getElementById('balBar').style.width = `${Math.min(100, ((u.balance || 0) / 1000) * 100)}%`;
-        document.getElementById('statusVal').textContent = u.status || 'Active';
-        document.getElementById('profEmail').value = u.email || auth.currentUser?.email || '';
-        document.getElementById('profName').value = u.name || '';
-        document.getElementById('profWA').value = u.whatsapp || '';
+        const res = await backendFetch('/api/user/me');
+        const u = (res && (res.user || res.data)) ? (res.user || res.data) : res;
+        userCache = u || {};
+        
+        const bal = u.balance ?? 0;
+        setSafeText('balAmount', bal);
+        
+        const bar = document.getElementById('balBar');
+        if (bar) bar.style.width = `${Math.min(100, (bal / 1000) * 100)}%`;
+        
+        setSafeText('statusVal', u.status || 'Active');
+        
+        const profEmail = document.getElementById('profEmail');
+        if (profEmail) profEmail.value = u.email || auth.currentUser?.email || '';
+        
+        const profName = document.getElementById('profName');
+        if (profName) profName.value = u.name || '';
+        
+        const profWA = document.getElementById('profWA');
+        if (profWA) profWA.value = u.whatsapp || '';
     } catch (e) {
+        console.error("loadUser error:", e);
+        setSafeText('statusVal', 'Offline');
         toast('User sync error: ' + e.message, 'error');
     }
 }
@@ -239,76 +260,118 @@ async function loadUser() {
 async function loadNotice() {
     try {
         const n = await backendFetch('/api/notice');
-        document.getElementById('noticeText').innerHTML = n.notice ? esc(n.notice) : 'No new announcements.';
+        const text = typeof n === 'string' ? n : (n.notice || n.text || n.message || n.announcement || '');
+        setSafeHtml('noticeText', text ? esc(text) : 'No new announcements.');
     } catch (e) {
-        document.getElementById('noticeText').textContent = 'Welcome to SRT X CHEATS.';
+        console.error("loadNotice error:", e);
+        setSafeText('noticeText', 'Welcome to SRT X CHEATS.');
     }
 }
 
 async function loadCatalog() {
     const list = document.getElementById('catalogList');
+    if (!list) return;
     try {
         const res = await backendFetch('/api/catalog');
-        catalogCache = res.catalog || [];
+        if (Array.isArray(res)) {
+            catalogCache = res;
+        } else if (res && Array.isArray(res.catalog)) {
+            catalogCache = res.catalog;
+        } else if (res && Array.isArray(res.products)) {
+            catalogCache = res.products;
+        } else if (res && Array.isArray(res.items)) {
+            catalogCache = res.items;
+        } else {
+            catalogCache = [];
+        }
         renderCatalog();
     } catch (e) {
-        list.innerHTML = `<div style="color:var(--neon-red);padding:20px;text-align:center">Failed to load products: ${esc(e.message)}</div>`;
+        console.error("loadCatalog error:", e);
+        list.innerHTML = `<div style="color:var(--neon-red);padding:20px;text-align:center"><i class="fas fa-triangle-exclamation"></i> Failed to load catalog: ${esc(e.message)}</div>`;
     }
 }
 
 function renderCatalog() {
     const list = document.getElementById('catalogList');
-    const search = document.getElementById('catalogSearch').value.toLowerCase().trim();
+    if (!list) return;
+    const searchInput = document.getElementById('catalogSearch');
+    const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     const filtered = catalogCache.filter(item => {
-        const matchesTag = activeTag === 'ALL' || (item.tags && item.tags.includes(activeTag));
-        const matchesSearch = !search || item.name.toLowerCase().includes(search);
+        if (!item) return false;
+        const tags = item.tags || item.category || [];
+        const tagArr = Array.isArray(tags) ? tags : [tags];
+        const matchesTag = activeTag === 'ALL' || tagArr.some(t => String(t).toUpperCase().includes(activeTag));
+        const nameStr = item.name || item.title || '';
+        const matchesSearch = !search || nameStr.toLowerCase().includes(search);
         return matchesTag && matchesSearch;
     });
 
     if (!filtered.length) {
-        list.innerHTML = '<div class="dim" style="text-align:center;padding:30px">No cheats found for this criteria.</div>';
+        list.innerHTML = '<div class="dim" style="text-align:center;padding:30px"><i class="fas fa-box-open" style="font-size:20px;margin-bottom:8px;display:block"></i>No product cheats found for this category.</div>';
         return;
     }
 
-    list.innerHTML = filtered.map(item => `
-        <div class="panel" style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-                <div>
-                    <div style="font-weight:800;font-size:15px;color:var(--text-primary)">${esc(item.name)}</div>
-                    <div style="font-size:11px;color:var(--neon-blue)">${(item.tags || []).join(' · ')}</div>
+    list.innerHTML = filtered.map(item => {
+        const prices = item.prices || item.price || {};
+        let priceDisplay = 'N/A';
+        if (typeof prices === 'object' && Object.keys(prices).length > 0) {
+            priceDisplay = 'Rs ' + Math.min(...Object.values(prices).map(p => Number(p) || 0));
+        } else if (typeof prices === 'number' || typeof prices === 'string') {
+            priceDisplay = 'Rs ' + prices;
+        }
+
+        const tags = Array.isArray(item.tags) ? item.tags.join(' · ') : (item.tags || item.category || '');
+
+        return `
+            <div class="panel" style="margin-bottom:12px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+                    <div>
+                        <div style="font-weight:800;font-size:15px;color:var(--text-primary)">${esc(item.name || 'Unnamed Product')}</div>
+                        <div style="font-size:11px;color:var(--neon-blue);margin-top:2px">${esc(tags)}</div>
+                    </div>
+                    <div style="color:var(--neon-amber);font-weight:800;font-size:16px" class="mono-num">
+                        ${priceDisplay}
+                    </div>
                 </div>
-                <div style="color:var(--neon-amber);font-weight:800;font-size:16px" class="mono-num">
-                    Rs ${item.prices ? Math.min(...Object.values(item.prices)) : 'N/A'}
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">${esc(item.desc || item.description || '')}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    ${typeof prices === 'object' && !Array.isArray(prices) ? Object.entries(prices).map(([dur, price]) => `
+                        <button class="btn btn-ghost buy-btn" style="flex:1;font-size:11px;padding:8px 10px;min-width:90px" 
+                            data-id="${esc(item.id || '')}" data-name="${esc(item.name || '')}" data-dur="${esc(dur)}" data-price="${price}">
+                            <i class="fas fa-cart-plus"></i> ${esc(dur)}: Rs ${price}
+                        </button>
+                    `).join('') : `
+                        <button class="btn btn-ghost buy-btn" style="flex:1;font-size:11px;padding:8px 10px" 
+                            data-id="${esc(item.id || '')}" data-name="${esc(item.name || '')}" data-dur="Standard" data-price="${prices}">
+                            <i class="fas fa-cart-plus"></i> Buy: Rs ${prices}
+                        </button>
+                    `}
                 </div>
             </div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">${esc(item.desc || '')}</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-                ${Object.entries(item.prices || {}).map(([dur, price]) => `
-                    <button class="btn btn-ghost buy-btn" style="flex:1;font-size:11px;padding:6px 10px" 
-                        data-id="${esc(item.id)}" data-name="${esc(item.name)}" data-dur="${esc(dur)}" data-price="${price}">
-                        ${dur}: Rs ${price}
-                    </button>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 
     document.querySelectorAll('.buy-btn').forEach(btn => {
         btn.onclick = () => {
             pendingPurchase = { ...btn.dataset };
-            document.getElementById('checkoutSummary').innerHTML = `
-                Purchase <strong>${esc(pendingPurchase.name)}</strong> (${esc(pendingPurchase.dur)}) for 
-                <strong style="color:var(--neon-amber)">Rs ${pendingPurchase.price}</strong>?
-            `;
-            document.getElementById('payName').value = userCache?.name || '';
-            document.getElementById('payWA').value = userCache?.whatsapp || '';
+            const summary = document.getElementById('checkoutSummary');
+            if (summary) {
+                summary.innerHTML = `
+                    Purchase <strong>${esc(pendingPurchase.name)}</strong> (${esc(pendingPurchase.dur)}) for 
+                    <strong style="color:var(--neon-amber)">Rs ${pendingPurchase.price}</strong>?
+                `;
+            }
+            const payName = document.getElementById('payName');
+            if (payName) payName.value = userCache?.name || '';
+            const payWA = document.getElementById('payWA');
+            if (payWA) payWA.value = userCache?.whatsapp || '';
             openModal('checkoutModal');
         };
     });
 }
 
-// Category Filter click events
+// Category Filter Binding
 document.querySelectorAll('.cat-filter').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
@@ -317,10 +380,11 @@ document.querySelectorAll('.cat-filter').forEach(btn => {
         renderCatalog();
     };
 });
-document.getElementById('catalogSearch').oninput = renderCatalog;
+const searchEl = document.getElementById('catalogSearch');
+if (searchEl) searchEl.oninput = renderCatalog;
 
-// Confirm Purchase Flow
-document.getElementById('confirmBuyBtn').onclick = async () => {
+// Purchase Order Handler
+document.getElementById('confirmBuyBtn')?.addEventListener('click', async () => {
     if (!pendingPurchase) return;
     const name = document.getElementById('payName').value.trim();
     const wa = document.getElementById('payWA').value.trim();
@@ -331,7 +395,6 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
 
     const bar = document.getElementById('deliveryBar');
     const pct = document.getElementById('deliveryPct');
-    const lbl = document.getElementById('deliveryLabel');
 
     let progress = 0;
     const interval = setInterval(() => {
@@ -357,8 +420,8 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
 
         setTimeout(() => {
             closeModal('deliveryModal');
-            document.getElementById('keyProductName').textContent = pendingPurchase.name;
-            document.getElementById('keyValue').textContent = res.key || 'License generated successfully!';
+            setSafeText('keyProductName', pendingPurchase.name);
+            setSafeText('keyValue', res.key || 'License generated successfully!');
             openModal('keyModal');
             loadUser();
         }, 400);
@@ -368,16 +431,16 @@ document.getElementById('confirmBuyBtn').onclick = async () => {
         closeModal('deliveryModal');
         toast(e.message, 'error');
     }
-};
+});
 
-// Open Action Modals
-document.getElementById('openTopup').onclick = () => openModal('topupModal');
-document.getElementById('openProfile').onclick = () => openModal('profileModal');
-document.getElementById('openHelp').onclick = () => openModal('helpModal');
-document.getElementById('openPassword').onclick = () => openModal('passwordModal');
+// Modals Trigger Handlers
+document.getElementById('openTopup')?.addEventListener('click', () => openModal('topupModal'));
+document.getElementById('openProfile')?.addEventListener('click', () => openModal('profileModal'));
+document.getElementById('openHelp')?.addEventListener('click', () => openModal('helpModal'));
+document.getElementById('openPassword')?.addEventListener('click', () => openModal('passwordModal'));
 
 // Submit Topup
-document.getElementById('submitTxId').onclick = async () => {
+document.getElementById('submitTxId')?.addEventListener('click', async () => {
     const txId = document.getElementById('txIdInput').value.trim();
     if (!txId) return toast('Please enter Transaction ID', 'error');
     const btn = document.getElementById('submitTxId');
@@ -392,10 +455,10 @@ document.getElementById('submitTxId').onclick = async () => {
     } finally {
         setButtonLoading(btn, false);
     }
-};
+});
 
 // Save Profile
-document.getElementById('saveProfile').onclick = async () => {
+document.getElementById('saveProfile')?.addEventListener('click', async () => {
     const name = document.getElementById('profName').value.trim();
     const whatsapp = document.getElementById('profWA').value.trim();
     const btn = document.getElementById('saveProfile');
@@ -410,10 +473,10 @@ document.getElementById('saveProfile').onclick = async () => {
     } finally {
         setButtonLoading(btn, false);
     }
-};
+});
 
 // Submit Report
-document.getElementById('submitReport').onclick = async () => {
+document.getElementById('submitReport')?.addEventListener('click', async () => {
     const problem = document.getElementById('problemText').value.trim();
     if (!problem) return toast('Describe the problem first', 'error');
     const btn = document.getElementById('submitReport');
@@ -428,10 +491,10 @@ document.getElementById('submitReport').onclick = async () => {
     } finally {
         setButtonLoading(btn, false);
     }
-};
+});
 
-// Update Password
-document.getElementById('savePassword').onclick = async () => {
+// Save Password
+document.getElementById('savePassword')?.addEventListener('click', async () => {
     const curPass = document.getElementById('curPass').value;
     const newPass = document.getElementById('newPass').value;
     if (!curPass || !newPass) return toast('Fill both password fields', 'error');
@@ -451,5 +514,5 @@ document.getElementById('savePassword').onclick = async () => {
     } finally {
         setButtonLoading(btn, false);
     }
-};
+});
 </script>
