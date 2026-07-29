@@ -6,53 +6,53 @@ require __DIR__ . '/includes/nav.php';
 ?>
 
 <div class="term-window">
-    <div class="term-content">
-
-        <div class="prompt-header"><i class="fas fa-clock-rotate-left"></i> PURCHASE HISTORY</div>
-        
-        <div id="historyList">
-            <div class="dim" style="text-align:center;padding:20px">
-                <i class="fas fa-circle-notch fa-spin"></i> Loading purchase history...
-            </div>
+    <div class="prompt-header"><i class="fas fa-receipt"></i> PURCHASE HISTORY</div>
+    <div id="historyList">
+        <div class="dim" style="text-align:center;padding:30px">
+            <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--neon-blue);margin-bottom:8px"></i>
+            <div>Loading purchase history...</div>
         </div>
-
-        <button class="btn btn-ghost" id="clearBtn" style="margin-top:16px;color:var(--red, #ff4d4d);width:100%">
-            <i class="fas fa-trash-can"></i> Clear History
-        </button>
-
     </div>
+
+    <button class="btn btn-danger" id="clearBtn" style="margin-top:16px"><i class="fas fa-trash-can"></i> Clear Purchase History</button>
 </div>
 
 <style>
 .log-entry {
-    background: var(--panel, #0c1310);
-    border: 1px solid var(--border, rgba(57,255,136,0.14));
-    border-radius: var(--radius-sm, 6px);
-    padding: 12px;
+    background: var(--glass-panel);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 14px;
     margin-bottom: 10px;
-    font-size: 12px;
+    transition: all 0.3s ease;
+}
+.log-entry:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.15);
 }
 .log-entry .top { 
     display: flex; 
     justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 4px; 
+    align-items: center;
+    margin-bottom: 6px; 
 }
 .log-entry .name { 
     font-weight: 700; 
+    color: var(--text-primary); 
     font-size: 13px; 
 }
 .log-entry .price { 
-    color: var(--amber, #ffb454); 
+    color: var(--neon-amber); 
     font-weight: 800; 
+    font-family: var(--font-mono); 
 }
 .log-entry .meta { 
-    color: var(--text3, #8a9a90); 
+    color: var(--text-muted); 
     font-size: 11px; 
     margin-bottom: 8px; 
 }
 
-/* Dynamic License Key Box – now with horizontal overflow support */
+/* Key Wrapper & Box Layout */
 .log-entry .key-wrap {
     display: flex;
     gap: 6px;
@@ -61,40 +61,32 @@ require __DIR__ . '/includes/nav.php';
 }
 .log-entry .key-box {
     flex: 1;
-    background: rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--border-strong, rgba(57,255,136,0.35));
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
     padding: 8px 10px;
-    font-family: monospace;
+    font-family: var(--font-mono);
     font-weight: 700;
-    color: var(--neon-green, #10b981);
+    color: var(--neon-green);
     font-size: 12px;
-    /* Prevent wrapping and allow horizontal scroll */
     white-space: nowrap;
     overflow-x: auto;
     word-break: keep-all;
-    scrollbar-width: thin;
-}
-.log-entry .key-box::-webkit-scrollbar {
-    height: 4px;
-}
-.log-entry .key-box::-webkit-scrollbar-thumb {
-    background: var(--border-strong, rgba(57,255,136,0.35));
-    border-radius: 2px;
 }
 
-/* Light mode support */
-[data-theme="light"] .log-entry .key-box {
-    background: #f0fdf4;
-    border-color: #86efac;
-    color: #15803d;
-}
-
+/* Copy Button Styling */
 .copy-key-btn {
     padding: 6px 10px;
     font-size: 11px;
     white-space: nowrap;
     cursor: pointer;
+}
+
+/* Light Mode Override Support */
+[data-theme="light"] .log-entry .key-box {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
 }
 </style>
 
