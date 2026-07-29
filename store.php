@@ -3,7 +3,6 @@ $pageTitle = 'Store — SRT X CHEATS';
 $currentPage = 'store';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
-$devUrl = defined('DEVELOPER_URL') ? DEVELOPER_URL : 'https://srtxcheatr.github.io/srtxcheats/';
 ?>
 
 <div class="term-window">
@@ -11,20 +10,16 @@ $devUrl = defined('DEVELOPER_URL') ? DEVELOPER_URL : 'https://srtxcheatr.github.
 
         <div class="banner-carousel" id="bannerCarousel">
             <div class="banner-track" id="bannerTrack">
-                <?php if (defined('BANNERS') && is_array(BANNERS)): ?>
-                    <?php foreach (BANNERS as $b): ?>
-                    <a href="<?= htmlspecialchars($b['link'] ?? '#') ?>" target="_blank" class="banner-slide">
-                        <img src="<?= htmlspecialchars($b['image'] ?? '') ?>" alt="banner" loading="lazy">
-                    </a>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <?php foreach (BANNERS as $b): ?>
+                <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank" class="banner-slide">
+                    <img src="<?= htmlspecialchars($b['image']) ?>" alt="banner" loading="lazy">
+                </a>
+                <?php endforeach; ?>
             </div>
             <div class="banner-dots" id="bannerDots">
-                <?php if (defined('BANNERS') && is_array(BANNERS)): ?>
-                    <?php foreach (BANNERS as $i => $b): ?>
-                    <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <?php foreach (BANNERS as $i => $b): ?>
+                <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
+                <?php endforeach; ?>
             </div>
         </div>
 
@@ -56,7 +51,7 @@ $devUrl = defined('DEVELOPER_URL') ? DEVELOPER_URL : 'https://srtxcheatr.github.
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
             <button class="btn btn-ghost" id="openHelp" style="font-size:11px"><i class="fas fa-headset"></i> Support</button>
             <button class="btn btn-ghost" id="openPassword" style="font-size:11px"><i class="fas fa-shield-halved"></i> Password</button>
-            <a href="<?= htmlspecialchars($devUrl) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px"><i class="fas fa-code"></i> About</a>
+            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px"><i class="fas fa-code"></i> About</a>
         </div>
 
         <div class="prompt-header"><i class="fas fa-gamepad"></i> PRODUCTS CATALOG</div>
@@ -117,6 +112,12 @@ $devUrl = defined('DEVELOPER_URL') ? DEVELOPER_URL : 'https://srtxcheatr.github.
                 </svg>
             </div>
         </div>
+
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin:12px 0 8px;color:var(--text-secondary)">Connecting to server...</div>
+        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-bottom:6px">
+            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--neon-green),var(--neon-blue));transition:width 0.4s ease"></div>
+        </div>
+        <div class="mono-num" id="deliveryPct" style="font-size:20px;font-weight:700;color:var(--neon-green)">0%</div>
     </div>
 </div>
 
@@ -358,6 +359,13 @@ window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
 
+// Helper to get fresh auth token for direct status polling
+async function getToken() {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not logged in');
+    return await user.getIdToken(true);
+}
+
 // Loading helper
 function setLoading(btn, loading) {
     if (!btn) return;
@@ -370,29 +378,20 @@ function setLoading(btn, loading) {
     }
 }
 
-// ---- Banner Carousel Auto-Slide & Click Navigation ----
+// ---- Banner Carousel Auto-Slide ----
 (function initCarousel() {
     const track = document.getElementById('bannerTrack');
     const dots = document.querySelectorAll('.banner-dot');
     if (!track || dots.length < 2) return;
     let idx = 0;
-    
-    function updateSlide(n) {
-        idx = n;
+    setInterval(() => {
+        idx = (idx + 1) % dots.length;
         track.style.transform = `translateX(-${idx * 100}%)`;
         dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-    }
-
-    dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => updateSlide(i));
-    });
-
-    setInterval(() => {
-        updateSlide((idx + 1) % dots.length);
     }, 4000);
 })();
 
-// ---- Global Logout (used by nav) ----
+// ---- Global Logout ----
 window.doLogout = async function() {
     try {
         await auth.signOut();
@@ -505,7 +504,7 @@ function renderCatalog() {
         <div class="cat-row" id="cat-${gi}">
             <div class="cat-head" onclick="document.getElementById('cat-${gi}').classList.toggle('open')">
                 <div class="cat-img">
-                    <img src="${esc(items[0].image || '')}" alt="${esc(row)}" loading="lazy">
+                    <img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy">
                     <span class="cat-tag-badge">${tagOf(row)}</span>
                 </div>
                 <div class="cat-info">
@@ -535,11 +534,11 @@ function renderCatalog() {
 }
 
 // ---- Search & filter events ----
-document.getElementById('catalogSearch')?.addEventListener('input', (e) => {
+document.getElementById('catalogSearch').addEventListener('input', (e) => {
     searchQuery = e.target.value;
     renderCatalog();
 });
-document.getElementById('catFilters')?.addEventListener('click', (e) => {
+document.getElementById('catFilters').addEventListener('click', (e) => {
     const btn = e.target.closest('.cat-filter');
     if (!btn) return;
     document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
@@ -548,7 +547,7 @@ document.getElementById('catFilters')?.addEventListener('click', (e) => {
     renderCatalog();
 });
 
-// ---- Start checkout (global) ----
+// ---- Start checkout ----
 window.__startCheckout = (sku) => {
     const p = catalog[sku];
     if (!p) return toast('Product not found', 'error');
@@ -561,65 +560,50 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Helper to get auth token ----
-async function getToken() {
-    const user = auth.currentUser;
-    if (!user) throw new Error('Not logged in');
-    return await user.getIdToken(true);
-}
-
-// ---- Checkout with job polling using explicit token ----
+// ---- Confirm purchase with job polling restored ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
     const name = document.getElementById('payName').value.trim();
     const waNum = document.getElementById('payWA').value.trim();
+    if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
 
     closeModal('checkoutModal');
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
-    // Reset progress
-    document.getElementById('deliveryBar').style.width = '0%';
-    document.getElementById('deliveryPct').textContent = '0%';
-    document.getElementById('deliveryLabel').textContent = 'Starting...';
+    // Safely reset delivery indicators
+    const deliveryBar = document.getElementById('deliveryBar');
+    const deliveryPct = document.getElementById('deliveryPct');
+    const deliveryLabel = document.getElementById('deliveryLabel');
+    if (deliveryBar) deliveryBar.style.width = '0%';
+    if (deliveryPct) deliveryPct.textContent = '0%';
+    if (deliveryLabel) deliveryLabel.textContent = 'Starting...';
 
     try {
-        const token = await getToken();
-
-        // 1. Start the job using plain fetch with token
-        const startResp = await fetch('/api/purchase/checkout/start', {
+        // 1. Start job via backendFetch
+        const startRes = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'same-origin',
             body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
         });
-        if (!startResp.ok) {
-            const errData = await startResp.json().catch(() => ({}));
-            throw new Error(errData.error || `Start failed (HTTP ${startResp.status})`);
-        }
-        const startRes = await startResp.json();
         const jobId = startRes.jobId;
 
-        // 2. Poll status using the same token
+        // 2. Poll job status
         let done = false;
         let result = null;
+        const token = await getToken();
         while (!done) {
-            const statusResp = await fetch(`/api/purchase/checkout/status/${jobId}`, {
+            const resp = await fetch(`${window.BACKEND_URL}/api/purchase/checkout/status/${jobId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            if (!statusResp.ok) {
-                throw new Error(`Status request failed (HTTP ${statusResp.status})`);
+            if (!resp.ok) {
+                throw new Error(`Status request failed (HTTP ${resp.status})`);
             }
-            const status = await statusResp.json();
+            const status = await resp.json();
 
-            // Update progress UI
-            document.getElementById('deliveryBar').style.width = status.percent + '%';
-            document.getElementById('deliveryPct').textContent = status.percent + '%';
-            document.getElementById('deliveryLabel').textContent = status.label || 'Processing...';
+            if (deliveryBar) deliveryBar.style.width = status.percent + '%';
+            if (deliveryPct) deliveryPct.textContent = status.percent + '%';
+            if (deliveryLabel) deliveryLabel.textContent = status.label || 'Processing...';
 
             if (status.done) {
                 done = true;
@@ -631,21 +615,19 @@ confirmBtn.onclick = async () => {
 
         closeModal('deliveryModal');
 
-        if (!result.success) {
-            throw new Error(result.error || 'Purchase failed');
+        if (!result || !result.success) {
+            throw new Error(result?.error || 'Purchase failed');
         }
 
-        // Success – show key
         document.getElementById('keyProductName').textContent = pendingCheckout.name;
         document.getElementById('keyValue').textContent = result.key;
         openModal('keyModal');
 
-        // Update balance
         if (result.newBalance !== undefined) {
             document.getElementById('balAmount').textContent = result.newBalance;
-            document.getElementById('balBar').style.width = Math.min(100, result.newBalance / 10) + '%';
+            const bar = document.getElementById('balBar');
+            if (bar) bar.style.width = Math.min(100, (result.newBalance / 10)) + '%';
         }
-
     } catch (e) {
         closeModal('deliveryModal');
         document.getElementById('errorMsg').textContent = e.message || 'Key delivery failed. Contact admin.';
@@ -657,47 +639,43 @@ confirmBtn.onclick = async () => {
 };
 
 // ---- Topup ----
-document.getElementById('openTopup')?.addEventListener('click', () => openModal('topupModal'));
+document.getElementById('openTopup').onclick = () => openModal('topupModal');
 const topupBtn = document.getElementById('submitTopup');
-if (topupBtn) {
-    topupBtn.onclick = async () => {
-        const amount = parseInt(document.getElementById('topupAmount').value, 10);
-        const esewaId = document.getElementById('topupEsewa').value.trim();
-        const txCode = document.getElementById('topupTx').value.trim();
-        if (!amount || !esewaId || !txCode) return toast('Fill all fields', 'error');
-        setLoading(topupBtn, true);
-        try {
-            await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
-            toast('Submitted — awaiting admin approval', 'success');
-            closeModal('topupModal');
-        } catch (e) {
-            toast(e.message, 'error');
-        } finally {
-            setLoading(topupBtn, false);
-        }
-    };
-}
+topupBtn.onclick = async () => {
+    const amount = parseInt(document.getElementById('topupAmount').value, 10);
+    const esewaId = document.getElementById('topupEsewa').value.trim();
+    const txCode = document.getElementById('topupTx').value.trim();
+    if (!amount || !esewaId || !txCode) return toast('Fill all fields', 'error');
+    setLoading(topupBtn, true);
+    try {
+        await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
+        toast('Submitted — awaiting admin approval', 'success');
+        closeModal('topupModal');
+    } catch (e) {
+        toast(e.message, 'error');
+    } finally {
+        setLoading(topupBtn, false);
+    }
+};
 
 // ---- Profile ----
-document.getElementById('openProfile')?.addEventListener('click', () => openModal('profileModal'));
+document.getElementById('openProfile').onclick = () => openModal('profileModal');
 const profileBtn = document.getElementById('saveProfile');
-if (profileBtn) {
-    profileBtn.onclick = async () => {
-        const name = document.getElementById('profName').value.trim();
-        const phone = document.getElementById('profPhone').value.trim();
-        setLoading(profileBtn, true);
-        try {
-            await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
-            toast('Profile saved', 'success');
-            closeModal('profileModal');
-            loadBalance();
-        } catch (e) {
-            toast(e.message, 'error');
-        } finally {
-            setLoading(profileBtn, false);
-        }
-    };
-}
+profileBtn.onclick = async () => {
+    const name = document.getElementById('profName').value.trim();
+    const phone = document.getElementById('profPhone').value.trim();
+    setLoading(profileBtn, true);
+    try {
+        await backendFetch('/api/user/profile', { method: 'POST', body: JSON.stringify({ name, phone }) });
+        toast('Profile saved', 'success');
+        closeModal('profileModal');
+        loadBalance();
+    } catch (e) {
+        toast(e.message, 'error');
+    } finally {
+        setLoading(profileBtn, false);
+    }
+};
 
 // Copy UID
 document.getElementById('copyUidBtn')?.addEventListener('click', () => {
@@ -709,51 +687,47 @@ document.getElementById('copyUidBtn')?.addEventListener('click', () => {
 });
 
 // ---- Change password ----
-document.getElementById('openPassword')?.addEventListener('click', () => openModal('passwordModal'));
+document.getElementById('openPassword').onclick = () => openModal('passwordModal');
 const passBtn = document.getElementById('savePassword');
-if (passBtn) {
-    passBtn.onclick = async () => {
-        const curPass = document.getElementById('curPass').value;
-        const newPass = document.getElementById('newPass').value;
-        if (!curPass || !newPass) return toast('Fill both fields', 'error');
-        if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
-        setLoading(passBtn, true);
-        try {
-            const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
-            await reauthenticateWithCredential(auth.currentUser, cred);
-            await updatePassword(auth.currentUser, newPass);
-            toast('Password updated', 'success');
-            closeModal('passwordModal');
-            document.getElementById('curPass').value = '';
-            document.getElementById('newPass').value = '';
-        } catch (e) {
-            toast((e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') ? 'Current password is incorrect' : e.message, 'error');
-        } finally {
-            setLoading(passBtn, false);
-        }
-    };
-}
+passBtn.onclick = async () => {
+    const curPass = document.getElementById('curPass').value;
+    const newPass = document.getElementById('newPass').value;
+    if (!curPass || !newPass) return toast('Fill both fields', 'error');
+    if (newPass.length < 6) return toast('New password must be at least 6 characters', 'error');
+    setLoading(passBtn, true);
+    try {
+        const cred = EmailAuthProvider.credential(auth.currentUser.email, curPass);
+        await reauthenticateWithCredential(auth.currentUser, cred);
+        await updatePassword(auth.currentUser, newPass);
+        toast('Password updated', 'success');
+        closeModal('passwordModal');
+        document.getElementById('curPass').value = '';
+        document.getElementById('newPass').value = '';
+    } catch (e) {
+        toast(e.code === 'auth/wrong-password' ? 'Current password is incorrect' : e.message, 'error');
+    } finally {
+        setLoading(passBtn, false);
+    }
+};
 
 // ---- Help / Report ----
-document.getElementById('openHelp')?.addEventListener('click', () => openModal('helpModal'));
+document.getElementById('openHelp').onclick = () => openModal('helpModal');
 const reportBtn = document.getElementById('submitReport');
-if (reportBtn) {
-    reportBtn.onclick = async () => {
-        const problem = document.getElementById('problemText').value.trim();
-        if (!problem) return toast('Please describe the problem', 'error');
-        setLoading(reportBtn, true);
-        try {
-            await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
-            toast('Report sent', 'success');
-            document.getElementById('problemText').value = '';
-            closeModal('helpModal');
-        } catch (e) {
-            toast(e.message, 'error');
-        } finally {
-            setLoading(reportBtn, false);
-        }
-    };
-}
+reportBtn.onclick = async () => {
+    const problem = document.getElementById('problemText').value.trim();
+    if (!problem) return toast('Please describe the problem', 'error');
+    setLoading(reportBtn, true);
+    try {
+        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+        toast('Report sent', 'success');
+        document.getElementById('problemText').value = '';
+        closeModal('helpModal');
+    } catch (e) {
+        toast(e.message, 'error');
+    } finally {
+        setLoading(reportBtn, false);
+    }
+};
 </script>
 
 </body>
