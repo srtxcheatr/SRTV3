@@ -1,120 +1,157 @@
 <?php
-$pageTitle = 'History — SRT X CHEATS';
+$pageTitle = 'History — ADMIN PANELS';
 $currentPage = 'history';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
 ?>
 
 <div class="term-window">
-    <div class="prompt-header"><i class="fas fa-receipt"></i> PURCHASE HISTORY</div>
-    <div id="historyList">
-        <div class="dim" style="text-align:center;padding:30px">
-            <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--neon-blue);margin-bottom:8px"></i>
-            <div>Loading purchase history...</div>
-        </div>
-    </div>
+    <div class="term-content">
 
-    <button class="btn btn-danger" id="clearBtn" style="margin-top:16px"><i class="fas fa-trash-can"></i> Clear Purchase History</button>
+        <div class="prompt-header"><i class="fas fa-clock-rotate-left"></i> PURCHASE HISTORY</div>
+        
+        <div id="historyList">
+            <div class="dim" style="text-align:center;padding:20px">
+                <i class="fas fa-circle-notch fa-spin"></i> Loading purchase history...
+            </div>
+        </div>
+
+        <button class="btn btn-ghost" id="clearBtn" style="margin-top:16px;color:var(--red, #ff4d4d);width:100%">
+            <i class="fas fa-trash-can"></i> Clear History
+        </button>
+
+    </div>
 </div>
 
 <style>
 .log-entry {
-    background: var(--glass-panel, #161b22);
-    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
-    border-radius: var(--radius-md, 8px);
-    padding: 14px;
+    background: var(--panel, #0c1310);
+    border: 1px solid var(--border, rgba(57,255,136,0.14));
+    border-radius: var(--radius-sm, 6px);
+    padding: 12px;
     margin-bottom: 10px;
-    transition: all 0.3s ease;
-}
-.log-entry:hover {
-    border-color: var(--neon-blue, #00f0ff);
-    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.15);
+    font-size: 12px;
 }
 .log-entry .top { 
     display: flex; 
     justify-content: space-between; 
-    align-items: center;
-    margin-bottom: 6px; 
+    align-items: center; 
+    margin-bottom: 4px; 
 }
 .log-entry .name { 
     font-weight: 700; 
-    color: var(--text-primary, #ffffff); 
     font-size: 13px; 
 }
 .log-entry .price { 
-    color: var(--neon-amber, #ffb703); 
+    color: var(--amber, #ffb454); 
     font-weight: 800; 
-    font-family: var(--font-mono, monospace); 
 }
 .log-entry .meta { 
-    color: var(--text-muted, #8b949e); 
+    color: var(--text3, #8a9a90); 
     font-size: 11px; 
     margin-bottom: 8px; 
 }
 
-/* Key Container Fixes (Readable in Light/Dark Modes) */
-.log-entry .key-container {
+/* Dynamic License Key Box (Works in both Dark & Light/White Mode) */
+.log-entry .key-wrap {
     display: flex;
+    gap: 6px;
     align-items: center;
-    justify-content: space-between;
-    background: #0f172a; /* Solid high-contrast background */
-    border: 1px solid rgba(0, 240, 255, 0.25);
-    border-radius: var(--radius-sm, 6px);
-    padding: 8px 12px;
-    gap: 10px;
+    margin-top: 6px;
 }
-
-.log-entry .key-text {
-    font-family: var(--font-mono, monospace);
-    color: #00ff88; /* High-contrast neon green */
-    word-break: break-all;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-/* Copy Button Styling */
-.copy-btn {
-    background: rgba(0, 240, 255, 0.15);
-    border: 1px solid rgba(0, 240, 255, 0.4);
-    color: #00f0ff;
+.log-entry .key-box {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-strong, rgba(57,255,136,0.35));
     border-radius: 4px;
-    padding: 5px 10px;
+    padding: 8px 10px;
+    word-break: break-all;
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--neon-green, #10b981);
+    font-size: 12px;
+}
+
+/* Light mode support override */
+[data-theme="light"] .log-entry .key-box {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
+}
+
+.copy-key-btn {
+    padding: 6px 10px;
     font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
     white-space: nowrap;
-    transition: all 0.2s ease;
-}
-
-.copy-btn:hover {
-    background: #00f0ff;
-    color: #000;
-}
-
-.copy-btn.copied {
-    background: #00ff88;
-    border-color: #00ff88;
-    color: #000;
+    cursor: pointer;
 }
 </style>
 
-<script>
-// Function to copy key to clipboard with visual feedback
-function copyKey(keyText, btnElement) {
-    navigator.clipboard.writeText(keyText).then(() => {
-        const originalHTML = btnElement.innerHTML;
-        btnElement.classList.add('copied');
-        btnElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        
-        setTimeout(() => {
-            btnElement.classList.remove('copied');
-            btnElement.innerHTML = originalHTML;
-        }, 2000);
-    }).catch(err => {
-        console.error('Failed to copy key: ', err);
+<script type="module">
+import { requireAuth, backendFetch, toast, fmtDate, esc } from '/assets/js/app.js';
+
+requireAuth(async () => {
+    await loadHistory();
+});
+
+async function loadHistory() {
+    try {
+        const d = await backendFetch('/api/user/history');
+        renderHistory(d.history || []);
+    } catch (e) {
+        document.getElementById('historyList').innerHTML = `
+            <div style="color:var(--red, #ff4d4d);font-size:12px;text-align:center;padding:20px">
+                <i class="fas fa-triangle-exclamation"></i> Couldn't load history: ${esc(e.message)}
+            </div>`;
+    }
+}
+
+function renderHistory(items) {
+    const el = document.getElementById('historyList');
+    if (!items.length) {
+        el.innerHTML = '<div class="dim" style="text-align:center;padding:30px"><i class="fas fa-box-open" style="font-size:20px;margin-bottom:8px;display:block"></i>No purchases recorded yet.</div>';
+        return;
+    }
+
+    el.innerHTML = items.map(it => `
+        <div class="log-entry">
+            <div class="top">
+                <span class="name">${esc(it.name || '—')}</span>
+                <span class="price mono-num">Rs ${it.price ?? '—'}</span>
+            </div>
+            <div class="meta">${esc(it.duration || 'Standard')} · ${fmtDate(it.at)}</div>
+            ${it.key ? `
+                <div class="key-wrap">
+                    <div class="key-box">${esc(it.key)}</div>
+                    <button class="btn btn-ghost copy-key-btn" data-key="${esc(it.key)}">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+
+    // Attach click listener for Copy Buttons
+    document.querySelectorAll('.copy-key-btn').forEach(btn => {
+        btn.onclick = () => {
+            const keyText = btn.dataset.key;
+            if (keyText) {
+                navigator.clipboard.writeText(keyText);
+                toast('Key copied to clipboard!', 'success');
+            }
+        };
     });
 }
+
+// Clear History Action
+document.getElementById('clearBtn').onclick = async () => {
+    if (!confirm('Clear your entire purchase history? This cannot be undone.')) return;
+    try {
+        await backendFetch('/api/user/history-clear', { method: 'POST' });
+        toast('History cleared successfully', 'success');
+        await loadHistory();
+    } catch (e) {
+        toast(e.message, 'error');
+    }
+};
 </script>
