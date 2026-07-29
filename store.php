@@ -2,7 +2,7 @@
 $pageTitle = 'Store — SRT X CHEATS';
 $currentPage = 'store';
 require __DIR__ . '/includes/head.php';
-require __DIR__ . '/includes/nav.php';   // use the fixed nav.php below
+require __DIR__ . '/includes/nav.php';   // use the fixed nav.php from earlier
 ?>
 
 <div class="term-window">
@@ -24,7 +24,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php below
             </div>
         </div>
 
-        <!-- Balance Panel (new UI) -->
+        <!-- Balance Panel -->
         <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
                 <div class="dim" style="font-size:11px"><i class="fas fa-wallet" style="color:var(--neon-amber)"></i> BALANCE</div>
@@ -84,18 +84,256 @@ require __DIR__ . '/includes/nav.php';   // use the fixed nav.php below
     </div>
 </div>
 
-<!-- ---- All Modals (same as your new design, keep them) ---- -->
-<!-- ... (all modals: checkout, delivery, key, topup, profile, help, password, error) ... -->
-<!-- I'll omit them here for brevity – copy them from your new store.php or the previous answer -->
+<!-- ============ ALL MODALS (from your new design) ============ -->
 
-<!-- ---- JavaScript (exact old logic with new UI bindings) ---- -->
+<!-- Checkout Modal -->
+<div id="checkoutModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-cart-shopping"></i> CONFIRM PURCHASE</div>
+        <div id="checkoutSummary" style="font-size:13px;margin-bottom:14px"></div>
+        <div class="field"><label><i class="fas fa-user"></i> Your Name</label><input type="text" id="payName" placeholder="Full name"></div>
+        <div class="field"><label><i class="fab fa-whatsapp"></i> WhatsApp Number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
+        <button class="btn btn-solid" id="confirmBuyBtn" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-check-circle"></i> Confirm Order</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('checkoutModal')"><i class="fas fa-xmark"></i> Cancel</button>
+    </div>
+</div>
+
+<!-- Delivery Modal -->
+<div id="deliveryModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:380px;width:100%;text-align:center;padding:24px">
+        <div class="prompt-header" style="justify-content:center"><i class="fas fa-truck-fast" style="color:var(--neon-blue)"></i> GENERATING KEY...</div>
+        <div class="dim" id="deliveryLabel" style="margin:12px 0 10px">Connecting to server...</div>
+        <div style="height:8px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;margin-bottom:12px">
+            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--neon-blue),var(--neon-purple));transition:width .4s"></div>
+        </div>
+        <div class="mono-num" id="deliveryPct" style="font-size:22px;font-weight:800;color:var(--neon-blue)">0%</div>
+    </div>
+</div>
+
+<!-- Key Delivered Modal -->
+<div id="keyModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-key" style="color:var(--neon-green)"></i> ACCESS KEY DELIVERED</div>
+        <div id="keyProductName" style="font-size:13px;margin-bottom:8px"></div>
+        <div style="background:rgba(0,0,0,0.3);border:1px solid var(--neon-green);border-radius:var(--radius-md);padding:14px;word-break:break-all;color:var(--neon-green);font-weight:700;margin-bottom:14px;font-family:var(--font-mono)" id="keyValue"></div>
+        <button class="btn btn-solid" onclick="closeModal('keyModal')"><i class="fas fa-check"></i> Done</button>
+    </div>
+</div>
+
+<!-- Topup Modal -->
+<div id="topupModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-qrcode"></i> TOPUP BALANCE</div>
+        <div class="dim" style="font-size:12px;margin-bottom:12px" id="topupHint"><i class="fas fa-info-circle"></i> Pay via eSewa, then submit your transaction ID.</div>
+        <div style="text-align:center;margin-bottom:12px">
+            <img src="https://i.postimg.cc/zXm07q9C/Screenshot-20260425-142906.jpg" alt="eSewa QR" style="max-width:180px;border-radius:12px;border:1px solid var(--glass-border)">
+        </div>
+        <div class="field"><label><i class="fas fa-rupee-sign"></i> Amount (Rs)</label><input type="number" id="topupAmount" value="100" min="50"></div>
+        <div class="field"><label><i class="fas fa-id-card"></i> eSewa ID</label><input type="text" id="topupEsewa" placeholder="phone or email"></div>
+        <div class="field"><label><i class="fas fa-hashtag"></i> Transaction Code</label><input type="text" id="topupTx" placeholder="e.g. JRJDHD"></div>
+        <button class="btn btn-solid" id="submitTopup" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-paper-plane"></i> Submit Topup</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('topupModal')"><i class="fas fa-xmark"></i> Close</button>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-user-gear"></i> PROFILE SETTINGS</div>
+        <div class="field"><label><i class="fas fa-user"></i> Name</label><input type="text" id="profName" placeholder="Your Full Name"></div>
+        <div class="field"><label><i class="fab fa-whatsapp"></i> WhatsApp Number</label><input type="text" id="profPhone" placeholder="98xxxxxxxx"></div>
+        <button class="btn btn-solid" id="saveProfile" style="margin-bottom:14px;position:relative">
+            <span class="btn-text"><i class="fas fa-floppy-disk"></i> Save Details</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <div class="field"><label><i class="fas fa-envelope"></i> Email</label><input type="text" id="profEmail" readonly style="opacity:0.7"></div>
+        <div class="field">
+            <label><i class="fas fa-fingerprint" style="color:var(--neon-amber)"></i> User ID (UID)</label>
+            <div style="display:flex;gap:6px">
+                <input type="text" id="profUid" readonly style="opacity:0.8;font-family:var(--font-mono);font-size:12px;letter-spacing:0.5px">
+                <button type="button" class="btn btn-ghost" id="copyUidBtn" style="padding:0 12px" title="Copy UID">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+        <button class="btn btn-ghost" onclick="closeModal('profileModal')"><i class="fas fa-xmark"></i> Close</button>
+    </div>
+</div>
+
+<!-- Help / Report Modal -->
+<div id="helpModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-headset"></i> SUPPORT / REPORT</div>
+        <div class="dim" style="font-size:12px;margin-bottom:12px">Describe your issue. Your account details will be sent to admin.</div>
+        <div class="field"><label><i class="fas fa-comment-dots"></i> Describe issue</label><textarea id="problemText" rows="3"></textarea></div>
+        <button class="btn btn-solid" id="submitReport" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-paper-plane"></i> Send Report</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('helpModal')"><i class="fas fa-xmark"></i> Close</button>
+    </div>
+</div>
+
+<!-- Password Modal -->
+<div id="passwordModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-shield-halved"></i> CHANGE PASSWORD</div>
+        <div class="field"><label>Current Password</label><input type="password" id="curPass" autocomplete="current-password"></div>
+        <div class="field"><label>New Password (min 6 chars)</label><input type="password" id="newPass" autocomplete="new-password"></div>
+        <button class="btn btn-solid" id="savePassword" style="margin-bottom:8px;position:relative">
+            <span class="btn-text"><i class="fas fa-key"></i> Update Password</span>
+            <span class="btn-spinner hidden"><span class="spinner"></span></span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('passwordModal')"><i class="fas fa-xmark"></i> Close</button>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-exclamation-triangle" style="color:var(--neon-red)"></i> SYSTEM ERROR</div>
+        <div id="errorMsg" style="background:rgba(255,0,0,0.05);border:1px solid var(--neon-red);border-radius:var(--radius-md);padding:12px;color:var(--neon-red);font-size:12px;margin-bottom:12px"></div>
+        <button class="btn btn-ghost" onclick="closeModal('errorModal')"><i class="fas fa-times"></i> Dismiss</button>
+    </div>
+</div>
+
+<!-- ============ INLINE CSS FOR CATALOG CARDS & MODALS ============ -->
+<style>
+/* ----- Catalog Card Styles (from old code) ----- */
+.cat-row {
+    background: var(--glass-panel);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+}
+.cat-row:hover { border-color: var(--glass-border-hover); }
+.cat-head { cursor: pointer; }
+.cat-img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid var(--glass-border);
+    position: relative;
+}
+.cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cat-tag-badge {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--glass-border-hover);
+    color: var(--neon-blue);
+    backdrop-filter: blur(4px);
+}
+.cat-info {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cat-info .name { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
+.cat-info .price-range { font-size: 12px; color: var(--neon-amber); font-weight: 700; }
+.cat-arrow { font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
+.cat-row.open .cat-arrow { transform: rotate(90deg); }
+.cat-body { display: none; border-top: 1px solid var(--glass-border); }
+.cat-row.open .cat-body { display: block; }
+.dur-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; font-size: 13px;
+    border-top: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.dur-row:hover { background: rgba(255,255,255,0.05); }
+.dur-row .price { color: var(--neon-amber); font-weight: 700; }
+.apk-update-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px; font-size: 12px; font-weight: 700;
+    border-top: 1px solid var(--glass-border);
+    color: var(--neon-blue);
+    text-decoration: none;
+}
+.apk-update-row:hover { background: rgba(0,240,255,0.05); }
+
+/* ----- Modal overlay fixes ----- */
+.modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(4,3,12,0.75);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.25s ease;
+}
+.modal-overlay.hidden { display: none !important; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ----- Button loading states (already in your CSS, but ensure) ----- */
+.btn .btn-spinner { display: none; }
+.btn.loading .btn-text { visibility: hidden; }
+.btn.loading .btn-spinner { display: inline-flex; align-items: center; gap: 6px; }
+.btn.loading .btn-spinner .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ----- Banner carousel (already defined, but ensure) ----- */
+.banner-carousel {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+    border: 1px solid var(--glass-border);
+    position: relative;
+}
+.banner-track { display: flex; transition: transform 0.4s ease-in-out; }
+.banner-slide { min-width: 100%; }
+.banner-slide img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.banner-dots {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+}
+.banner-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.banner-dot.active {
+    width: 20px;
+    border-radius: 10px;
+    background: var(--neon-blue);
+    box-shadow: 0 0 8px var(--neon-blue);
+}
+</style>
+
+<!-- ============ JAVASCRIPT (same as old working code) ============ -->
 <script type="module">
 import {
     requireAuth, backendFetch, toast, esc,
     auth, EmailAuthProvider, reauthenticateWithCredential, updatePassword,
 } from '/assets/js/app.js';
 
-// Global functions for inline onclick in HTML
+// Global functions for inline onclick
 window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
@@ -199,7 +437,7 @@ async function loadCatalog() {
     }
 }
 
-// ---- Catalog rendering (old logic) ----
+// ---- Catalog rendering (exact old logic) ----
 let searchQuery = '';
 let activeTag = 'ALL';
 
