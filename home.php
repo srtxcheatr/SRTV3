@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'SRT X CHEATS';
+$pageTitle = 'ADMIN PANELS';
 $currentPage = 'home';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
