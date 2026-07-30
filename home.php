@@ -11,7 +11,7 @@ require __DIR__ . '/includes/nav.php';
             <img src="https://i.postimg.cc/qqYtBD3k/file-00000000470c8208bd1a0215abff7977.png" alt="Logo" style="width:70px;height:70px;border-radius:16px;box-shadow:0 0 25px rgba(168,85,247,0.5)">
         </div>
         <div style="font-family:var(--font-heading);font-weight:900;font-size:22px;letter-spacing:1px;margin-bottom:4px">
-            ADMIN<span style="color:var(--neon-blue)"></span>PANELS
+            ADMIN_<span style="color:var(--neon-blue)"></span>PANELS
         </div>
         <div class="dim" style="font-size:12px;margin-bottom:18px">Connecting to server gateway...</div>
         <div id="bootLines" style="display:flex;flex-direction:column;gap:4px;min-height:80px;font-size:12px;font-family:var(--font-mono);color:var(--neon-blue)"></div>
