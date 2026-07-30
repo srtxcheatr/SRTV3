@@ -17,9 +17,6 @@ $breadcrumb = $breadcrumb ?? $currentPage;
         <div class="nav-actions">
             <?php if ($currentPage !== 'home'): ?>
             <nav class="nav-links">
-                <a href="/store.php" class="nav-item <?= $currentPage === 'store' ? 'active' : '' ?>">
-                    <span class="nav-text">Store</span>
-                </a>
                 <a href="/history.php" class="nav-item <?= $currentPage === 'history' ? 'active' : '' ?>">
                     <i class="fas fa-clock-rotate-left"></i> <span class="nav-text">History</span>
                 </a>
