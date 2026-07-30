@@ -99,7 +99,18 @@ require __DIR__ . '/includes/nav.php';
 
 
 <script type="module">
-import { requireAuth, backendFetch, toast, fmtDate, esc } from '/assets/js/app.js';
+import { requireAuth, backendFetch, toast, fmtDate, esc, auth } from '/assets/js/app.js';
+
+// nav.php's Logout button calls doLogout() globally — define it here too,
+// otherwise Logout silently fails on this page.
+window.doLogout = async function() {
+    try {
+        await auth.signOut();
+    } catch (e) {
+        console.error('Logout error:', e);
+    }
+    window.location.href = '/home.php';
+};
 
 requireAuth(async () => {
     await loadHistory();
