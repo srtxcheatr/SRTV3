@@ -49,8 +49,31 @@
 }
 
 /* Global Setup */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; /* kills the blue flash on tap (mobile Chrome/Safari) */
+    -webkit-touch-callout: default;
+}
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+
+/* Replace the browser's default blue focus ring with a themed one.
+   Mouse/touch taps get no outline at all; keyboard nav keeps an accessible ring. */
+a, button, .btn, .nav-item, .cat-filter, .theme-toggle-btn, .btn-logout,
+input, textarea, select, .banner-dot {
+    -webkit-tap-highlight-color: transparent;
+}
+a:focus, button:focus, .btn:focus, input:focus, textarea:focus, select:focus {
+    outline: none;
+}
+a:focus-visible, button:focus-visible, .btn:focus-visible {
+    outline: 2px solid var(--neon-purple);
+    outline-offset: 2px;
+}
+
+::selection { background: var(--neon-purple); color: #fff; }
+
 body {
     background: var(--bg-main);
     background-image: var(--bg-gradient);
