@@ -9,8 +9,8 @@ $breadcrumb = $breadcrumb ?? $currentPage;
                 <img src="https://i.postimg.cc/qqYtBD3k/file-00000000470c8208bd1a0215abff7977.png" alt="SRT X CHEATS Logo" class="site-logo">
             </div>
             <div class="brand-title">
-                <span class="brand-main">KEY<span class="neon-cyan">SHOP</span></span>
-                <span class="brand-sub">BY-SRT</span>
+                <span class="brand-main">ADMIN<span class="neon-cyan">PANEL</span></span>
+                <span class="brand-sub">STORE</span>
             </div>
         </a>
 
@@ -18,7 +18,7 @@ $breadcrumb = $breadcrumb ?? $currentPage;
             <?php if ($currentPage !== 'home'): ?>
             <nav class="nav-links">
                 <a href="/store.php" class="nav-item <?= $currentPage === 'store' ? 'active' : '' ?>">
-                    <i class="fas fa-store"></i> <span class="nav-text">Store</span>
+                    <span class="nav-text">Store</span>
                 </a>
                 <a href="/history.php" class="nav-item <?= $currentPage === 'history' ? 'active' : '' ?>">
                     <i class="fas fa-clock-rotate-left"></i> <span class="nav-text">History</span>
