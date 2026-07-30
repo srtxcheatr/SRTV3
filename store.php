@@ -63,7 +63,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
         <div id="catFilters" style="display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
             <button class="cat-filter active" data-tag="ALL"><i class="fas fa-layer-group"></i> ALL</button>
             <button class="cat-filter" data-tag="ROOT"><i class="fas fa-mobile-screen-button"></i> ROOT</button>
-            <button class="cat-filter" data-tag="NONROOT"><i class="fas fa-mobile-button"></i> NONROOT</button>
+            <button class="cat-filter" data-tag="NONROOT"><i class="fas fa-tablet-screen-button"></i> NONROOT</button>
             <button class="cat-filter" data-tag="PC"><i class="fas fa-desktop"></i> PC</button>
             <button class="cat-filter" data-tag="IOS"><i class="fab fa-apple"></i> IOS</button>
         </div>
