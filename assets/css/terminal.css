@@ -14,7 +14,8 @@
     --neon-blue: #00f0ff;
     --neon-purple: #a855f7;
     --neon-pink: #ec4899;
-    --neon-amber: #ffb454;
+    --neon-amber: #d4af37;   /* was flat orange #ffb454 — now a metallic gold for a premium feel */
+    --gold-shine: linear-gradient(135deg, #f5dfa0 0%, #d4af37 50%, #a9822a 100%);
     --neon-red: #ff4757;
     --neon-green: #2ed573;
     
@@ -487,3 +488,147 @@ input:focus, textarea:focus {
 .dim { color: var(--text-muted); }
 .hidden { display: none !important; }
 .mono-num { font-family: var(--font-mono); }
+
+/* ==============================================================
+   Premium additions — gold balance treatment, menu FAB + sheet,
+   icon chips, support ticket block
+   ============================================================== */
+
+/* Balance panel gets the one bold treatment on the page — a soft
+   gold edge and a shine on the number itself. Everything else stays
+   quiet so this reads as the page's premium moment, not just noise. */
+.panel-premium {
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    box-shadow: 0 8px 32px 0 rgba(212, 175, 55, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.gold-text {
+    background: var(--gold-shine);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Icon chips — small badge behind an icon instead of a bare glyph */
+.icon-chip {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.icon-chip.chip-gold  { background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.35); color: var(--neon-amber); }
+.icon-chip.chip-blue  { background: rgba(0, 240, 255, 0.12);  border: 1px solid rgba(0, 240, 255, 0.3);  color: var(--neon-blue); }
+.icon-chip.chip-green { background: rgba(46, 213, 115, 0.12); border: 1px solid rgba(46, 213, 115, 0.3); color: var(--neon-green); }
+.icon-chip.chip-purple{ background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.35);color: var(--neon-purple); }
+.icon-chip.chip-pink  { background: rgba(236, 72, 153, 0.14); border: 1px solid rgba(236, 72, 153, 0.35);color: var(--neon-pink); }
+
+/* Floating menu button */
+.menu-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 22px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    z-index: 500;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(88, 28, 220, 0.45), 0 0 0 1px rgba(212, 175, 55, 0.25);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.menu-fab:active { transform: scale(0.94); }
+
+/* Slide-up menu sheet */
+.sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    background: rgba(4, 3, 12, 0.6);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+.sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+
+.menu-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 601;
+    max-width: 520px;
+    margin: 0 auto;
+    background: var(--glass-panel);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-bottom: none;
+    border-radius: 22px 22px 0 0;
+    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.4);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.menu-sheet.open { transform: translateY(0); }
+
+.sheet-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 3px;
+    background: var(--glass-border);
+    margin: 4px auto 14px;
+}
+.sheet-title {
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 4px;
+}
+.sheet-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 6px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+.sheet-item:last-child { border-bottom: none; }
+.sheet-item .sheet-label { flex: 1; }
+.sheet-item .sheet-arrow { color: var(--text-muted); font-size: 12px; }
+
+/* Support ticket block inside the Support modal */
+.support-ticket {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+.ticket-row { display: flex; gap: 8px; padding: 3px 0; }
+.ticket-row .k { color: var(--text-muted); min-width: 76px; }
+.ticket-row .eq { color: var(--text-muted); }
+.ticket-row .v { color: var(--neon-amber); font-weight: 700; word-break: break-all; }
