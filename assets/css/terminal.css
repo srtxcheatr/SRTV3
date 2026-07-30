@@ -128,7 +128,7 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--glass-border);
-    padding: 12px 20px;
+    padding: 10px 14px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
@@ -138,17 +138,21 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
 }
 
 /* Brand Top-Left Logo */
 .brand-logo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
+    flex-shrink: 0;
+    min-width: 0;
 }
 .logo-img-wrap {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
     border-radius: 10px;
     padding: 2px;
     background: linear-gradient(135deg, var(--neon-cyan, #00f0ff), var(--neon-purple));
@@ -159,13 +163,17 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     height: 100%;
     object-fit: cover;
     border-radius: 8px;
+    display: block;
 }
 .brand-title {
     font-family: var(--font-heading);
     font-weight: 900;
-    font-size: 16px;
+    font-size: 15px;
     letter-spacing: 0.5px;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .neon-cyan { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,240,255,0.6); }
 .brand-sub {
@@ -177,23 +185,32 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     line-height: 1;
 }
 
-/* Nav Actions */
-.nav-actions { display: flex; align-items: center; gap: 10px; }
+/* Nav Actions — Store, History, theme toggle, logout all share one
+   consistent height/visual weight so none of them looks "heavier"
+   or more highlighted than the others at rest. */
+.nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .nav-links { display: flex; gap: 6px; }
 .nav-item {
-    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 12px;
     border-radius: var(--radius-sm);
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid transparent;
+    border: 1px solid var(--glass-border);
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
+.nav-item i { font-size: 12px; width: 14px; text-align: center; flex-shrink: 0; }
 .nav-item:hover, .nav-item.active {
     color: var(--text-primary);
     background: rgba(168, 85, 247, 0.15);
-    border-color: var(--glass-border);
+    border-color: var(--glass-border-hover);
     box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
 }
 
@@ -201,6 +218,7 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
 .theme-toggle-btn {
     width: 36px;
     height: 36px;
+    flex-shrink: 0;
     border-radius: 50%;
     border: 1px solid var(--glass-border);
     background: var(--glass-panel);
@@ -224,6 +242,7 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
 .btn-logout {
     width: 36px;
     height: 36px;
+    flex-shrink: 0;
     border-radius: 50%;
     border: 1px solid rgba(255,71,87,0.3);
     background: rgba(255,71,87,0.1);
@@ -239,6 +258,14 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     background: var(--neon-red);
     color: #fff;
     box-shadow: 0 0 12px rgba(255, 71, 87, 0.5);
+}
+
+/* On narrow phones, drop the Store/History text labels rather than
+   letting the logo, icons, or buttons shrink out of proportion. */
+@media (max-width: 380px) {
+    .nav-item { padding: 0 10px; }
+    .nav-item .nav-text { display: none; }
+    .brand-sub { display: none; }
 }
 
 /* Glass Main Container */
