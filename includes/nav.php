@@ -9,8 +9,8 @@ $breadcrumb = $breadcrumb ?? $currentPage;
                 <img src="https://i.postimg.cc/qqYtBD3k/file-00000000470c8208bd1a0215abff7977.png" alt="SRT X CHEATS Logo" class="site-logo">
             </div>
             <div class="brand-title">
-                <span class="brand-main">ADMIN<span class="neon-cyan">PANEL</span></span>
-                <span class="brand-sub">STORE</span>
+                <span class="brand-main">KEY<span class="neon-cyan">SHOP</span></span>
+                <span class="brand-sub">BY-SRT</span>
             </div>
         </a>
 
