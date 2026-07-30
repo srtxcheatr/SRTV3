@@ -23,14 +23,14 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
             </div>
         </div>
 
-        <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div class="panel panel-premium" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
                 <div class="dim" style="font-size:11px"><i class="fas fa-wallet" style="color:var(--neon-amber)"></i> BALANCE</div>
-                <div style="color:var(--neon-amber);font-weight:800;font-size:22px" class="mono-num">Rs <span id="balAmount">—</span></div>
+                <div style="font-weight:800;font-size:22px" class="mono-num gold-text">Rs <span id="balAmount">—</span></div>
             </div>
             <div style="flex:1;min-width:80px">
                 <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.08);overflow:hidden">
-                    <div id="balBar" style="width:0%;height:100%;background:linear-gradient(90deg,var(--neon-amber),var(--neon-purple));transition:width 0.4s ease"></div>
+                    <div id="balBar" style="width:0%;height:100%;background:var(--gold-shine);transition:width 0.4s ease"></div>
                 </div>
             </div>
             <div style="text-align:right">
@@ -42,16 +42,6 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
         <div class="panel" id="noticePanel">
             <div class="prompt-header"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</div>
             <div id="noticeText" style="font-size:12px;color:var(--text-secondary)">Loading announcements...</div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <button class="btn btn-ghost" id="openTopup"><i class="fas fa-coins" style="color:var(--neon-amber)"></i> Add Balance</button>
-            <button class="btn btn-ghost" id="openProfile"><i class="fas fa-user-gear" style="color:var(--neon-blue)"></i> Profile</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
-            <button class="btn btn-ghost" id="openHelp" style="font-size:11px"><i class="fas fa-headset"></i> Support</button>
-            <button class="btn btn-ghost" id="openPassword" style="font-size:11px"><i class="fas fa-shield-halved"></i> Password</button>
-            <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="btn btn-ghost" style="font-size:11px"><i class="fas fa-code"></i> About</a>
         </div>
 
         <div class="prompt-header"><i class="fas fa-gamepad"></i> PRODUCTS CATALOG</div>
@@ -76,6 +66,42 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
         </div>
 
     </div>
+</div>
+
+<button type="button" class="menu-fab" id="menuFab" title="Menu">
+    <i class="fas fa-bars"></i>
+</button>
+
+<div class="sheet-backdrop hidden" id="sheetBackdrop"></div>
+<div class="menu-sheet" id="menuSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Menu</div>
+
+    <button type="button" class="sheet-item" id="openTopup">
+        <span class="icon-chip chip-gold"><i class="fas fa-coins"></i></span>
+        <span class="sheet-label">Add Balance</span>
+        <i class="fas fa-chevron-right sheet-arrow"></i>
+    </button>
+    <button type="button" class="sheet-item" id="openProfile">
+        <span class="icon-chip chip-blue"><i class="fas fa-user-gear"></i></span>
+        <span class="sheet-label">Profile</span>
+        <i class="fas fa-chevron-right sheet-arrow"></i>
+    </button>
+    <button type="button" class="sheet-item" id="openHelp">
+        <span class="icon-chip chip-green"><i class="fas fa-headset"></i></span>
+        <span class="sheet-label">Support</span>
+        <i class="fas fa-chevron-right sheet-arrow"></i>
+    </button>
+    <button type="button" class="sheet-item" id="openPassword">
+        <span class="icon-chip chip-purple"><i class="fas fa-shield-halved"></i></span>
+        <span class="sheet-label">Password</span>
+        <i class="fas fa-chevron-right sheet-arrow"></i>
+    </button>
+    <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="sheet-item" id="openAbout">
+        <span class="icon-chip chip-pink"><i class="fas fa-code"></i></span>
+        <span class="sheet-label">About Developer</span>
+        <i class="fas fa-chevron-right sheet-arrow"></i>
+    </a>
 </div>
 
 <div id="checkoutModal" class="modal-overlay hidden">
@@ -173,9 +199,15 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 
 <div id="helpModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
-        <div class="prompt-header"><i class="fas fa-headset"></i> SUPPORT / REPORT</div>
-        <div class="dim" style="font-size:12px;margin-bottom:12px">Describe your issue. Your account details will be sent to admin.</div>
-        <div class="field"><label><i class="fas fa-comment-dots"></i> Describe issue</label><textarea id="problemText" rows="3"></textarea></div>
+        <div class="prompt-header"><i class="fas fa-headset"></i> WELCOME TO SRT SUPPORT</div>
+        <div class="support-ticket">
+            <div class="ticket-row"><span class="k">Token</span><span class="eq">=</span><span class="v" id="supToken">—</span></div>
+            <div class="ticket-row"><span class="k">UID</span><span class="eq">=</span><span class="v" id="supUid">—</span></div>
+            <div class="ticket-row"><span class="k">Name</span><span class="eq">=</span><span class="v" id="supName">—</span></div>
+            <div class="ticket-row"><span class="k">WhatsApp</span><span class="eq">=</span><span class="v" id="supWa">—</span></div>
+            <div class="ticket-row"><span class="k">Email</span><span class="eq">=</span><span class="v" id="supEmail">—</span></div>
+        </div>
+        <div class="field" style="margin-top:14px"><label><i class="fas fa-comment-dots"></i> Describe your problem or glitches</label><textarea id="problemText" rows="3" placeholder="Tell us what happened..."></textarea></div>
         <button class="btn btn-solid" id="submitReport" style="margin-bottom:8px;position:relative">
             <span class="btn-text"><i class="fas fa-paper-plane"></i> Send Report</span>
             <span class="btn-spinner hidden"><span class="spinner"></span></span>
@@ -358,6 +390,22 @@ import {
 window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
+
+// ---- Menu sheet ----
+const menuSheet = document.getElementById('menuSheet');
+const sheetBackdrop = document.getElementById('sheetBackdrop');
+window.openSheet = () => { menuSheet.classList.add('open'); sheetBackdrop.classList.remove('hidden'); sheetBackdrop.classList.add('show'); };
+window.closeSheet = () => { menuSheet.classList.remove('open'); sheetBackdrop.classList.remove('show'); setTimeout(() => sheetBackdrop.classList.add('hidden'), 250); };
+document.getElementById('menuFab').onclick = openSheet;
+sheetBackdrop.onclick = closeSheet;
+document.getElementById('openAbout').addEventListener('click', closeSheet);
+
+// ---- Support ticket token (client-side reference number, sent along with the report) ----
+let supportToken = null;
+function getSupportToken() {
+    if (!supportToken) supportToken = 'SRT-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+    return supportToken;
+}
 
 // Helper to get fresh auth token for direct status polling
 async function getToken() {
@@ -639,7 +687,7 @@ confirmBtn.onclick = async () => {
 };
 
 // ---- Topup ----
-document.getElementById('openTopup').onclick = () => openModal('topupModal');
+document.getElementById('openTopup').onclick = () => { closeSheet(); openModal('topupModal'); };
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
@@ -659,7 +707,7 @@ topupBtn.onclick = async () => {
 };
 
 // ---- Profile ----
-document.getElementById('openProfile').onclick = () => openModal('profileModal');
+document.getElementById('openProfile').onclick = () => { closeSheet(); openModal('profileModal'); };
 const profileBtn = document.getElementById('saveProfile');
 profileBtn.onclick = async () => {
     const name = document.getElementById('profName').value.trim();
@@ -687,7 +735,7 @@ document.getElementById('copyUidBtn')?.addEventListener('click', () => {
 });
 
 // ---- Change password ----
-document.getElementById('openPassword').onclick = () => openModal('passwordModal');
+document.getElementById('openPassword').onclick = () => { closeSheet(); openModal('passwordModal'); };
 const passBtn = document.getElementById('savePassword');
 passBtn.onclick = async () => {
     const curPass = document.getElementById('curPass').value;
@@ -711,14 +759,22 @@ passBtn.onclick = async () => {
 };
 
 // ---- Help / Report ----
-document.getElementById('openHelp').onclick = () => openModal('helpModal');
+document.getElementById('openHelp').onclick = () => {
+    closeSheet();
+    document.getElementById('supToken').textContent = getSupportToken();
+    document.getElementById('supUid').textContent = currentUid || '—';
+    document.getElementById('supName').textContent = userState.profileName || '—';
+    document.getElementById('supWa').textContent = userState.profilePhone || '—';
+    document.getElementById('supEmail').textContent = userState.email || '—';
+    openModal('helpModal');
+};
 const reportBtn = document.getElementById('submitReport');
 reportBtn.onclick = async () => {
     const problem = document.getElementById('problemText').value.trim();
     if (!problem) return toast('Please describe the problem', 'error');
     setLoading(reportBtn, true);
     try {
-        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem }) });
+        await backendFetch('/api/user/report', { method: 'POST', body: JSON.stringify({ problem, token: getSupportToken() }) });
         toast('Report sent', 'success');
         document.getElementById('problemText').value = '';
         closeModal('helpModal');
