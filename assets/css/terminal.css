@@ -260,11 +260,12 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     box-shadow: 0 0 12px rgba(255, 71, 87, 0.5);
 }
 
-/* On narrow phones, drop the Store/History text labels rather than
-   letting the logo, icons, or buttons shrink out of proportion. */
+/* On narrow phones, drop the History text label (its icon stays as a
+   fallback). Store has no icon now, so its text always stays visible —
+   otherwise the button would go blank on small screens. */
 @media (max-width: 380px) {
     .nav-item { padding: 0 10px; }
-    .nav-item .nav-text { display: none; }
+    .nav-links .nav-item:nth-child(2) .nav-text { display: none; }
     .brand-sub { display: none; }
 }
 
