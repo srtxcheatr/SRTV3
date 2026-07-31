@@ -11,13 +11,13 @@
     --glass-border: rgba(168, 85, 247, 0.22);
     --glass-border-hover: rgba(0, 240, 255, 0.5);
     
-    --neon-blue: #00f0ff;
+    --neon-blue: #22d3ee;
     --neon-purple: #a855f7;
     --neon-pink: #ec4899;
     --neon-amber: #d4af37;   /* was flat orange #ffb454 — now a metallic gold for a premium feel */
     --gold-shine: linear-gradient(135deg, #f5dfa0 0%, #d4af37 50%, #a9822a 100%);
-    --neon-red: #ff4757;
-    --neon-green: #2ed573;
+    --neon-red: #ef4444;
+    --neon-green: #22c55e;
     
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
@@ -35,6 +35,7 @@
     --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); /* dark theme: subtle depth on top of the glow */
     --surface-tint: rgba(255, 255, 255, 0.05);
     --surface-tint-strong: rgba(255, 255, 255, 0.08);
+    --input-bg: rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="light"] {
@@ -63,6 +64,7 @@
     --card-shadow: 0 2px 14px rgba(30, 20, 60, 0.08);
     --surface-tint: rgba(30, 20, 60, 0.045);
     --surface-tint-strong: rgba(30, 20, 60, 0.07);
+    --input-bg: rgba(30, 20, 60, 0.035);
 }
 
 /* Global Setup */
@@ -315,13 +317,14 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     font-family: var(--font-heading);
     font-size: 13px;
     font-weight: 700;
-    color: var(--neon-blue);
+    letter-spacing: 0.4px;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
-    text-shadow: 0 0 6px rgba(0, 240, 255, 0.3);
 }
+.prompt-header i { color: var(--neon-purple); }
 
 /* Modern Animated Buttons */
 .btn {
@@ -386,7 +389,7 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
 input, textarea, select {
     width: 100%;
     padding: 10px 14px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--input-bg);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     color: var(--text-primary);
@@ -414,10 +417,10 @@ input:focus, textarea:focus {
     transition: all 0.3s ease;
 }
 .cat-filter.active, .cat-filter:hover {
-    background: linear-gradient(135deg, var(--neon-blue), #0284c7);
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
     color: #fff;
     border-color: transparent;
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
 }
 
 /* Banner Carousel */
@@ -756,7 +759,7 @@ input:focus, textarea:focus {
 
 /* Support ticket block inside the Support modal */
 .support-ticket {
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--input-bg);
     border: 1px solid rgba(212, 175, 55, 0.3);
     border-radius: var(--radius-md);
     padding: 12px 14px;
@@ -787,7 +790,7 @@ input:focus, textarea:focus {
 .product-thumb {
     position: relative;
     aspect-ratio: 1.1 / 1;
-    background: rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(212, 175, 55, 0.12));
 }
 .product-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .product-tag {
