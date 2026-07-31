@@ -6,6 +6,11 @@ require __DIR__ . '/includes/nav.php';
 ?>
 
 <div class="term-window">
+    <div class="tab-row">
+        <a href="/store.php" class="tab-pill"><i class="fas fa-store"></i> Store</a>
+        <a href="/history.php" class="tab-pill active"><i class="fas fa-clock-rotate-left"></i> Order History</a>
+    </div>
+
     <div class="prompt-header"><i class="fas fa-receipt"></i> PURCHASE HISTORY</div>
     <div id="historyList">
         <div class="dim" style="text-align:center;padding:30px">
