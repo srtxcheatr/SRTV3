@@ -8,6 +8,11 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 <div class="term-window">
     <div class="term-content">
 
+        <div class="tab-row">
+            <a href="/store.php" class="tab-pill active"><i class="fas fa-store"></i> Store</a>
+            <a href="/history.php" class="tab-pill"><i class="fas fa-clock-rotate-left"></i> Order History</a>
+        </div>
+
         <div class="banner-carousel" id="bannerCarousel">
             <div class="banner-track" id="bannerTrack">
                 <?php foreach (BANNERS as $b): ?>
@@ -58,7 +63,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
             <button class="cat-filter" data-tag="IOS"><i class="fab fa-apple"></i> IOS</button>
         </div>
 
-        <div id="catalogList">
+        <div id="catalogList" class="product-grid">
             <div class="dim" style="text-align:center;padding:30px">
                 <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--neon-blue);margin-bottom:8px"></i>
                 <div>Loading catalog options...</div>
@@ -68,40 +73,12 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     </div>
 </div>
 
-<button type="button" class="menu-fab" id="menuFab" title="Menu">
-    <i class="fas fa-bars"></i>
-</button>
-
-<div class="sheet-backdrop hidden" id="sheetBackdrop"></div>
-<div class="menu-sheet" id="menuSheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Menu</div>
-
-    <button type="button" class="sheet-item" id="openTopup">
-        <span class="icon-chip chip-gold"><i class="fas fa-coins"></i></span>
-        <span class="sheet-label">Add Balance</span>
-        <i class="fas fa-chevron-right sheet-arrow"></i>
-    </button>
-    <button type="button" class="sheet-item" id="openProfile">
-        <span class="icon-chip chip-blue"><i class="fas fa-user-gear"></i></span>
-        <span class="sheet-label">Profile</span>
-        <i class="fas fa-chevron-right sheet-arrow"></i>
-    </button>
-    <button type="button" class="sheet-item" id="openHelp">
-        <span class="icon-chip chip-green"><i class="fas fa-headset"></i></span>
-        <span class="sheet-label">Support</span>
-        <i class="fas fa-chevron-right sheet-arrow"></i>
-    </button>
-    <button type="button" class="sheet-item" id="openPassword">
-        <span class="icon-chip chip-purple"><i class="fas fa-shield-halved"></i></span>
-        <span class="sheet-label">Password</span>
-        <i class="fas fa-chevron-right sheet-arrow"></i>
-    </button>
-    <a href="<?= htmlspecialchars(DEVELOPER_URL) ?>" target="_blank" class="sheet-item" id="openAbout">
-        <span class="icon-chip chip-pink"><i class="fas fa-code"></i></span>
-        <span class="sheet-label">About Developer</span>
-        <i class="fas fa-chevron-right sheet-arrow"></i>
-    </a>
+<div id="durationModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-layer-group"></i> <span id="durationTitle">SELECT DURATION</span></div>
+        <div id="durationList"></div>
+        <button class="btn btn-ghost" style="margin-top:10px" onclick="closeModal('durationModal')"><i class="fas fa-xmark"></i> Close</button>
+    </div>
 </div>
 
 <div id="checkoutModal" class="modal-overlay hidden">
@@ -238,47 +215,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 </div>
 
 <style>
-/* ----- Catalog Card Styles ----- */
-.cat-row {
-    background: var(--glass-panel);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-md);
-    margin-bottom: 14px;
-    overflow: hidden;
-    transition: border-color 0.3s;
-}
-.cat-row:hover { border-color: var(--glass-border-hover); }
-.cat-head { cursor: pointer; }
-.cat-img {
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background: rgba(0,0,0,0.3);
-    border-bottom: 1px solid var(--glass-border);
-    position: relative;
-}
-.cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cat-tag-badge {
-    position: absolute; top: 10px; right: 10px;
-    font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
-    padding: 4px 10px; border-radius: 999px;
-    background: rgba(0,0,0,0.7);
-    border: 1px solid var(--glass-border-hover);
-    color: var(--neon-blue);
-    backdrop-filter: blur(4px);
-}
-.cat-info {
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.cat-info .name { flex: 1; font-size: 14px; font-weight: 700; letter-spacing: 0.2px; }
-.cat-info .price-range { font-size: 12px; color: var(--neon-amber); font-weight: 700; }
-.cat-arrow { font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
-.cat-row.open .cat-arrow { transform: rotate(90deg); }
-.cat-body { display: none; border-top: 1px solid var(--glass-border); }
-.cat-row.open .cat-body { display: block; }
+/* ----- Duration list rows (used inside the duration-select modal) ----- */
 .dur-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 14px; font-size: 13px;
@@ -391,21 +328,36 @@ window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
 
-// ---- Menu sheet ----
-const menuSheet = document.getElementById('menuSheet');
-const sheetBackdrop = document.getElementById('sheetBackdrop');
-window.openSheet = () => { menuSheet.classList.add('open'); sheetBackdrop.classList.remove('hidden'); sheetBackdrop.classList.add('show'); };
-window.closeSheet = () => { menuSheet.classList.remove('open'); sheetBackdrop.classList.remove('show'); setTimeout(() => sheetBackdrop.classList.add('hidden'), 250); };
-document.getElementById('menuFab').onclick = openSheet;
-sheetBackdrop.onclick = closeSheet;
-document.getElementById('openAbout').addEventListener('click', closeSheet);
-
 // ---- Support ticket token (client-side reference number, sent along with the report) ----
 let supportToken = null;
 function getSupportToken() {
     if (!supportToken) supportToken = 'SRT-' + Math.random().toString(36).slice(2, 8).toUpperCase();
     return supportToken;
 }
+
+// ---- Open Support modal & populate the ticket fields ----
+function openHelpModal() {
+    document.getElementById('supToken').textContent = getSupportToken();
+    document.getElementById('supUid').textContent = currentUid || '—';
+    document.getElementById('supName').textContent = userState.profileName || '—';
+    document.getElementById('supWa').textContent = userState.profilePhone || '—';
+    document.getElementById('supEmail').textContent = userState.email || '—';
+    openModal('helpModal');
+}
+
+// ---- Menu items live in the drawer/bottom-bar (nav.php) and link here via
+// a URL hash (#topup, #profile, #support, #password) so they work from any
+// page. Route the hash to the right modal, then clear it. ----
+function routeHash() {
+    const hash = location.hash.replace('#', '');
+    if (!hash) return;
+    if (hash === 'topup') openModal('topupModal');
+    else if (hash === 'profile') openModal('profileModal');
+    else if (hash === 'password') openModal('passwordModal');
+    else if (hash === 'support') openHelpModal();
+    history.replaceState(null, '', location.pathname);
+}
+window.addEventListener('hashchange', routeHash);
 
 // Helper to get fresh auth token for direct status polling
 async function getToken() {
@@ -459,6 +411,7 @@ let currentUid = '';
 requireAuth(async (user) => {
     currentUid = user.uid;
     await Promise.all([loadBalance(), loadCatalog()]);
+    routeHash();
 });
 
 // ---- Load balance and profile ----
@@ -474,6 +427,11 @@ async function loadBalance() {
         statusEl.style.color = d.requestStatus === 'Active' ? 'var(--neon-green)' :
                                d.requestStatus === 'Pending' ? 'var(--neon-amber)' : 'var(--neon-red)';
         document.getElementById('noticeText').textContent = d.adminMessage || 'Welcome to SRT X CHEATS.';
+        // Mirror into the shared drawer (nav.php) so it stays in sync
+        const drawerBal = document.getElementById('drawerBalance');
+        if (drawerBal) drawerBal.textContent = 'Rs ' + d.balance;
+        const drawerName = document.getElementById('drawerUserName');
+        if (drawerName) drawerName.textContent = d.profileName || 'My Account';
         document.getElementById('profName').value = d.profileName || '';
         document.getElementById('profPhone').value = d.profilePhone || '';
         document.getElementById('profEmail').value = d.email || '';
@@ -522,6 +480,8 @@ const tagOf = (row) => /root/i.test(row) && !/non ?root/i.test(row) ? 'ROOT'
     : /pc/i.test(row) ? 'PC'
     : 'NONROOT';
 
+let lastGroups = [];
+
 function renderCatalog() {
     const groups = {};
     for (const [sku, p] of Object.entries(catalog)) {
@@ -538,48 +498,56 @@ function renderCatalog() {
 
     const container = document.getElementById('catalogList');
     if (!filteredEntries.length) {
-        container.innerHTML = '<div class="dim" style="text-align:center;padding:30px"><i class="fas fa-box-open"></i> No products match.</div>';
+        container.innerHTML = '<div class="dim" style="text-align:center;padding:30px;grid-column:1/-1"><i class="fas fa-box-open"></i> No products match.</div>';
         return;
     }
 
+    lastGroups = filteredEntries.map(([row, items]) => ({ row, items }));
+
     let html = '';
-    filteredEntries.forEach(([row, items], gi) => {
+    lastGroups.forEach(({ row, items }, gi) => {
         const prices = items.map(it => it.price);
-        const priceRange = Math.min(...prices) === Math.max(...prices)
-            ? `Rs ${prices[0]}`
-            : `Rs ${Math.min(...prices)} – ${Math.max(...prices)}`;
+        const minPrice = Math.min(...prices);
+        const priceLabel = prices.every(p => p === minPrice)
+            ? `Rs ${minPrice}`
+            : `From Rs ${minPrice}`;
+        const durLabel = `${items.length} duration${items.length > 1 ? 's' : ''} available`;
         html += `
-        <div class="cat-row" id="cat-${gi}">
-            <div class="cat-head" onclick="document.getElementById('cat-${gi}').classList.toggle('open')">
-                <div class="cat-img">
-                    <img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy">
-                    <span class="cat-tag-badge">${tagOf(row)}</span>
-                </div>
-                <div class="cat-info">
-                    <div style="flex:1">
-                        <div class="name">${esc(row)}</div>
-                        <div class="price-range">${priceRange}</div>
-                    </div>
-                    <span class="cat-arrow"><i class="fas fa-chevron-right"></i></span>
-                </div>
+        <div class="product-card">
+            <div class="product-thumb">
+                <img src="${items[0].image || ''}" alt="${esc(row)}" loading="lazy">
+                <span class="product-tag">${tagOf(row)}</span>
             </div>
-            <div class="cat-body">
-                ${items.map(it => `
-                    <div class="dur-row" onclick="window.__startCheckout('${it.sku}')">
-                        <span>${esc(it.name)} <span class="dim">· ${esc(it.duration)}</span></span>
-                        <span class="price">Rs ${it.price}</span>
-                    </div>
-                `).join('')}
-                ${items[0].apkUrl ? `
-                    <a href="${esc(items[0].apkUrl)}" target="_blank" class="apk-update-row" onclick="event.stopPropagation()">
-                        <i class="fas fa-download"></i> APK Update — ${esc(row)}
-                    </a>
-                ` : ''}
+            <div class="product-body">
+                <div class="product-title">${esc(row)}</div>
+                <div class="product-meta">${durLabel}<br><span class="gold-text" style="font-weight:700">${priceLabel}</span></div>
+                <div class="product-actions">
+                    <button class="btn-buy" onclick="window.__openDurations(${gi})"><i class="fas fa-cart-shopping"></i> Buy</button>
+                    ${items[0].apkUrl ? `
+                        <a href="${esc(items[0].apkUrl)}" target="_blank" class="btn-download" onclick="event.stopPropagation()">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    ` : ''}
+                </div>
             </div>
         </div>`;
     });
     container.innerHTML = html;
 }
+
+// ---- Duration picker (opened from a product card's Buy button) ----
+window.__openDurations = (gi) => {
+    const group = lastGroups[gi];
+    if (!group) return;
+    document.getElementById('durationTitle').textContent = group.row;
+    document.getElementById('durationList').innerHTML = group.items.map(it => `
+        <div class="dur-row" onclick="window.__startCheckout('${it.sku}'); closeModal('durationModal')">
+            <span>${esc(it.name)} <span class="dim">· ${esc(it.duration)}</span></span>
+            <span class="price">Rs ${it.price}</span>
+        </div>
+    `).join('');
+    openModal('durationModal');
+};
 
 // ---- Search & filter events ----
 document.getElementById('catalogSearch').addEventListener('input', (e) => {
@@ -687,7 +655,6 @@ confirmBtn.onclick = async () => {
 };
 
 // ---- Topup ----
-document.getElementById('openTopup').onclick = () => { closeSheet(); openModal('topupModal'); };
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
@@ -707,7 +674,6 @@ topupBtn.onclick = async () => {
 };
 
 // ---- Profile ----
-document.getElementById('openProfile').onclick = () => { closeSheet(); openModal('profileModal'); };
 const profileBtn = document.getElementById('saveProfile');
 profileBtn.onclick = async () => {
     const name = document.getElementById('profName').value.trim();
@@ -735,7 +701,6 @@ document.getElementById('copyUidBtn')?.addEventListener('click', () => {
 });
 
 // ---- Change password ----
-document.getElementById('openPassword').onclick = () => { closeSheet(); openModal('passwordModal'); };
 const passBtn = document.getElementById('savePassword');
 passBtn.onclick = async () => {
     const curPass = document.getElementById('curPass').value;
@@ -759,15 +724,6 @@ passBtn.onclick = async () => {
 };
 
 // ---- Help / Report ----
-document.getElementById('openHelp').onclick = () => {
-    closeSheet();
-    document.getElementById('supToken').textContent = getSupportToken();
-    document.getElementById('supUid').textContent = currentUid || '—';
-    document.getElementById('supName').textContent = userState.profileName || '—';
-    document.getElementById('supWa').textContent = userState.profilePhone || '—';
-    document.getElementById('supEmail').textContent = userState.email || '—';
-    openModal('helpModal');
-};
 const reportBtn = document.getElementById('submitReport');
 reportBtn.onclick = async () => {
     const problem = document.getElementById('problemText').value.trim();
