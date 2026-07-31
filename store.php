@@ -34,7 +34,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
                 <div style="font-weight:800;font-size:22px" class="mono-num gold-text">Rs <span id="balAmount">—</span></div>
             </div>
             <div style="flex:1;min-width:80px">
-                <div style="height:6px;border-radius:6px;background:rgba(255,255,255,0.08);overflow:hidden">
+                <div style="height:6px;border-radius:6px;background:var(--surface-tint-strong);overflow:hidden">
                     <div id="balBar" style="width:0%;height:100%;background:var(--gold-shine);transition:width 0.4s ease"></div>
                 </div>
             </div>
@@ -96,31 +96,23 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 </div>
 
 <div id="deliveryModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;width:100%;text-align:center;padding:24px 20px">
-        <div class="prompt-header" style="justify-content:center;margin-bottom:16px">
-            <i class="fas fa-shipping-fast" style="color:var(--neon-amber)"></i> Fetching Access Key...
+    <div class="panel" style="max-width:400px;width:100%;text-align:center;padding:28px 20px">
+        <div class="prompt-header" style="justify-content:center;margin-bottom:18px">
+            <i class="fas fa-shield-halved" style="color:var(--neon-amber)"></i> Fetching Access Key...
         </div>
-        <div class="delivery-track">
-            <div class="delivery-road"></div>
-            <div class="delivery-truck">
-                <svg width="36" height="28" viewBox="0 0 24 24" style="display:block;filter:drop-shadow(0 0 8px #00ff88);">
-                    <defs>
-                        <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#ff007f" />
-                            <stop offset="50%" stop-color="#7928ca" />
-                            <stop offset="100%" stop-color="#00dfd8" />
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#truckGrad)" d="M20 8h-3V4H1v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-6l-3-3zM6 18.5A1.5 1.5 0 1 1 7.5 17 1.5 1.5 0 0 1 6 18.5zm12 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5zM17 12V9.5h2.2l1.8 1.8V12z"/>
-                </svg>
+
+        <div class="load-ring-wrap" id="deliveryRingWrap">
+            <svg class="load-ring" viewBox="0 0 120 120">
+                <circle class="load-ring-bg" cx="60" cy="60" r="52"></circle>
+                <circle class="load-ring-fg" id="deliveryRing" cx="60" cy="60" r="52"></circle>
+            </svg>
+            <div class="load-ring-center">
+                <i class="fas fa-key load-ring-icon" id="deliveryIcon"></i>
+                <div class="mono-num load-ring-pct" id="deliveryPct">0%</div>
             </div>
         </div>
 
-        <div class="dim" id="deliveryLabel" style="font-size:12px;margin:12px 0 8px;color:var(--text-secondary)">Connecting to server...</div>
-        <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-bottom:6px">
-            <div id="deliveryBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--neon-green),var(--neon-blue));transition:width 0.4s ease"></div>
-        </div>
-        <div class="mono-num" id="deliveryPct" style="font-size:20px;font-weight:700;color:var(--neon-green)">0%</div>
+        <div class="dim" id="deliveryLabel" style="font-size:12px;margin-top:14px;color:var(--text-secondary)">Connecting to server...</div>
     </div>
 </div>
 
@@ -223,7 +215,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     cursor: pointer;
     transition: background 0.15s;
 }
-.dur-row:hover { background: rgba(255,255,255,0.05); }
+.dur-row:hover { background: var(--surface-tint); }
 .dur-row .price { color: var(--neon-amber); font-weight: 700; }
 .apk-update-row {
     display: flex; align-items: center; gap: 8px;
@@ -234,25 +226,57 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 }
 .apk-update-row:hover { background: rgba(0,240,255,0.05); }
 
-/* ----- Delivery Truck Animation ----- */
-.delivery-track {
-    position: relative; height: 50px; margin: 12px 0;
-    background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden;
-    border: 1px solid var(--glass-border);
+/* ----- Access-key delivery: circular progress ring ----- */
+.load-ring-wrap {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    margin: 0 auto;
 }
-.delivery-road {
-    position: absolute; bottom: 10px; left: 0; right: 0; height: 2px;
-    background: repeating-linear-gradient(to right, var(--text-muted) 0 8px, transparent 8px 16px);
+.load-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.35));
 }
-.delivery-truck {
-    position: absolute; bottom: 8px;
-    animation: driveContinuous 2s ease-in-out infinite;
+.load-ring-bg {
+    fill: none;
+    stroke: var(--surface-tint-strong);
+    stroke-width: 8;
 }
-@keyframes driveContinuous {
-    0% { left: -40px; opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { left: 100%; opacity: 0; }
+.load-ring-fg {
+    fill: none;
+    stroke: var(--neon-amber);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 326.7;
+    stroke-dashoffset: 326.7;
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+}
+.load-ring-fg.complete { stroke: var(--neon-green); }
+.load-ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.load-ring-icon {
+    font-size: 20px;
+    color: var(--neon-amber);
+    animation: ringIconPulse 1.6s ease-in-out infinite;
+}
+.load-ring-icon.complete { color: var(--neon-green); animation: none; }
+.load-ring-pct {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+@keyframes ringIconPulse {
+    0%, 100% { transform: scale(1); opacity: 0.75; }
+    50% { transform: scale(1.15); opacity: 1; }
 }
 
 /* ----- Modal overlay ----- */
@@ -576,6 +600,22 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
+// ---- Drive the circular progress ring on the delivery modal ----
+const RING_CIRCUMFERENCE = 2 * Math.PI * 52; // matches r=52 on the SVG circle
+function setDeliveryProgress(percent, label) {
+    const ring = document.getElementById('deliveryRing');
+    const icon = document.getElementById('deliveryIcon');
+    const pct = document.getElementById('deliveryPct');
+    const lbl = document.getElementById('deliveryLabel');
+    const p = Math.max(0, Math.min(100, percent));
+    if (ring) ring.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - p / 100);
+    if (pct) pct.textContent = Math.round(p) + '%';
+    if (lbl && label) lbl.textContent = label;
+    const isComplete = p >= 100;
+    ring?.classList.toggle('complete', isComplete);
+    icon?.classList.toggle('complete', isComplete);
+}
+
 // ---- Confirm purchase with job polling restored ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
@@ -588,13 +628,8 @@ confirmBtn.onclick = async () => {
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
-    // Safely reset delivery indicators
-    const deliveryBar = document.getElementById('deliveryBar');
-    const deliveryPct = document.getElementById('deliveryPct');
-    const deliveryLabel = document.getElementById('deliveryLabel');
-    if (deliveryBar) deliveryBar.style.width = '0%';
-    if (deliveryPct) deliveryPct.textContent = '0%';
-    if (deliveryLabel) deliveryLabel.textContent = 'Starting...';
+    // Reset the delivery ring
+    setDeliveryProgress(0, 'Starting...');
 
     try {
         // 1. Start job via backendFetch
@@ -617,9 +652,7 @@ confirmBtn.onclick = async () => {
             }
             const status = await resp.json();
 
-            if (deliveryBar) deliveryBar.style.width = status.percent + '%';
-            if (deliveryPct) deliveryPct.textContent = status.percent + '%';
-            if (deliveryLabel) deliveryLabel.textContent = status.label || 'Processing...';
+            setDeliveryProgress(status.percent, status.label || 'Processing...');
 
             if (status.done) {
                 done = true;
