@@ -32,21 +32,37 @@
     --radius-sm: 8px;
     --glow-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.25);
     --cyan-glow: 0 0 20px rgba(0, 240, 255, 0.35);
+    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); /* dark theme: subtle depth on top of the glow */
+    --surface-tint: rgba(255, 255, 255, 0.05);
+    --surface-tint-strong: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] {
-    --bg-main: #f0f4f8;
-    --bg-gradient: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f1f5f9 60%, #e2e8f0 100%);
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-panel: rgba(255, 255, 255, 0.9);
-    --glass-border: rgba(124, 58, 237, 0.2);
-    --glass-border-hover: rgba(6, 182, 212, 0.5);
+    --bg-main: #f6f5fb;
+    --bg-gradient: radial-gradient(circle at 50% 0%, #ece7fb 0%, #f7f6fc 55%, #eef0f7 100%);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-panel: rgba(255, 255, 255, 0.96);
+    --glass-border: rgba(88, 28, 135, 0.14);
+    --glass-border-hover: rgba(8, 145, 178, 0.4);
 
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    /* Neon dark-mode accents lose all contrast on white — deepened,
+       jewel-toned versions for legibility and a less "cheap neon" feel. */
+    --neon-blue: #0e7490;
+    --neon-purple: #7c3aed;
+    --neon-pink: #db2777;
+    --neon-amber: #a8791f;
+    --gold-shine: linear-gradient(135deg, #c9a545 0%, #a8791f 50%, #7a5714 100%);
+    --neon-red: #dc2626;
+    --neon-green: #15803d;
 
-    --glow-shadow: 0 8px 32px 0 rgba(124, 58, 237, 0.12);
+    --text-primary: #1e1b2e;
+    --text-secondary: #514c66;
+    --text-muted: #8b86a3;
+
+    --glow-shadow: 0 8px 28px 0 rgba(88, 28, 135, 0.1);
+    --card-shadow: 0 2px 14px rgba(30, 20, 60, 0.08);
+    --surface-tint: rgba(30, 20, 60, 0.045);
+    --surface-tint-strong: rgba(30, 20, 60, 0.07);
 }
 
 /* Global Setup */
@@ -287,7 +303,7 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     border-radius: var(--radius-lg);
     padding: 16px;
     margin-bottom: 14px;
-    box-shadow: var(--glow-shadow);
+    box-shadow: var(--glow-shadow), var(--card-shadow);
     transition: all 0.3s ease;
 }
 .panel:hover {
@@ -333,7 +349,7 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
 }
 .btn-ghost {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-tint);
     color: var(--text-primary);
     border: 1px solid var(--glass-border);
 }
@@ -388,7 +404,7 @@ input:focus, textarea:focus {
 .cat-filter {
     padding: 6px 14px;
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-tint);
     border: 1px solid var(--glass-border);
     color: var(--text-secondary);
     font-size: 11px;
@@ -508,23 +524,6 @@ input:focus, textarea:focus {
     background-clip: text;
 }
 
-/* Icon chips — small badge behind an icon instead of a bare glyph */
-.icon-chip {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    flex-shrink: 0;
-}
-.icon-chip.chip-gold  { background: rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.35); color: var(--neon-amber); }
-.icon-chip.chip-blue  { background: rgba(0, 240, 255, 0.12);  border: 1px solid rgba(0, 240, 255, 0.3);  color: var(--neon-blue); }
-.icon-chip.chip-green { background: rgba(46, 213, 115, 0.12); border: 1px solid rgba(46, 213, 115, 0.3); color: var(--neon-green); }
-.icon-chip.chip-purple{ background: rgba(168, 85, 247, 0.14); border: 1px solid rgba(168, 85, 247, 0.35);color: var(--neon-purple); }
-.icon-chip.chip-pink  { background: rgba(236, 72, 153, 0.14); border: 1px solid rgba(236, 72, 153, 0.35);color: var(--neon-pink); }
-
 /* Header utility button (hamburger, etc.) */
 .icon-btn {
     width: 36px;
@@ -565,6 +564,7 @@ input:focus, textarea:focus {
     color: var(--text-secondary);
     font-weight: 700;
     font-size: 13px;
+    box-shadow: var(--card-shadow);
 }
 .tab-pill.active {
     background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
@@ -618,7 +618,7 @@ input:focus, textarea:focus {
     gap: 10px;
     padding: 10px;
     border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--surface-tint);
     margin-bottom: 14px;
 }
 .avatar-circle {
@@ -717,6 +717,7 @@ input:focus, textarea:focus {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--glass-border);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
     padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
 }
 .tab-item {
@@ -779,6 +780,7 @@ input:focus, textarea:focus {
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     overflow: hidden;
+    box-shadow: var(--card-shadow);
     transition: border-color 0.2s;
 }
 .product-card:hover { border-color: var(--glass-border-hover); }
