@@ -9,7 +9,7 @@ define('BACKEND_URL', 'https://repromax5.onrender.com'); // ← your Node backen
 
 define('BANNERS', [
     ['image' => 'https://i.postimg.cc/0rgvg95j/file-00000000a47882118a513b5f8330bb53.png', 'link' => 'GZOWtlF8OFSeM0E08epGicNHvAh2'],
-    ['image' => 'https://i.ibb.co/fdnhLZhS/1784804121500.png', 'link' => 'GZOWtlF8OFSeM0E08epGicNHvAh2'],
+    ['image' => 'https://i.postimg.cc/RFZ9zPc2/file-000000000e688211a2be320f8de763e4.png', 'link' => 'GZOWtlF8OFSeM0E08epGicNHvAh2'],
 ]);
 
 
