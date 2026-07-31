@@ -77,7 +77,7 @@ require __DIR__ . '/includes/nav.php';
 .log-entry .key {
     flex: 1 1 auto !important;
     min-width: 0 !important; /* CRITICAL: Prevents key box from squishing */
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--surface-tint-strong, rgba(0, 0, 0, 0.3));
     border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
     border-radius: var(--radius-sm, 6px);
     padding: 8px 10px;
