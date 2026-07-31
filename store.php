@@ -120,7 +120,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-key" style="color:var(--neon-green)"></i> ACCESS KEY DELIVERED</div>
         <div id="keyProductName" style="font-size:13px;margin-bottom:8px"></div>
-        <div style="background:rgba(0,0,0,0.3);border:1px solid var(--neon-green);border-radius:var(--radius-md);padding:14px;word-break:break-all;color:var(--neon-green);font-weight:700;margin-bottom:14px;font-family:var(--font-mono)" id="keyValue"></div>
+        <div style="background:var(--input-bg);border:1px solid var(--neon-green);border-radius:var(--radius-md);padding:14px;word-break:break-all;color:var(--neon-green);font-weight:700;margin-bottom:14px;font-family:var(--font-mono)" id="keyValue"></div>
         <button class="btn btn-solid" onclick="closeModal('keyModal')"><i class="fas fa-check"></i> Done</button>
     </div>
 </div>
@@ -313,11 +313,22 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
     overflow: hidden;
     margin-bottom: 16px;
     border: 1px solid var(--glass-border);
+    box-shadow: var(--card-shadow);
     position: relative;
 }
 .banner-track { display: flex; transition: transform 0.4s ease-in-out; }
-.banner-slide { min-width: 100%; }
-.banner-slide img { width: 100%; height: 160px; object-fit: cover; display: block; }
+.banner-slide { min-width: 100%; position: relative; }
+.banner-slide img {
+    width: 100%; height: 160px; object-fit: cover; display: block;
+    filter: saturate(0.72) brightness(0.94); /* the source banners are neon-green — tone them down so they sit with the purple/gold palette instead of clashing */
+}
+.banner-slide::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, rgba(88, 28, 220, 0.22), transparent 55%),
+                linear-gradient(0deg, rgba(4, 3, 12, 0.5), transparent 45%);
+    pointer-events: none;
+}
 .banner-dots {
     position: absolute;
     bottom: 8px;
