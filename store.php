@@ -113,7 +113,7 @@ require __DIR__ . '/includes/nav.php';
         <div class="prompt-header"><i class="fas fa-info-circle" style="color:var(--neon-blue)"></i> HOW TO GET ANDROID ID</div>
         <div style="font-size:13px;line-height:1.6;margin-bottom:14px;">
             <p><strong>Method 1 – Use a free app:</strong><br>
-            Install <a href="https://play.google.com/store/apps/details?id=com.evozi.deviceid" target="_blank" style="color:var(--neon-blue)">Device ID</a> from Play Store, open it, and copy the <strong>Android ID</strong> (16 hex characters).</p>
+            Install <a href="https://play.google.com/store/apps/details?id=com.liuzh.deviceinfo" target="_blank" style="color:var(--neon-blue)">Device ID</a> from Play Store, open it, and copy the <strong>Android ID</strong> (16 hex characters).</p>
             <p><strong>Method 2 – Using ADB (Advanced):</strong><br>
             <code style="background:var(--input-bg);padding:2px 6px;border-radius:4px;">adb shell settings get secure android_id</code></p>
             <p><strong>Method 3 – From cheat app (if installed):</strong><br>
@@ -124,7 +124,7 @@ require __DIR__ . '/includes/nav.php';
         </div>
 
         <!-- YouTube Tutorial Button -->
-        <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
+        <a href="https://youtube.com/shorts/T_KWS_SzvRo?si=PTFgEAV8lJ-MDK1_" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
             <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial
         </a>
         <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
