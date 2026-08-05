@@ -88,9 +88,14 @@ require __DIR__ . '/includes/nav.php';
         <div class="field"><label><i class="fas fa-user"></i> Your Name</label><input type="text" id="payName" placeholder="Full name"></div>
         <div class="field"><label><i class="fab fa-whatsapp"></i> WhatsApp Number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
 
-        <!-- NEW: Android ID field – hidden by default, shown when product requires it -->
+        <!-- Android ID field with help link -->
         <div class="field" id="androidIdGroup" style="display:none;">
-            <label><i class="fas fa-mobile-alt"></i> Android ID (required for this product)</label>
+            <label>
+                <i class="fas fa-mobile-alt"></i> Android ID
+                <a href="#" id="androidIdHelp" style="font-size:11px;color:var(--neon-blue);margin-left:8px;text-decoration:none;">
+                    <i class="fas fa-question-circle"></i> How to get?
+                </a>
+            </label>
             <input type="text" id="payAndroidId" placeholder="e.g. 0b9b969bc2e7997b">
         </div>
 
@@ -99,6 +104,25 @@ require __DIR__ . '/includes/nav.php';
             <span class="btn-spinner hidden"><span class="spinner"></span></span>
         </button>
         <button class="btn btn-ghost" onclick="closeModal('checkoutModal')"><i class="fas fa-xmark"></i> Cancel</button>
+    </div>
+</div>
+
+<!-- Android ID Help Modal -->
+<div id="androidIdModal" class="modal-overlay hidden">
+    <div class="panel" style="max-width:400px;width:100%">
+        <div class="prompt-header"><i class="fas fa-info-circle" style="color:var(--neon-blue)"></i> HOW TO GET ANDROID ID</div>
+        <div style="font-size:13px;line-height:1.6;margin-bottom:14px;">
+            <p><strong>Method 1 – Use a free app:</strong><br>
+            Install <a href="https://play.google.com/store/apps/details?id=com.evozi.deviceid" target="_blank" style="color:var(--neon-blue)">Device ID</a> from Play Store, open it, and copy the <strong>Android ID</strong> (16 hex characters).</p>
+            <p><strong>Method 2 – Using ADB (Advanced):</strong><br>
+            <code style="background:var(--input-bg);padding:2px 6px;border-radius:4px;">adb shell settings get secure android_id</code></p>
+            <p><strong>Method 3 – From cheat app (if installed):</strong><br>
+            Some mod apps show the Android ID inside their dashboard – look for "Device ID" or "Machine ID".</p>
+            <p class="dim" style="font-size:12px;border-top:1px solid var(--glass-border);padding-top:10px;margin-top:4px;">
+                ⚠️ The Android ID changes after a factory reset. Copy it exactly as shown (case‑sensitive).
+            </p>
+        </div>
+        <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
     </div>
 </div>
 
@@ -626,6 +650,12 @@ window.__startCheckout = (sku) => {
     `;
     openModal('checkoutModal');
 };
+
+// ---- Android ID Help link ----
+document.getElementById('androidIdHelp')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal('androidIdModal');
+});
 
 // ---- Drive the circular progress ring on the delivery modal ----
 const RING_CIRCUMFERENCE = 2 * Math.PI * 52; // matches r=52 on the SVG circle
