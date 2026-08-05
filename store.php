@@ -124,7 +124,7 @@ require __DIR__ . '/includes/nav.php';
         </div>
 
         <!-- YouTube Tutorial Button -->
-        <a href="https://youtube.com/shorts/T_KWS_SzvRo?si=PTFgEAV8lJ-MDK1_" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
+        <a href="https://youtube.com/shorts/XYDW7zZxsxs?si=q-a4jiP7cIXO0E8p" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
             <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial
         </a>
         <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
