@@ -2,7 +2,7 @@
 $pageTitle = 'Store — SRT X CHEATS';
 $currentPage = 'store';
 require __DIR__ . '/includes/head.php';
-require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
+require __DIR__ . '/includes/nav.php';
 ?>
 
 <div class="term-window">
@@ -87,6 +87,13 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
         <div id="checkoutSummary" style="font-size:13px;margin-bottom:14px"></div>
         <div class="field"><label><i class="fas fa-user"></i> Your Name</label><input type="text" id="payName" placeholder="Full name"></div>
         <div class="field"><label><i class="fab fa-whatsapp"></i> WhatsApp Number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
+
+        <!-- NEW: Android ID field – hidden by default, shown when product requires it -->
+        <div class="field" id="androidIdGroup" style="display:none;">
+            <label><i class="fas fa-mobile-alt"></i> Android ID (required for this product)</label>
+            <input type="text" id="payAndroidId" placeholder="e.g. 0b9b969bc2e7997b">
+        </div>
+
         <button class="btn btn-solid" id="confirmBuyBtn" style="margin-bottom:8px;position:relative">
             <span class="btn-text"><i class="fas fa-check-circle"></i> Confirm Order</span>
             <span class="btn-spinner hidden"><span class="spinner"></span></span>
@@ -320,7 +327,7 @@ require __DIR__ . '/includes/nav.php';   // use the fixed glass nav
 .banner-slide { min-width: 100%; position: relative; }
 .banner-slide img {
     width: 100%; height: 160px; object-fit: cover; display: block;
-    filter: saturate(0.72) brightness(0.94); /* the source banners are neon-green — tone them down so they sit with the purple/gold palette instead of clashing */
+    filter: saturate(0.72) brightness(0.94);
 }
 .banner-slide::after {
     content: '';
@@ -462,7 +469,6 @@ async function loadBalance() {
         statusEl.style.color = d.requestStatus === 'Active' ? 'var(--neon-green)' :
                                d.requestStatus === 'Pending' ? 'var(--neon-amber)' : 'var(--neon-red)';
         document.getElementById('noticeText').textContent = d.adminMessage || 'Welcome to SRT X CHEATS.';
-        // Mirror into the shared drawer (nav.php) so it stays in sync
         const drawerBal = document.getElementById('drawerBalance');
         if (drawerBal) drawerBal.textContent = 'Rs ' + d.balance;
         const drawerName = document.getElementById('drawerUserName');
@@ -603,6 +609,16 @@ window.__startCheckout = (sku) => {
     const p = catalog[sku];
     if (!p) return toast('Product not found', 'error');
     pendingCheckout = { sku, ...p };
+
+    // Show/hide Android ID input based on product requirement
+    const group = document.getElementById('androidIdGroup');
+    if (p.requiresAndroidId) {
+        group.style.display = 'block';
+    } else {
+        group.style.display = 'none';
+        document.getElementById('payAndroidId').value = '';
+    }
+
     document.getElementById('checkoutSummary').innerHTML = `
         <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-cube"></i> Product</span><span>${esc(p.name)}</span></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-clock"></i> Duration</span><span>${esc(p.duration)}</span></div>
@@ -635,6 +651,13 @@ confirmBtn.onclick = async () => {
     const waNum = document.getElementById('payWA').value.trim();
     if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
 
+    // ---- Android ID validation ----
+    const androidId = document.getElementById('payAndroidId').value.trim();
+    if (pendingCheckout.requiresAndroidId && !androidId) {
+        toast('Android ID is required for this product', 'error');
+        return;
+    }
+
     closeModal('checkoutModal');
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
@@ -646,7 +669,12 @@ confirmBtn.onclick = async () => {
         // 1. Start job via backendFetch
         const startRes = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
-            body: JSON.stringify({ sku: pendingCheckout.sku, name, waNum }),
+            body: JSON.stringify({
+                sku: pendingCheckout.sku,
+                name,
+                waNum,
+                android_id: androidId  // <-- now included when needed
+            }),
         });
         const jobId = startRes.jobId;
 
