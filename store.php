@@ -122,6 +122,11 @@ require __DIR__ . '/includes/nav.php';
                 ⚠️ The Android ID changes after a factory reset. Copy it exactly as shown (case‑sensitive).
             </p>
         </div>
+
+        <!-- YouTube Tutorial Button -->
+        <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
+            <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial
+        </a>
         <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
     </div>
 </div>
