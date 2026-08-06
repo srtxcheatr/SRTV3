@@ -113,7 +113,7 @@ require __DIR__ . '/includes/nav.php';
         <div class="prompt-header"><i class="fas fa-info-circle" style="color:var(--neon-blue)"></i> HOW TO GET ANDROID ID</div>
         <div style="font-size:13px;line-height:1.6;margin-bottom:14px;">
             <p><strong>Method 1 – Use a free app:</strong><br>
-            Install <a href="https://play.google.com/store/apps/details?id=com.liuzh.deviceinfo" target="_blank" style="color:var(--neon-blue)">Device ID</a> from Play Store, open it, and copy the <strong>Android ID</strong> (16 hex characters).</p>
+            Install <a href="https://play.google.com/store/apps/details?id=com.evozi.deviceid" target="_blank" style="color:var(--neon-blue)">Device ID</a> from Play Store, open it, and copy the <strong>Android ID</strong> (16 hex characters).</p>
             <p><strong>Method 2 – Using ADB (Advanced):</strong><br>
             <code style="background:var(--input-bg);padding:2px 6px;border-radius:4px;">adb shell settings get secure android_id</code></p>
             <p><strong>Method 3 – From cheat app (if installed):</strong><br>
@@ -124,7 +124,7 @@ require __DIR__ . '/includes/nav.php';
         </div>
 
         <!-- YouTube Tutorial Button -->
-        <a href="https://youtube.com/shorts/XYDW7zZxsxs?si=q-a4jiP7cIXO0E8p" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
+        <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
             <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial
         </a>
         <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
@@ -639,9 +639,14 @@ window.__startCheckout = (sku) => {
     if (!p) return toast('Product not found', 'error');
     pendingCheckout = { sku, ...p };
 
+    // 🔥 FORCE Android ID requirement for BALA XYZ products
+    if (sku === 'sku_126' || sku === 'sku_127' || sku === 'sku_128') {
+        pendingCheckout.requiresAndroidId = true;
+    }
+
     // Show/hide Android ID input based on product requirement
     const group = document.getElementById('androidIdGroup');
-    if (p.requiresAndroidId) {
+    if (pendingCheckout.requiresAndroidId) {
         group.style.display = 'block';
     } else {
         group.style.display = 'none';
