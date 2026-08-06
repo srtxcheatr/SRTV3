@@ -107,21 +107,29 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Android ID Help Modal -->
+        
+        <!-- Android ID Help Modal -->
 <div id="androidIdModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-info-circle" style="color:var(--neon-blue)"></i> HOW TO GET ANDROID ID</div>
         <div style="font-size:13px;line-height:1.6;margin-bottom:14px;">
-            <p><strong>Method 1 – Download BABA MOD:</strong><br>
-            Install <a href="https://www.mediafire.com/file/o3s35gsbwk7415d/BALA+XYZ+CHEATS+MAIN+ID+SAFE.zip/file" target="_blank" style="color:var(--neon-blue)">BALA MOD</a> download and install , and copy device ID <strong>Android ID</strong> (16 hex characters).</p>
-            <p><strong>Method 2 – past android id (Advanced):</strong><br>
-            <code style="background:var(--input-bg);padding:2px 6px;border-radius:4px;">adb shell settings get secure android_id</code></p>
-            <p><strong>Method 3 – buy key and use mod:</strong><br>
-            Some mod apps show the Android ID inside their dashboard – look for "Device ID" or "Machine ID".</p>
+            <p><strong>Step 1 – Download BALA MOD:</strong><br>
+            <a href="https://www.mediafire.com/file/o3s35gsbwk7415d/BALA+XYZ+CHEATS+MAIN+ID+SAFE.zip/file" target="_blank" style="color:var(--neon-blue);font-weight:600;">CLICK TO DOWNLOAD</a></p>
+            <p><strong>Step 2 – Install the app</strong> 🫪</p>
+            <p><strong>Step 3 – Grant all permissions</strong> (storage, overlay, etc.)</p>
+            <p><strong>Step 4 – Open BALA MOD</strong> and copy the <strong>Device ID</strong> shown on the main screen (16 hex characters).</p>
             <p class="dim" style="font-size:12px;border-top:1px solid var(--glass-border);padding-top:10px;margin-top:4px;">
-                ⚠️ Fill the right device ID because key not reset 💯
+                ⚠️ <strong>Fill the right device ID – the key will NOT reset if you enter the wrong one!</strong>
             </p>
         </div>
+
+        <!-- YouTube Tutorial Button -->
+        <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
+            <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial on YouTube
+        </a>
+        <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
+    </div>
+</div>
 
         <!-- YouTube Tutorial Button -->
         <a href="https://youtube.com/shorts/9zpvTB0qxuc?si=YNygy1an8eD47wyf" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
