@@ -585,34 +585,21 @@ async function loadBalance() {
         document.getElementById('profUid').value = currentUid;
         document.getElementById('payName').value = d.profileName || '';
         document.getElementById('payWA').value = d.profilePhone || '';
-        setupTopupLock(d.hasCompletedFirstTopup);
+        setupTopupLock();
     } catch (e) {
         toast(e.message, 'error');
     }
 }
 
-function setupTopupLock(hasCompletedFirstTopup) {
+function setupTopupLock() {
     const amountInput = document.getElementById('topupAmount');
     const hint = document.getElementById('topupHint');
     const chipRow = document.getElementById('amountChipRow');
-    const customField = document.getElementById('customAmountField');
-    const customLabel = document.getElementById('customAmountLabel');
-    if (!hasCompletedFirstTopup) {
-        // First top-up is locked to a fixed amount — no chips, no custom entry.
-        chipRow.style.display = 'none';
-        customField.style.display = 'block';
-        customLabel.innerHTML = '<i class="fas fa-lock"></i> First Top-up Amount (Fixed)';
-        amountInput.value = 1000;
-        amountInput.readOnly = true;
-        amountInput.style.opacity = '0.6';
-        hint.textContent = 'First top‑up is fixed at Rs 1,000. After approval you can top up any amount.';
-    } else {
-        chipRow.style.display = 'flex';
-        amountInput.readOnly = false;
-        amountInput.style.opacity = '1';
-        hint.textContent = 'Pay via eSewa, then submit your transaction ID. Admin verifies and credits shortly.';
-        selectAmountChip('100');
-    }
+    chipRow.style.display = 'flex';
+    amountInput.readOnly = false;
+    amountInput.style.opacity = '1';
+    hint.textContent = 'Pay via eSewa, then submit your transaction ID. Admin verifies and credits shortly.';
+    selectAmountChip('100');
 }
 
 // ---- Amount preset chips ----
@@ -859,7 +846,7 @@ function goToTopupStep(step) {
 }
 window.resetTopupSteps = () => {
     document.getElementById('topupTx').value = '';
-    if (typeof userState !== 'undefined') setupTopupLock(userState?.hasCompletedFirstTopup);
+    setupTopupLock();
     goToTopupStep(1);
 };
 
