@@ -159,7 +159,7 @@ require __DIR__ . '/includes/nav.php';
                 <button type="button" class="amount-chip" id="amountChipCustom" data-amount="custom"><i class="fas fa-pen"></i> Custom</button>
             </div>
             <div class="field" id="customAmountField" style="display:none">
-                <label><i class="fas fa-pen"></i> Enter Custom Amount</label>
+                <label id="customAmountLabel"><i class="fas fa-pen"></i> Enter Custom Amount</label>
                 <input type="number" id="topupAmount" value="1000" min="50">
             </div>
             <button class="btn btn-solid" id="topupNext2" style="margin-bottom:8px"><i class="fas fa-arrow-right"></i> Next</button>
@@ -596,10 +596,12 @@ function setupTopupLock(hasCompletedFirstTopup) {
     const hint = document.getElementById('topupHint');
     const chipRow = document.getElementById('amountChipRow');
     const customField = document.getElementById('customAmountField');
+    const customLabel = document.getElementById('customAmountLabel');
     if (!hasCompletedFirstTopup) {
         // First top-up is locked to a fixed amount — no chips, no custom entry.
         chipRow.style.display = 'none';
         customField.style.display = 'block';
+        customLabel.innerHTML = '<i class="fas fa-lock"></i> First Top-up Amount (Fixed)';
         amountInput.value = 1000;
         amountInput.readOnly = true;
         amountInput.style.opacity = '0.6';
@@ -617,9 +619,13 @@ function setupTopupLock(hasCompletedFirstTopup) {
 function selectAmountChip(amount) {
     const amountInput = document.getElementById('topupAmount');
     const customField = document.getElementById('customAmountField');
+    const customLabel = document.getElementById('customAmountLabel');
     document.querySelectorAll('.amount-chip').forEach(c => c.classList.toggle('active', c.dataset.amount === amount));
     if (amount === 'custom') {
+        customLabel.innerHTML = '<i class="fas fa-pen"></i> Enter Custom Amount';
         customField.style.display = 'block';
+        amountInput.readOnly = false;
+        amountInput.style.opacity = '1';
         amountInput.value = '';
         amountInput.focus();
     } else {
