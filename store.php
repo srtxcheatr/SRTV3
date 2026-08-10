@@ -88,54 +88,11 @@ require __DIR__ . '/includes/nav.php';
         <div class="field"><label><i class="fas fa-user"></i> Your Name</label><input type="text" id="payName" placeholder="Full name"></div>
         <div class="field"><label><i class="fab fa-whatsapp"></i> WhatsApp Number</label><input type="text" id="payWA" placeholder="98xxxxxxxx"></div>
 
-        <!-- Android ID field with help link -->
-        <div class="field" id="androidIdGroup" style="display:none;">
-            <label>
-                <i class="fas fa-mobile-alt"></i> Android ID
-                <a href="#" id="androidIdHelp" style="font-size:11px;color:var(--neon-blue);margin-left:8px;text-decoration:none;">
-                    <i class="fas fa-question-circle"></i> How to get?
-                </a>
-            </label>
-            <input type="text" id="payAndroidId" placeholder="e.g. 0b9b969bc2e7997b">
-        </div>
-
         <button class="btn btn-solid" id="confirmBuyBtn" style="margin-bottom:8px;position:relative">
             <span class="btn-text"><i class="fas fa-check-circle"></i> Confirm Order</span>
             <span class="btn-spinner hidden"><span class="spinner"></span></span>
         </button>
         <button class="btn btn-ghost" onclick="closeModal('checkoutModal')"><i class="fas fa-xmark"></i> Cancel</button>
-    </div>
-</div>
-
-        
-        <!-- Android ID Help Modal -->
-<div id="androidIdModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;width:100%">
-        <div class="prompt-header"><i class="fas fa-info-circle" style="color:var(--neon-blue)"></i> HOW TO GET ANDROID ID</div>
-        <div style="font-size:13px;line-height:1.6;margin-bottom:14px;">
-            <p><strong>Step 1 – Download BALA MOD:</strong><br>
-            <a href="https://www.mediafire.com/file/o3s35gsbwk7415d/BALA+XYZ+CHEATS+MAIN+ID+SAFE.zip/file" target="_blank" style="color:var(--neon-blue);font-weight:600;">CLICK TO DOWNLOAD</a></p>
-            <p><strong>Step 2 – Install the app</strong> 🫪</p>
-            <p><strong>Step 3 – Grant all permissions</strong> (storage, overlay, etc.)</p>
-            <p><strong>Step 4 – Open BALA MOD</strong> and copy the <strong>Device ID</strong> shown on the main screen (16 hex characters).</p>
-            <p class="dim" style="font-size:12px;border-top:1px solid var(--glass-border);padding-top:10px;margin-top:4px;">
-                ⚠️ <strong>Fill the right device ID – the key will NOT reset if you enter the wrong one!</strong>
-            </p>
-        </div>
-
-        <!-- YouTube Tutorial Button -->
-        <a href="https://youtube.com/shorts/9zpvTB0qxuc?si=Te40NorZ7qj1NRKY" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
-            <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial on YouTube
-        </a>
-        <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
-    </div>
-</div>
-
-        <!-- YouTube Tutorial Button -->
-        <a href="https://youtube.com/shorts/9zpvTB0qxuc?si=YNygy1an8eD47wyf" target="_blank" class="btn btn-solid" style="margin-bottom:10px;display:inline-flex;align-items:center;gap:8px;">
-            <i class="fab fa-youtube" style="color:#ff0000;"></i> Watch Tutorial
-        </a>
-        <button class="btn btn-ghost" onclick="closeModal('androidIdModal')"><i class="fas fa-times"></i> Close</button>
     </div>
 </div>
 
@@ -647,20 +604,6 @@ window.__startCheckout = (sku) => {
     if (!p) return toast('Product not found', 'error');
     pendingCheckout = { sku, ...p };
 
-    // 🔥 FORCE Android ID requirement for BALA XYZ products
-    if (sku === 'sku_126' || sku === 'sku_127' || sku === 'sku_128') {
-        pendingCheckout.requiresAndroidId = true;
-    }
-
-    // Show/hide Android ID input based on product requirement
-    const group = document.getElementById('androidIdGroup');
-    if (pendingCheckout.requiresAndroidId) {
-        group.style.display = 'block';
-    } else {
-        group.style.display = 'none';
-        document.getElementById('payAndroidId').value = '';
-    }
-
     document.getElementById('checkoutSummary').innerHTML = `
         <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-cube"></i> Product</span><span>${esc(p.name)}</span></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span class="dim"><i class="fas fa-clock"></i> Duration</span><span>${esc(p.duration)}</span></div>
@@ -668,12 +611,6 @@ window.__startCheckout = (sku) => {
     `;
     openModal('checkoutModal');
 };
-
-// ---- Android ID Help link ----
-document.getElementById('androidIdHelp')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    openModal('androidIdModal');
-});
 
 // ---- Drive the circular progress ring on the delivery modal ----
 const RING_CIRCUMFERENCE = 2 * Math.PI * 52; // matches r=52 on the SVG circle
@@ -699,13 +636,6 @@ confirmBtn.onclick = async () => {
     const waNum = document.getElementById('payWA').value.trim();
     if (!name || !waNum) return toast('Please fill name and WhatsApp', 'error');
 
-    // ---- Android ID validation ----
-    const androidId = document.getElementById('payAndroidId').value.trim();
-    if (pendingCheckout.requiresAndroidId && !androidId) {
-        toast('Android ID is required for this product', 'error');
-        return;
-    }
-
     closeModal('checkoutModal');
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
@@ -721,7 +651,6 @@ confirmBtn.onclick = async () => {
                 sku: pendingCheckout.sku,
                 name,
                 waNum,
-                android_id: androidId  // <-- now included when needed
             }),
         });
         const jobId = startRes.jobId;
