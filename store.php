@@ -148,7 +148,20 @@ require __DIR__ . '/includes/nav.php';
         <!-- Step 2: Balance / amount to top up -->
         <div class="topup-step-panel hidden" id="topupStep2">
             <div class="dim" style="font-size:12px;margin-bottom:12px" id="topupHint"><i class="fas fa-info-circle"></i> Pay via eSewa, then submit your transaction ID.</div>
-            <div class="field"><label><i class="fas fa-rupee-sign"></i> Balance (Rs)</label><input type="number" id="topupAmount" value="100" min="50"></div>
+
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--text-secondary);margin-bottom:8px"><i class="fas fa-rupee-sign"></i> BALANCE (RS)</div>
+            <div class="amount-chip-row" id="amountChipRow">
+                <button type="button" class="amount-chip active" data-amount="100">Rs 100</button>
+                <button type="button" class="amount-chip" data-amount="500">Rs 500</button>
+                <button type="button" class="amount-chip" data-amount="1000">Rs 1000</button>
+                <button type="button" class="amount-chip" data-amount="2000">Rs 2000</button>
+                <button type="button" class="amount-chip" data-amount="5000">Rs 5000</button>
+                <button type="button" class="amount-chip" id="amountChipCustom" data-amount="custom"><i class="fas fa-pen"></i> Custom</button>
+            </div>
+            <div class="field" id="customAmountField" style="display:none">
+                <label><i class="fas fa-pen"></i> Enter Custom Amount</label>
+                <input type="number" id="topupAmount" value="1000" min="50">
+            </div>
             <button class="btn btn-solid" id="topupNext2" style="margin-bottom:8px"><i class="fas fa-arrow-right"></i> Next</button>
             <button class="btn btn-ghost" id="topupBack2"><i class="fas fa-arrow-left"></i> Back</button>
         </div>
@@ -421,6 +434,35 @@ require __DIR__ . '/includes/nav.php';
     margin-bottom: 14px;
 }
 .topup-warning i { margin-top: 2px; }
+
+/* ----- Amount preset chips ----- */
+.amount-chip-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 14px;
+}
+.amount-chip {
+    flex: 1 1 auto;
+    min-width: 70px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+.amount-chip:hover { border-color: var(--neon-purple); color: var(--text-primary); }
+.amount-chip.active {
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(168,85,247,0.4);
+}
+#amountChipCustom { flex-basis: 100%; }
 </style>
 
 <script type="module">
@@ -552,18 +594,43 @@ async function loadBalance() {
 function setupTopupLock(hasCompletedFirstTopup) {
     const amountInput = document.getElementById('topupAmount');
     const hint = document.getElementById('topupHint');
+    const chipRow = document.getElementById('amountChipRow');
+    const customField = document.getElementById('customAmountField');
     if (!hasCompletedFirstTopup) {
+        // First top-up is locked to a fixed amount — no chips, no custom entry.
+        chipRow.style.display = 'none';
+        customField.style.display = 'block';
         amountInput.value = 1000;
         amountInput.readOnly = true;
         amountInput.style.opacity = '0.6';
         hint.textContent = 'First top‑up is fixed at Rs 1,000. After approval you can top up any amount.';
     } else {
+        chipRow.style.display = 'flex';
         amountInput.readOnly = false;
         amountInput.style.opacity = '1';
-        amountInput.value = 100;
         hint.textContent = 'Pay via eSewa, then submit your transaction ID. Admin verifies and credits shortly.';
+        selectAmountChip('100');
     }
 }
+
+// ---- Amount preset chips ----
+function selectAmountChip(amount) {
+    const amountInput = document.getElementById('topupAmount');
+    const customField = document.getElementById('customAmountField');
+    document.querySelectorAll('.amount-chip').forEach(c => c.classList.toggle('active', c.dataset.amount === amount));
+    if (amount === 'custom') {
+        customField.style.display = 'block';
+        amountInput.value = '';
+        amountInput.focus();
+    } else {
+        customField.style.display = 'none';
+        amountInput.value = amount;
+    }
+}
+document.getElementById('amountChipRow').addEventListener('click', (e) => {
+    const chip = e.target.closest('.amount-chip');
+    if (chip) selectAmountChip(chip.dataset.amount);
+});
 
 // ---- Load catalog ----
 async function loadCatalog() {
@@ -786,6 +853,7 @@ function goToTopupStep(step) {
 }
 window.resetTopupSteps = () => {
     document.getElementById('topupTx').value = '';
+    if (typeof userState !== 'undefined') setupTopupLock(userState?.hasCompletedFirstTopup);
     goToTopupStep(1);
 };
 
