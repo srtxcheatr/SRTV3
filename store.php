@@ -129,18 +129,46 @@ require __DIR__ . '/includes/nav.php';
 <div id="topupModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-qrcode"></i> TOPUP BALANCE</div>
-        <div class="dim" style="font-size:12px;margin-bottom:12px" id="topupHint"><i class="fas fa-info-circle"></i> Pay via eSewa, then submit your transaction ID.</div>
-        <div style="text-align:center;margin-bottom:12px">
-            <img src="https://i.postimg.cc/zXm07q9C/Screenshot-20260425-142906.jpg" alt="eSewa QR" style="max-width:180px;border-radius:12px;border:1px solid var(--glass-border)">
+
+        <div class="topup-steps" id="topupSteps">
+            <span class="topup-step active" data-step="1">1</span>
+            <span class="topup-step-line"></span>
+            <span class="topup-step" data-step="2">2</span>
+            <span class="topup-step-line"></span>
+            <span class="topup-step" data-step="3">3</span>
         </div>
-        <div class="field"><label><i class="fas fa-rupee-sign"></i> Amount (Rs)</label><input type="number" id="topupAmount" value="100" min="50"></div>
-        <div class="field"><label><i class="fas fa-id-card"></i> eSewa ID</label><input type="text" id="topupEsewa" placeholder="phone or email"></div>
-        <div class="field"><label><i class="fas fa-hashtag"></i> Transaction Code</label><input type="text" id="topupTx" placeholder="e.g. JRJDHD"></div>
-        <button class="btn btn-solid" id="submitTopup" style="margin-bottom:8px;position:relative">
-            <span class="btn-text"><i class="fas fa-paper-plane"></i> Submit Topup</span>
-            <span class="btn-spinner hidden"><span class="spinner"></span></span>
-        </button>
-        <button class="btn btn-ghost" onclick="closeModal('topupModal')"><i class="fas fa-xmark"></i> Close</button>
+
+        <!-- Step 1: eSewa number only -->
+        <div class="topup-step-panel" id="topupStep1">
+            <div class="field"><label><i class="fas fa-id-card"></i> Enter eSewa Number</label><input type="text" id="topupEsewa" placeholder="98xxxxxxxx" inputmode="numeric"></div>
+            <button class="btn btn-solid" id="topupNext1" style="margin-bottom:8px"><i class="fas fa-arrow-right"></i> Next</button>
+            <button class="btn btn-ghost" onclick="closeModal('topupModal')"><i class="fas fa-xmark"></i> Cancel</button>
+        </div>
+
+        <!-- Step 2: Balance / amount to top up -->
+        <div class="topup-step-panel hidden" id="topupStep2">
+            <div class="dim" style="font-size:12px;margin-bottom:12px" id="topupHint"><i class="fas fa-info-circle"></i> Pay via eSewa, then submit your transaction ID.</div>
+            <div class="field"><label><i class="fas fa-rupee-sign"></i> Balance (Rs)</label><input type="number" id="topupAmount" value="100" min="50"></div>
+            <button class="btn btn-solid" id="topupNext2" style="margin-bottom:8px"><i class="fas fa-arrow-right"></i> Next</button>
+            <button class="btn btn-ghost" id="topupBack2"><i class="fas fa-arrow-left"></i> Back</button>
+        </div>
+
+        <!-- Step 3: QR code + warning + transaction code -->
+        <div class="topup-step-panel hidden" id="topupStep3">
+            <div style="text-align:center;margin-bottom:12px">
+                <img src="https://i.postimg.cc/zXm07q9C/Screenshot-20260425-142906.jpg" alt="eSewa QR" style="max-width:180px;border-radius:12px;border:1px solid var(--glass-border)">
+            </div>
+            <div class="topup-warning">
+                <i class="fas fa-triangle-exclamation"></i>
+                Pay from eSewa and enter the right amount. Wrong amount = order cancelled ❌ — no refunds.
+            </div>
+            <div class="field"><label><i class="fas fa-hashtag"></i> Transaction Code</label><input type="text" id="topupTx" placeholder="e.g. JRJDHD"></div>
+            <button class="btn btn-solid" id="submitTopup" style="margin-bottom:8px;position:relative">
+                <span class="btn-text"><i class="fas fa-paper-plane"></i> Submit Topup</span>
+                <span class="btn-spinner hidden"><span class="spinner"></span></span>
+            </button>
+            <button class="btn btn-ghost" id="topupBack3"><i class="fas fa-arrow-left"></i> Back</button>
+        </div>
     </div>
 </div>
 
@@ -351,6 +379,48 @@ require __DIR__ . '/includes/nav.php';
     background: var(--neon-blue);
     box-shadow: 0 0 8px var(--neon-blue);
 }
+
+/* ----- Topup step wizard ----- */
+.topup-steps {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; margin-bottom: 18px;
+}
+.topup-step {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    background: var(--surface-tint-strong);
+    color: var(--text-muted);
+    border: 1px solid var(--glass-border);
+    transition: all 0.25s ease;
+}
+.topup-step.active {
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 10px rgba(168,85,247,0.5);
+}
+.topup-step.done {
+    background: var(--neon-green);
+    color: #fff;
+    border-color: transparent;
+}
+.topup-step-line {
+    width: 28px; height: 2px;
+    background: var(--glass-border);
+}
+.topup-step-panel.hidden { display: none; }
+.topup-warning {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid var(--neon-red);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 12px; line-height: 1.5;
+    color: var(--neon-red);
+    margin-bottom: 14px;
+}
+.topup-warning i { margin-top: 2px; }
 </style>
 
 <script type="module">
@@ -387,7 +457,7 @@ function openHelpModal() {
 function routeHash() {
     const hash = location.hash.replace('#', '');
     if (!hash) return;
-    if (hash === 'topup') openModal('topupModal');
+    if (hash === 'topup') { window.resetTopupSteps?.(); openModal('topupModal'); }
     else if (hash === 'profile') openModal('profileModal');
     else if (hash === 'password') openModal('passwordModal');
     else if (hash === 'support') openHelpModal();
@@ -703,6 +773,35 @@ confirmBtn.onclick = async () => {
     }
 };
 
+// ---- Topup step wizard ----
+function goToTopupStep(step) {
+    [1, 2, 3].forEach(n => {
+        document.getElementById(`topupStep${n}`).classList.toggle('hidden', n !== step);
+        const dot = document.querySelector(`.topup-step[data-step="${n}"]`);
+        if (dot) {
+            dot.classList.toggle('active', n === step);
+            dot.classList.toggle('done', n < step);
+        }
+    });
+}
+window.resetTopupSteps = () => {
+    document.getElementById('topupTx').value = '';
+    goToTopupStep(1);
+};
+
+document.getElementById('topupNext1').onclick = () => {
+    const esewaId = document.getElementById('topupEsewa').value.trim();
+    if (!esewaId) return toast('Enter your eSewa number', 'error');
+    goToTopupStep(2);
+};
+document.getElementById('topupNext2').onclick = () => {
+    const amount = parseInt(document.getElementById('topupAmount').value, 10);
+    if (!amount || amount < 50) return toast('Enter a valid amount (min Rs 50)', 'error');
+    goToTopupStep(3);
+};
+document.getElementById('topupBack2').onclick = () => goToTopupStep(1);
+document.getElementById('topupBack3').onclick = () => goToTopupStep(2);
+
 // ---- Topup ----
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
@@ -715,6 +814,7 @@ topupBtn.onclick = async () => {
         await backendFetch('/api/user/topup', { method: 'POST', body: JSON.stringify({ amount, esewaId, txCode }) });
         toast('Submitted — awaiting admin approval', 'success');
         closeModal('topupModal');
+        resetTopupSteps();
     } catch (e) {
         toast(e.message, 'error');
     } finally {
