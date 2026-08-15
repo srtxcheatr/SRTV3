@@ -245,6 +245,54 @@ window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
 
+// Inside the <script> block, after window.__openDurations
+window.__openDurations = (gi) => {
+    const group = lastGroups[gi];
+    if (!group) return;
+    document.getElementById('durationTitle').textContent = group.row;
+    let html = group.items.map((it, idx) => `
+        <div class="dur-row" data-index="${idx}" onclick="window.__selectDuration(this, '${it.sku}')">
+            <div class="dur-info">
+                <span class="dur-name">${esc(it.name)}</span>
+                <span class="dur-duration">${esc(it.duration)}</span>
+            </div>
+            <span class="price">Rs ${it.price}</span>
+        </div>
+    `).join('');
+    // Add a footer with "Confirm Selection" button
+    html += `
+        <div class="modal-actions">
+            <button class="btn btn-solid" id="confirmDurationBtn" disabled>
+                <i class="fas fa-check"></i> Confirm
+            </button>
+            <button class="btn btn-ghost" onclick="closeModal('durationModal')">
+                <i class="fas fa-xmark"></i> Cancel
+            </button>
+        </div>
+    `;
+    document.getElementById('durationList').innerHTML = html;
+    openModal('durationModal');
+    // Reset selected state
+    window.__selectedSku = null;
+};
+
+window.__selectDuration = (rowEl, sku) => {
+    // Remove selected from all rows
+    document.querySelectorAll('.dur-row').forEach(r => r.classList.remove('selected'));
+    rowEl.classList.add('selected');
+    window.__selectedSku = sku;
+    // Enable confirm button
+    document.getElementById('confirmDurationBtn').disabled = false;
+};
+
+// Then handle confirm click
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'confirmDurationBtn' && window.__selectedSku) {
+        closeModal('durationModal');
+        window.__startCheckout(window.__selectedSku);
+    }
+});
+
 // ---- Support ticket token ----
 let supportToken = null;
 function getSupportToken() {
