@@ -13,19 +13,16 @@ require __DIR__ . '/includes/nav.php';
             <a href="/history.php" class="tab-pill"><i class="fas fa-clock-rotate-left"></i> Order History</a>
         </div>
 
-        <div class="banner-carousel" id="bannerCarousel">
-            <div class="banner-track" id="bannerTrack">
-                <?php foreach (BANNERS as $b): ?>
-                <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank" class="banner-slide">
-                    <img src="<?= htmlspecialchars($b['image']) ?>" alt="banner" loading="lazy">
-                </a>
-                <?php endforeach; ?>
+        <!-- === NEW: WhatsApp APK Updates Panel === -->
+        <div class="panel" style="border:1px solid #25D366;background:rgba(37,211,102,0.06);margin-bottom:16px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:14px 18px;">
+            <i class="fab fa-whatsapp" style="font-size:30px;color:#25D366;"></i>
+            <div style="flex:1;">
+                <div style="font-weight:700;font-size:15px;">📲 APK Updates via WhatsApp</div>
+                <div class="dim" style="font-size:12px;">Get the latest mods &amp; cheats instantly – join our channel</div>
             </div>
-            <div class="banner-dots" id="bannerDots">
-                <?php foreach (BANNERS as $i => $b): ?>
-                <span class="banner-dot<?= $i === 0 ? ' active' : '' ?>" data-i="<?= $i ?>"></span>
-                <?php endforeach; ?>
-            </div>
+            <a href="https://chat.whatsapp.com/YOUR_INVITE_LINK" target="_blank" class="btn btn-solid" style="background:#25D366;border-color:#25D366;white-space:nowrap;">
+                <i class="fab fa-whatsapp"></i> Join Now
+            </a>
         </div>
 
         <div class="panel panel-premium" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
@@ -73,6 +70,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- ===== MODALS (unchanged) ===== -->
 <div id="durationModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-layer-group"></i> <span id="durationTitle">SELECT DURATION</span></div>
@@ -248,8 +246,43 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- === STICKY FLOATING WHATSAPP BUTTON === -->
+<a href="https://chat.whatsapp.com/YOUR_INVITE_LINK" target="_blank" class="whatsapp-float" aria-label="Join WhatsApp for APK updates">
+    <i class="fab fa-whatsapp"></i>
+    <span>APK Updates</span>
+</a>
+
 <style>
-/* ----- Duration list rows (used inside the duration-select modal) ----- */
+/* ----- Floating WhatsApp button ----- */
+.whatsapp-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #25D366;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 8px 28px rgba(37, 211, 102, 0.45);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: none;
+}
+.whatsapp-float:hover {
+    transform: scale(1.05);
+    background: #1ebe5a;
+    color: #fff;
+}
+.whatsapp-float i {
+    font-size: 24px;
+}
+
+/* ----- Duration list rows ----- */
 .dur-row {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 14px; font-size: 13px;
@@ -348,50 +381,6 @@ require __DIR__ . '/includes/nav.php';
     animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* ----- Banner Carousel ----- */
-.banner-carousel {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: 16px;
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--card-shadow);
-    position: relative;
-}
-.banner-track { display: flex; transition: transform 0.4s ease-in-out; }
-.banner-slide { min-width: 100%; position: relative; }
-.banner-slide img {
-    width: 100%; height: 160px; object-fit: cover; display: block;
-    filter: saturate(0.72) brightness(0.94);
-}
-.banner-slide::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(160deg, rgba(88, 28, 220, 0.22), transparent 55%),
-                linear-gradient(0deg, rgba(4, 3, 12, 0.5), transparent 45%);
-    pointer-events: none;
-}
-.banner-dots {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 6px;
-}
-.banner-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.4);
-    cursor: pointer;
-    transition: all 0.3s;
-}
-.banner-dot.active {
-    width: 20px;
-    border-radius: 10px;
-    background: var(--neon-blue);
-    box-shadow: 0 0 8px var(--neon-blue);
-}
 
 /* ----- Topup step wizard ----- */
 .topup-steps {
@@ -525,19 +514,6 @@ function setLoading(btn, loading) {
         btn.disabled = false;
     }
 }
-
-// ---- Banner Carousel Auto-Slide ----
-(function initCarousel() {
-    const track = document.getElementById('bannerTrack');
-    const dots = document.querySelectorAll('.banner-dot');
-    if (!track || dots.length < 2) return;
-    let idx = 0;
-    setInterval(() => {
-        idx = (idx + 1) % dots.length;
-        track.style.transform = `translateX(-${idx * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-    }, 4000);
-})();
 
 // ---- Global Logout ----
 window.doLogout = async function() {
