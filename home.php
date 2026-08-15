@@ -56,6 +56,14 @@ require __DIR__ . '/includes/nav.php';
                 </div>
             </div>
         </div>
+
+        <!-- ===== NEW: "How to Use" video link ===== -->
+        <div class="panel" style="margin-top:16px;text-align:center;border-color:var(--neon-red);">
+            <a href="https://www.youtube.com/watch?v=YOUR_VIDEO_ID" target="_blank" style="color:var(--neon-red);font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <i class="fab fa-youtube" style="font-size:24px;"></i>
+                <span>📺 Watch Tutorial: How to Use This Panel</span>
+            </a>
+        </div>
     </div>
 </div>
 
