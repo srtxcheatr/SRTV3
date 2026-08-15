@@ -13,18 +13,6 @@ require __DIR__ . '/includes/nav.php';
             <a href="/history.php" class="tab-pill"><i class="fas fa-clock-rotate-left"></i> Order History</a>
         </div>
 
-        <!-- === NEW: WhatsApp APK Updates Panel === -->
-        <div class="panel" style="border:1px solid #25D366;background:rgba(37,211,102,0.06);margin-bottom:16px;display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:14px 18px;">
-            <i class="fab fa-whatsapp" style="font-size:30px;color:#25D366;"></i>
-            <div style="flex:1;">
-                <div style="font-weight:700;font-size:15px;">📲 APK Updates via WhatsApp</div>
-                <div class="dim" style="font-size:12px;">Get the latest mods &amp; cheats instantly – join our channel</div>
-            </div>
-            <a href="https://chat.whatsapp.com/YOUR_INVITE_LINK" target="_blank" class="btn btn-solid" style="background:#25D366;border-color:#25D366;white-space:nowrap;">
-                <i class="fab fa-whatsapp"></i> Join Now
-            </a>
-        </div>
-
         <div class="panel panel-premium" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
                 <div class="dim" style="font-size:11px"><i class="fas fa-wallet" style="color:var(--neon-amber)"></i> BALANCE</div>
@@ -70,7 +58,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ===== MODALS (unchanged) ===== -->
+<!-- ===== MODALS ===== -->
 <div id="durationModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-layer-group"></i> <span id="durationTitle">SELECT DURATION</span></div>
@@ -246,187 +234,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- === STICKY FLOATING WHATSAPP BUTTON === -->
-<a href="https://chat.whatsapp.com/YOUR_INVITE_LINK" target="_blank" class="whatsapp-float" aria-label="Join WhatsApp for APK updates">
-    <i class="fab fa-whatsapp"></i>
-    <span>APK Updates</span>
-</a>
-
-<style>
-
-
-/* ----- Duration list rows ----- */
-.dur-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 14px; font-size: 13px;
-    border-top: 1px solid var(--glass-border);
-    cursor: pointer;
-    transition: background 0.15s;
-}
-.dur-row:hover { background: var(--surface-tint); }
-.dur-row .price { color: var(--neon-amber); font-weight: 700; }
-.apk-update-row {
-    display: flex; align-items: center; gap: 8px;
-    padding: 12px 14px; font-size: 12px; font-weight: 700;
-    border-top: 1px solid var(--glass-border);
-    color: var(--neon-blue);
-    text-decoration: none;
-}
-.apk-update-row:hover { background: rgba(0,240,255,0.05); }
-
-/* ----- Access-key delivery: circular progress ring ----- */
-.load-ring-wrap {
-    position: relative;
-    width: 132px;
-    height: 132px;
-    margin: 0 auto;
-}
-.load-ring {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.35));
-}
-.load-ring-bg {
-    fill: none;
-    stroke: var(--surface-tint-strong);
-    stroke-width: 8;
-}
-.load-ring-fg {
-    fill: none;
-    stroke: var(--neon-amber);
-    stroke-width: 8;
-    stroke-linecap: round;
-    stroke-dasharray: 326.7;
-    stroke-dashoffset: 326.7;
-    transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
-}
-.load-ring-fg.complete { stroke: var(--neon-green); }
-.load-ring-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-.load-ring-icon {
-    font-size: 20px;
-    color: var(--neon-amber);
-    animation: ringIconPulse 1.6s ease-in-out infinite;
-}
-.load-ring-icon.complete { color: var(--neon-green); animation: none; }
-.load-ring-pct {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-@keyframes ringIconPulse {
-    0%, 100% { transform: scale(1); opacity: 0.75; }
-    50% { transform: scale(1.15); opacity: 1; }
-}
-
-/* ----- Modal overlay ----- */
-.modal-overlay {
-    position: fixed; inset: 0; z-index: 999;
-    background: rgba(4,3,12,0.75);
-    backdrop-filter: blur(12px);
-    display: flex; align-items: center; justify-content: center;
-    padding: 16px;
-    animation: fadeIn 0.25s ease;
-}
-.modal-overlay.hidden { display: none !important; }
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* ----- Button loading states ----- */
-.btn .btn-spinner { display: none; }
-.btn.loading .btn-text { visibility: hidden; }
-.btn.loading .btn-spinner { display: inline-flex; align-items: center; gap: 6px; }
-.btn.loading .btn-spinner .spinner {
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ----- Topup step wizard ----- */
-.topup-steps {
-    display: flex; align-items: center; justify-content: center;
-    gap: 6px; margin-bottom: 18px;
-}
-.topup-step {
-    width: 26px; height: 26px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-    background: var(--surface-tint-strong);
-    color: var(--text-muted);
-    border: 1px solid var(--glass-border);
-    transition: all 0.25s ease;
-}
-.topup-step.active {
-    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 0 10px rgba(168,85,247,0.5);
-}
-.topup-step.done {
-    background: var(--neon-green);
-    color: #fff;
-    border-color: transparent;
-}
-.topup-step-line {
-    width: 28px; height: 2px;
-    background: var(--glass-border);
-}
-.topup-step-panel.hidden { display: none; }
-.topup-warning {
-    display: flex; align-items: flex-start; gap: 8px;
-    background: rgba(239,68,68,0.08);
-    border: 1px solid var(--neon-red);
-    border-radius: var(--radius-md);
-    padding: 10px 12px;
-    font-size: 12px; line-height: 1.5;
-    color: var(--neon-red);
-    margin-bottom: 14px;
-}
-.topup-warning i { margin-top: 2px; }
-
-/* ----- Amount preset chips ----- */
-.amount-chip-row {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    margin-bottom: 14px;
-}
-.amount-chip {
-    flex: 1 1 auto;
-    min-width: 70px;
-    padding: 10px 12px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--glass-border);
-    background: var(--surface-tint);
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s ease;
-}
-.amount-chip:hover { border-color: var(--neon-purple); color: var(--text-primary); }
-.amount-chip.active {
-    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
-    border-color: transparent;
-    color: #fff;
-    box-shadow: 0 0 10px rgba(168,85,247,0.4);
-}
-#amountChipCustom { flex-basis: 100%; }
-</style>
-
 <script type="module">
 import {
     requireAuth, backendFetch, toast, esc,
@@ -438,14 +245,13 @@ window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
 
-// ---- Support ticket token (client-side reference number, sent along with the report) ----
+// ---- Support ticket token ----
 let supportToken = null;
 function getSupportToken() {
     if (!supportToken) supportToken = 'SRT-' + Math.random().toString(36).slice(2, 8).toUpperCase();
     return supportToken;
 }
 
-// ---- Open Support modal & populate the ticket fields ----
 function openHelpModal() {
     document.getElementById('supToken').textContent = getSupportToken();
     document.getElementById('supUid').textContent = currentUid || '—';
@@ -455,9 +261,6 @@ function openHelpModal() {
     openModal('helpModal');
 }
 
-// ---- Menu items live in the drawer/bottom-bar (nav.php) and link here via
-// a URL hash (#topup, #profile, #support, #password) so they work from any
-// page. Route the hash to the right modal, then clear it. ----
 function routeHash() {
     const hash = location.hash.replace('#', '');
     if (!hash) return;
@@ -469,14 +272,12 @@ function routeHash() {
 }
 window.addEventListener('hashchange', routeHash);
 
-// Helper to get fresh auth token for direct status polling
 async function getToken() {
     const user = auth.currentUser;
     if (!user) throw new Error('Not logged in');
     return await user.getIdToken(true);
 }
 
-// Loading helper
 function setLoading(btn, loading) {
     if (!btn) return;
     if (loading) {
@@ -488,7 +289,6 @@ function setLoading(btn, loading) {
     }
 }
 
-// ---- Global Logout ----
 window.doLogout = async function() {
     try {
         await auth.signOut();
@@ -498,20 +298,17 @@ window.doLogout = async function() {
     window.location.href = '/home.php';
 };
 
-// ---- State ----
 let userState = {};
 let catalog = {};
 let pendingCheckout = null;
 let currentUid = '';
 
-// ---- Main auth & data load ----
 requireAuth(async (user) => {
     currentUid = user.uid;
     await Promise.all([loadBalance(), loadCatalog()]);
     routeHash();
 });
 
-// ---- Load balance and profile ----
 async function loadBalance() {
     try {
         const d = await backendFetch('/api/user/balance');
@@ -551,7 +348,6 @@ function setupTopupLock() {
     selectAmountChip('100');
 }
 
-// ---- Amount preset chips ----
 function selectAmountChip(amount) {
     const amountInput = document.getElementById('topupAmount');
     const customField = document.getElementById('customAmountField');
@@ -574,7 +370,6 @@ document.getElementById('amountChipRow').addEventListener('click', (e) => {
     if (chip) selectAmountChip(chip.dataset.amount);
 });
 
-// ---- Load catalog ----
 async function loadCatalog() {
     try {
         const d = await backendFetch('/api/user/catalog');
@@ -585,7 +380,6 @@ async function loadCatalog() {
     }
 }
 
-// ---- Catalog rendering ----
 let searchQuery = '';
 let activeTag = 'ALL';
 
@@ -649,7 +443,6 @@ function renderCatalog() {
     container.innerHTML = html;
 }
 
-// ---- Duration picker (opened from a product card's Buy button) ----
 window.__openDurations = (gi) => {
     const group = lastGroups[gi];
     if (!group) return;
@@ -663,7 +456,6 @@ window.__openDurations = (gi) => {
     openModal('durationModal');
 };
 
-// ---- Search & filter events ----
 document.getElementById('catalogSearch').addEventListener('input', (e) => {
     searchQuery = e.target.value;
     renderCatalog();
@@ -677,7 +469,6 @@ document.getElementById('catFilters').addEventListener('click', (e) => {
     renderCatalog();
 });
 
-// ---- Start checkout ----
 window.__startCheckout = (sku) => {
     const p = catalog[sku];
     if (!p) return toast('Product not found', 'error');
@@ -691,8 +482,7 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
-// ---- Drive the circular progress ring on the delivery modal ----
-const RING_CIRCUMFERENCE = 2 * Math.PI * 52; // matches r=52 on the SVG circle
+const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
 function setDeliveryProgress(percent, label) {
     const ring = document.getElementById('deliveryRing');
     const icon = document.getElementById('deliveryIcon');
@@ -707,7 +497,6 @@ function setDeliveryProgress(percent, label) {
     icon?.classList.toggle('complete', isComplete);
 }
 
-// ---- Confirm purchase with job polling restored ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -719,11 +508,9 @@ confirmBtn.onclick = async () => {
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
-    // Reset the delivery ring
     setDeliveryProgress(0, 'Starting...');
 
     try {
-        // 1. Start job via backendFetch
         const startRes = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({
@@ -734,7 +521,6 @@ confirmBtn.onclick = async () => {
         });
         const jobId = startRes.jobId;
 
-        // 2. Poll job status
         let done = false;
         let result = null;
         const token = await getToken();
@@ -782,7 +568,6 @@ confirmBtn.onclick = async () => {
     }
 };
 
-// ---- Topup step wizard ----
 function goToTopupStep(step) {
     [1, 2, 3].forEach(n => {
         document.getElementById(`topupStep${n}`).classList.toggle('hidden', n !== step);
@@ -812,7 +597,6 @@ document.getElementById('topupNext2').onclick = () => {
 document.getElementById('topupBack2').onclick = () => goToTopupStep(1);
 document.getElementById('topupBack3').onclick = () => goToTopupStep(2);
 
-// ---- Topup ----
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
@@ -832,7 +616,6 @@ topupBtn.onclick = async () => {
     }
 };
 
-// ---- Profile ----
 const profileBtn = document.getElementById('saveProfile');
 profileBtn.onclick = async () => {
     const name = document.getElementById('profName').value.trim();
@@ -850,7 +633,6 @@ profileBtn.onclick = async () => {
     }
 };
 
-// Copy UID
 document.getElementById('copyUidBtn')?.addEventListener('click', () => {
     const uid = document.getElementById('profUid').value;
     if (uid) {
@@ -859,7 +641,6 @@ document.getElementById('copyUidBtn')?.addEventListener('click', () => {
     }
 });
 
-// ---- Change password ----
 const passBtn = document.getElementById('savePassword');
 passBtn.onclick = async () => {
     const curPass = document.getElementById('curPass').value;
@@ -882,7 +663,6 @@ passBtn.onclick = async () => {
     }
 };
 
-// ---- Help / Report ----
 const reportBtn = document.getElementById('submitReport');
 reportBtn.onclick = async () => {
     const problem = document.getElementById('problemText').value.trim();
