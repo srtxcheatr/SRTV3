@@ -253,34 +253,7 @@ require __DIR__ . '/includes/nav.php';
 </a>
 
 <style>
-/* ----- Floating WhatsApp button ----- */
-.whatsapp-float {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #25D366;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 14px;
-    box-shadow: 0 8px 28px rgba(37, 211, 102, 0.45);
-    text-decoration: none;
-    transition: all 0.25s ease;
-    border: none;
-}
-.whatsapp-float:hover {
-    transform: scale(1.05);
-    background: #1ebe5a;
-    color: #fff;
-}
-.whatsapp-float i {
-    font-size: 24px;
-}
+
 
 /* ----- Duration list rows ----- */
 .dur-row {
