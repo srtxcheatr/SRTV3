@@ -58,17 +58,15 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- ===== MODALS ===== -->
-<!-- Duration Modal (Enhanced) -->
+<!-- ===== MODALS (unchanged) ===== -->
 <div id="durationModal" class="modal-overlay hidden">
-    <div class="panel">
+    <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-layer-group"></i> <span id="durationTitle">SELECT DURATION</span></div>
         <div id="durationList"></div>
-        <!-- Actions will be injected by JS -->
+        <button class="btn btn-ghost" style="margin-top:10px" onclick="closeModal('durationModal')"><i class="fas fa-xmark"></i> Close</button>
     </div>
 </div>
 
-<!-- Checkout Modal -->
 <div id="checkoutModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-cart-shopping"></i> CONFIRM PURCHASE</div>
@@ -84,7 +82,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Delivery Modal -->
 <div id="deliveryModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%;text-align:center;padding:28px 20px">
         <div class="prompt-header" style="justify-content:center;margin-bottom:18px">
@@ -106,7 +103,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Key Modal -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-key" style="color:var(--neon-green)"></i> ACCESS KEY DELIVERED</div>
@@ -116,7 +112,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Topup Modal -->
 <div id="topupModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-qrcode"></i> TOPUP BALANCE</div>
@@ -176,7 +171,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Profile Modal -->
 <div id="profileModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-user-gear"></i> PROFILE SETTINGS</div>
@@ -200,7 +194,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Help Modal -->
 <div id="helpModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-headset"></i> WELCOME TO SRT SUPPORT</div>
@@ -220,7 +213,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Password Modal -->
 <div id="passwordModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-shield-halved"></i> CHANGE PASSWORD</div>
@@ -234,7 +226,6 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
-<!-- Error Modal -->
 <div id="errorModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-exclamation-triangle" style="color:var(--neon-red)"></i> SYSTEM ERROR</div>
@@ -242,6 +233,183 @@ require __DIR__ . '/includes/nav.php';
         <button class="btn btn-ghost" onclick="closeModal('errorModal')"><i class="fas fa-times"></i> Dismiss</button>
     </div>
 </div>
+
+<style>
+/* ============================================================
+   Additional styles for modals, loading rings, etc.
+   (Most of the theme is in head.php / external CSS)
+   ============================================================ */
+
+.dur-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; font-size: 13px;
+    border-top: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.dur-row:hover { background: var(--surface-tint); }
+.dur-row .price { color: var(--neon-amber); font-weight: 700; }
+.apk-update-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px; font-size: 12px; font-weight: 700;
+    border-top: 1px solid var(--glass-border);
+    color: var(--neon-blue);
+    text-decoration: none;
+}
+.apk-update-row:hover { background: rgba(0,240,255,0.05); }
+
+/* ----- Access-key delivery: circular progress ring ----- */
+.load-ring-wrap {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    margin: 0 auto;
+}
+.load-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.35));
+}
+.load-ring-bg {
+    fill: none;
+    stroke: var(--surface-tint-strong);
+    stroke-width: 8;
+}
+.load-ring-fg {
+    fill: none;
+    stroke: var(--neon-amber);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 326.7;
+    stroke-dashoffset: 326.7;
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+}
+.load-ring-fg.complete { stroke: var(--neon-green); }
+.load-ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.load-ring-icon {
+    font-size: 20px;
+    color: var(--neon-amber);
+    animation: ringIconPulse 1.6s ease-in-out infinite;
+}
+.load-ring-icon.complete { color: var(--neon-green); animation: none; }
+.load-ring-pct {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+@keyframes ringIconPulse {
+    0%, 100% { transform: scale(1); opacity: 0.75; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* ----- Modal overlay ----- */
+.modal-overlay {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(4,3,12,0.75);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    animation: fadeIn 0.25s ease;
+}
+.modal-overlay.hidden { display: none !important; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ----- Button loading states ----- */
+.btn .btn-spinner { display: none; }
+.btn.loading .btn-text { visibility: hidden; }
+.btn.loading .btn-spinner { display: inline-flex; align-items: center; gap: 6px; }
+.btn.loading .btn-spinner .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ----- Topup step wizard ----- */
+.topup-steps {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; margin-bottom: 18px;
+}
+.topup-step {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    background: var(--surface-tint-strong);
+    color: var(--text-muted);
+    border: 1px solid var(--glass-border);
+    transition: all 0.25s ease;
+}
+.topup-step.active {
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 10px rgba(168,85,247,0.5);
+}
+.topup-step.done {
+    background: var(--neon-green);
+    color: #fff;
+    border-color: transparent;
+}
+.topup-step-line {
+    width: 28px; height: 2px;
+    background: var(--glass-border);
+}
+.topup-step-panel.hidden { display: none; }
+.topup-warning {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid var(--neon-red);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 12px; line-height: 1.5;
+    color: var(--neon-red);
+    margin-bottom: 14px;
+}
+.topup-warning i { margin-top: 2px; }
+
+/* ----- Amount preset chips ----- */
+.amount-chip-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 14px;
+}
+.amount-chip {
+    flex: 1 1 auto;
+    min-width: 70px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+.amount-chip:hover { border-color: var(--neon-purple); color: var(--text-primary); }
+.amount-chip.active {
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(168,85,247,0.4);
+}
+#amountChipCustom { flex-basis: 100%; }
+</style>
 
 <script type="module">
 import {
@@ -254,13 +422,14 @@ window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
 
-// ---- Support ticket token ----
+// ---- Support ticket token (client-side reference number, sent along with the report) ----
 let supportToken = null;
 function getSupportToken() {
     if (!supportToken) supportToken = 'SRT-' + Math.random().toString(36).slice(2, 8).toUpperCase();
     return supportToken;
 }
 
+// ---- Open Support modal & populate the ticket fields ----
 function openHelpModal() {
     document.getElementById('supToken').textContent = getSupportToken();
     document.getElementById('supUid').textContent = currentUid || '—';
@@ -270,6 +439,9 @@ function openHelpModal() {
     openModal('helpModal');
 }
 
+// ---- Menu items live in the drawer/bottom-bar (nav.php) and link here via
+// a URL hash (#topup, #profile, #support, #password) so they work from any
+// page. Route the hash to the right modal, then clear it. ----
 function routeHash() {
     const hash = location.hash.replace('#', '');
     if (!hash) return;
@@ -281,12 +453,14 @@ function routeHash() {
 }
 window.addEventListener('hashchange', routeHash);
 
+// Helper to get fresh auth token for direct status polling
 async function getToken() {
     const user = auth.currentUser;
     if (!user) throw new Error('Not logged in');
     return await user.getIdToken(true);
 }
 
+// Loading helper
 function setLoading(btn, loading) {
     if (!btn) return;
     if (loading) {
@@ -298,6 +472,7 @@ function setLoading(btn, loading) {
     }
 }
 
+// ---- Global Logout ----
 window.doLogout = async function() {
     try {
         await auth.signOut();
@@ -307,17 +482,20 @@ window.doLogout = async function() {
     window.location.href = '/home.php';
 };
 
+// ---- State ----
 let userState = {};
 let catalog = {};
 let pendingCheckout = null;
 let currentUid = '';
 
+// ---- Main auth & data load ----
 requireAuth(async (user) => {
     currentUid = user.uid;
     await Promise.all([loadBalance(), loadCatalog()]);
     routeHash();
 });
 
+// ---- Load balance and profile ----
 async function loadBalance() {
     try {
         const d = await backendFetch('/api/user/balance');
@@ -357,6 +535,7 @@ function setupTopupLock() {
     selectAmountChip('100');
 }
 
+// ---- Amount preset chips ----
 function selectAmountChip(amount) {
     const amountInput = document.getElementById('topupAmount');
     const customField = document.getElementById('customAmountField');
@@ -379,6 +558,7 @@ document.getElementById('amountChipRow').addEventListener('click', (e) => {
     if (chip) selectAmountChip(chip.dataset.amount);
 });
 
+// ---- Load catalog ----
 async function loadCatalog() {
     try {
         const d = await backendFetch('/api/user/catalog');
@@ -389,10 +569,11 @@ async function loadCatalog() {
     }
 }
 
+// ---- Catalog rendering ----
 let searchQuery = '';
 let activeTag = 'ALL';
 
-const tagOf = (row) => /root/i.test(row) && !/nonroot/i.test(row) ? 'ROOT'
+const tagOf = (row) => /root/i.test(row) && !/non ?root/i.test(row) ? 'ROOT'
     : /ios/i.test(row) ? 'IOS'
     : /pc/i.test(row) ? 'PC'
     : 'NONROOT';
@@ -452,58 +633,19 @@ function renderCatalog() {
     container.innerHTML = html;
 }
 
-// ---- ENHANCED DURATION MODAL ----
+// ---- Duration picker (opened from a product card's Buy button) ----
 window.__openDurations = (gi) => {
     const group = lastGroups[gi];
     if (!group) return;
     document.getElementById('durationTitle').textContent = group.row;
-    
-    let html = group.items.map((it, idx) => `
-        <div class="dur-row" data-index="${idx}" data-sku="${it.sku}" onclick="window.__selectDuration(this, '${it.sku}')">
-            <div class="dur-info">
-                <span class="dur-name">${esc(it.name)}</span>
-                <span class="dur-duration">${esc(it.duration)}</span>
-            </div>
+    document.getElementById('durationList').innerHTML = group.items.map(it => `
+        <div class="dur-row" onclick="window.__startCheckout('${it.sku}'); closeModal('durationModal')">
+            <span>${esc(it.name)} <span class="dim">· ${esc(it.duration)}</span></span>
             <span class="price">Rs ${it.price}</span>
         </div>
     `).join('');
-    
-    // Add footer with Confirm and Cancel buttons
-    html += `
-        <div class="modal-actions">
-            <button class="btn btn-solid" id="confirmDurationBtn" disabled>
-                <i class="fas fa-check"></i> Confirm
-            </button>
-            <button class="btn btn-ghost" onclick="closeModal('durationModal')">
-                <i class="fas fa-xmark"></i> Cancel
-            </button>
-        </div>
-    `;
-    
-    document.getElementById('durationList').innerHTML = html;
-    window.__selectedSku = null;
     openModal('durationModal');
 };
-
-window.__selectDuration = (rowEl, sku) => {
-    // Remove selected class from all rows
-    document.querySelectorAll('.dur-row').forEach(r => r.classList.remove('selected'));
-    rowEl.classList.add('selected');
-    window.__selectedSku = sku;
-    // Enable the Confirm button
-    const confirmBtn = document.getElementById('confirmDurationBtn');
-    if (confirmBtn) confirmBtn.disabled = false;
-};
-
-// Handle Confirm click (delegated because button is added dynamically)
-document.addEventListener('click', (e) => {
-    if (e.target.closest('#confirmDurationBtn')) {
-        if (window.__selectedSku) {
-            closeModal('durationModal');
-            window.__startCheckout(window.__selectedSku);
-        }
-    }
-});
 
 // ---- Search & filter events ----
 document.getElementById('catalogSearch').addEventListener('input', (e) => {
@@ -534,7 +676,7 @@ window.__startCheckout = (sku) => {
 };
 
 // ---- Drive the circular progress ring on the delivery modal ----
-const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
+const RING_CIRCUMFERENCE = 2 * Math.PI * 52; // matches r=52 on the SVG circle
 function setDeliveryProgress(percent, label) {
     const ring = document.getElementById('deliveryRing');
     const icon = document.getElementById('deliveryIcon');
@@ -549,7 +691,7 @@ function setDeliveryProgress(percent, label) {
     icon?.classList.toggle('complete', isComplete);
 }
 
-// ---- Confirm purchase with job polling ----
+// ---- Confirm purchase with job polling restored ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -561,9 +703,11 @@ confirmBtn.onclick = async () => {
     openModal('deliveryModal');
     setLoading(confirmBtn, true);
 
+    // Reset the delivery ring
     setDeliveryProgress(0, 'Starting...');
 
     try {
+        // 1. Start job via backendFetch
         const startRes = await backendFetch('/api/purchase/checkout/start', {
             method: 'POST',
             body: JSON.stringify({
@@ -574,6 +718,7 @@ confirmBtn.onclick = async () => {
         });
         const jobId = startRes.jobId;
 
+        // 2. Poll job status
         let done = false;
         let result = null;
         const token = await getToken();
@@ -651,6 +796,7 @@ document.getElementById('topupNext2').onclick = () => {
 document.getElementById('topupBack2').onclick = () => goToTopupStep(1);
 document.getElementById('topupBack3').onclick = () => goToTopupStep(2);
 
+// ---- Topup ----
 const topupBtn = document.getElementById('submitTopup');
 topupBtn.onclick = async () => {
     const amount = parseInt(document.getElementById('topupAmount').value, 10);
