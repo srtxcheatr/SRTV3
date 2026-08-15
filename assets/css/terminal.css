@@ -1024,8 +1024,10 @@ input:focus, textarea:focus {
 }
 #amountChipCustom { flex-basis: 100%; }
 
+/* ============================================================
+   ENHANCED DURATION MODAL — NEW
+   ============================================================ */
 
-/* Duration Modal – Enhanced */
 #durationModal .panel {
     max-width: 420px;
     width: 100%;
