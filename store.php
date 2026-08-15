@@ -59,14 +59,16 @@ require __DIR__ . '/includes/nav.php';
 </div>
 
 <!-- ===== MODALS ===== -->
+<!-- Duration Modal (Enhanced) -->
 <div id="durationModal" class="modal-overlay hidden">
-    <div class="panel" style="max-width:400px;width:100%">
+    <div class="panel">
         <div class="prompt-header"><i class="fas fa-layer-group"></i> <span id="durationTitle">SELECT DURATION</span></div>
         <div id="durationList"></div>
-        <button class="btn btn-ghost" style="margin-top:10px" onclick="closeModal('durationModal')"><i class="fas fa-xmark"></i> Close</button>
+        <!-- Actions will be injected by JS -->
     </div>
 </div>
 
+<!-- Checkout Modal -->
 <div id="checkoutModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-cart-shopping"></i> CONFIRM PURCHASE</div>
@@ -82,6 +84,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Delivery Modal -->
 <div id="deliveryModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%;text-align:center;padding:28px 20px">
         <div class="prompt-header" style="justify-content:center;margin-bottom:18px">
@@ -103,6 +106,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Key Modal -->
 <div id="keyModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-key" style="color:var(--neon-green)"></i> ACCESS KEY DELIVERED</div>
@@ -112,6 +116,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Topup Modal -->
 <div id="topupModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-qrcode"></i> TOPUP BALANCE</div>
@@ -171,6 +176,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Profile Modal -->
 <div id="profileModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-user-gear"></i> PROFILE SETTINGS</div>
@@ -194,6 +200,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Help Modal -->
 <div id="helpModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-headset"></i> WELCOME TO SRT SUPPORT</div>
@@ -213,6 +220,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Password Modal -->
 <div id="passwordModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-shield-halved"></i> CHANGE PASSWORD</div>
@@ -226,6 +234,7 @@ require __DIR__ . '/includes/nav.php';
     </div>
 </div>
 
+<!-- Error Modal -->
 <div id="errorModal" class="modal-overlay hidden">
     <div class="panel" style="max-width:400px;width:100%">
         <div class="prompt-header"><i class="fas fa-exclamation-triangle" style="color:var(--neon-red)"></i> SYSTEM ERROR</div>
@@ -244,54 +253,6 @@ import {
 window.openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
 window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
 window.__toastCopy = () => toast('Copied!', 'success');
-
-// Inside the <script> block, after window.__openDurations
-window.__openDurations = (gi) => {
-    const group = lastGroups[gi];
-    if (!group) return;
-    document.getElementById('durationTitle').textContent = group.row;
-    let html = group.items.map((it, idx) => `
-        <div class="dur-row" data-index="${idx}" onclick="window.__selectDuration(this, '${it.sku}')">
-            <div class="dur-info">
-                <span class="dur-name">${esc(it.name)}</span>
-                <span class="dur-duration">${esc(it.duration)}</span>
-            </div>
-            <span class="price">Rs ${it.price}</span>
-        </div>
-    `).join('');
-    // Add a footer with "Confirm Selection" button
-    html += `
-        <div class="modal-actions">
-            <button class="btn btn-solid" id="confirmDurationBtn" disabled>
-                <i class="fas fa-check"></i> Confirm
-            </button>
-            <button class="btn btn-ghost" onclick="closeModal('durationModal')">
-                <i class="fas fa-xmark"></i> Cancel
-            </button>
-        </div>
-    `;
-    document.getElementById('durationList').innerHTML = html;
-    openModal('durationModal');
-    // Reset selected state
-    window.__selectedSku = null;
-};
-
-window.__selectDuration = (rowEl, sku) => {
-    // Remove selected from all rows
-    document.querySelectorAll('.dur-row').forEach(r => r.classList.remove('selected'));
-    rowEl.classList.add('selected');
-    window.__selectedSku = sku;
-    // Enable confirm button
-    document.getElementById('confirmDurationBtn').disabled = false;
-};
-
-// Then handle confirm click
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'confirmDurationBtn' && window.__selectedSku) {
-        closeModal('durationModal');
-        window.__startCheckout(window.__selectedSku);
-    }
-});
 
 // ---- Support ticket token ----
 let supportToken = null;
@@ -431,7 +392,7 @@ async function loadCatalog() {
 let searchQuery = '';
 let activeTag = 'ALL';
 
-const tagOf = (row) => /root/i.test(row) && !/non ?root/i.test(row) ? 'ROOT'
+const tagOf = (row) => /root/i.test(row) && !/nonroot/i.test(row) ? 'ROOT'
     : /ios/i.test(row) ? 'IOS'
     : /pc/i.test(row) ? 'PC'
     : 'NONROOT';
@@ -491,19 +452,60 @@ function renderCatalog() {
     container.innerHTML = html;
 }
 
+// ---- ENHANCED DURATION MODAL ----
 window.__openDurations = (gi) => {
     const group = lastGroups[gi];
     if (!group) return;
     document.getElementById('durationTitle').textContent = group.row;
-    document.getElementById('durationList').innerHTML = group.items.map(it => `
-        <div class="dur-row" onclick="window.__startCheckout('${it.sku}'); closeModal('durationModal')">
-            <span>${esc(it.name)} <span class="dim">· ${esc(it.duration)}</span></span>
+    
+    let html = group.items.map((it, idx) => `
+        <div class="dur-row" data-index="${idx}" data-sku="${it.sku}" onclick="window.__selectDuration(this, '${it.sku}')">
+            <div class="dur-info">
+                <span class="dur-name">${esc(it.name)}</span>
+                <span class="dur-duration">${esc(it.duration)}</span>
+            </div>
             <span class="price">Rs ${it.price}</span>
         </div>
     `).join('');
+    
+    // Add footer with Confirm and Cancel buttons
+    html += `
+        <div class="modal-actions">
+            <button class="btn btn-solid" id="confirmDurationBtn" disabled>
+                <i class="fas fa-check"></i> Confirm
+            </button>
+            <button class="btn btn-ghost" onclick="closeModal('durationModal')">
+                <i class="fas fa-xmark"></i> Cancel
+            </button>
+        </div>
+    `;
+    
+    document.getElementById('durationList').innerHTML = html;
+    window.__selectedSku = null;
     openModal('durationModal');
 };
 
+window.__selectDuration = (rowEl, sku) => {
+    // Remove selected class from all rows
+    document.querySelectorAll('.dur-row').forEach(r => r.classList.remove('selected'));
+    rowEl.classList.add('selected');
+    window.__selectedSku = sku;
+    // Enable the Confirm button
+    const confirmBtn = document.getElementById('confirmDurationBtn');
+    if (confirmBtn) confirmBtn.disabled = false;
+};
+
+// Handle Confirm click (delegated because button is added dynamically)
+document.addEventListener('click', (e) => {
+    if (e.target.closest('#confirmDurationBtn')) {
+        if (window.__selectedSku) {
+            closeModal('durationModal');
+            window.__startCheckout(window.__selectedSku);
+        }
+    }
+});
+
+// ---- Search & filter events ----
 document.getElementById('catalogSearch').addEventListener('input', (e) => {
     searchQuery = e.target.value;
     renderCatalog();
@@ -517,6 +519,7 @@ document.getElementById('catFilters').addEventListener('click', (e) => {
     renderCatalog();
 });
 
+// ---- Start checkout ----
 window.__startCheckout = (sku) => {
     const p = catalog[sku];
     if (!p) return toast('Product not found', 'error');
@@ -530,6 +533,7 @@ window.__startCheckout = (sku) => {
     openModal('checkoutModal');
 };
 
+// ---- Drive the circular progress ring on the delivery modal ----
 const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
 function setDeliveryProgress(percent, label) {
     const ring = document.getElementById('deliveryRing');
@@ -545,6 +549,7 @@ function setDeliveryProgress(percent, label) {
     icon?.classList.toggle('complete', isComplete);
 }
 
+// ---- Confirm purchase with job polling ----
 const confirmBtn = document.getElementById('confirmBuyBtn');
 confirmBtn.onclick = async () => {
     if (!pendingCheckout) return;
@@ -616,6 +621,7 @@ confirmBtn.onclick = async () => {
     }
 };
 
+// ---- Topup step wizard ----
 function goToTopupStep(step) {
     [1, 2, 3].forEach(n => {
         document.getElementById(`topupStep${n}`).classList.toggle('hidden', n !== step);
@@ -664,6 +670,7 @@ topupBtn.onclick = async () => {
     }
 };
 
+// ---- Profile ----
 const profileBtn = document.getElementById('saveProfile');
 profileBtn.onclick = async () => {
     const name = document.getElementById('profName').value.trim();
@@ -681,6 +688,7 @@ profileBtn.onclick = async () => {
     }
 };
 
+// Copy UID
 document.getElementById('copyUidBtn')?.addEventListener('click', () => {
     const uid = document.getElementById('profUid').value;
     if (uid) {
@@ -689,6 +697,7 @@ document.getElementById('copyUidBtn')?.addEventListener('click', () => {
     }
 });
 
+// ---- Change password ----
 const passBtn = document.getElementById('savePassword');
 passBtn.onclick = async () => {
     const curPass = document.getElementById('curPass').value;
@@ -711,6 +720,7 @@ passBtn.onclick = async () => {
     }
 };
 
+// ---- Help / Report ----
 const reportBtn = document.getElementById('submitReport');
 reportBtn.onclick = async () => {
     const problem = document.getElementById('problemText').value.trim();
