@@ -14,7 +14,7 @@
     --neon-blue: #22d3ee;
     --neon-purple: #a855f7;
     --neon-pink: #ec4899;
-    --neon-amber: #d4af37;   /* was flat orange #ffb454 — now a metallic gold for a premium feel */
+    --neon-amber: #d4af37;
     --gold-shine: linear-gradient(135deg, #f5dfa0 0%, #d4af37 50%, #a9822a 100%);
     --neon-red: #ef4444;
     --neon-green: #22c55e;
@@ -32,7 +32,7 @@
     --radius-sm: 8px;
     --glow-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.25);
     --cyan-glow: 0 0 20px rgba(0, 240, 255, 0.35);
-    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); /* dark theme: subtle depth on top of the glow */
+    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
     --surface-tint: rgba(255, 255, 255, 0.05);
     --surface-tint-strong: rgba(255, 255, 255, 0.08);
     --input-bg: rgba(0, 0, 0, 0.2);
@@ -45,9 +45,6 @@
     --glass-panel: rgba(255, 255, 255, 0.96);
     --glass-border: rgba(88, 28, 135, 0.14);
     --glass-border-hover: rgba(8, 145, 178, 0.4);
-
-    /* Neon dark-mode accents lose all contrast on white — deepened,
-       jewel-toned versions for legibility and a less "cheap neon" feel. */
     --neon-blue: #0e7490;
     --neon-purple: #7c3aed;
     --neon-pink: #db2777;
@@ -55,11 +52,9 @@
     --gold-shine: linear-gradient(135deg, #c9a545 0%, #a8791f 50%, #7a5714 100%);
     --neon-red: #dc2626;
     --neon-green: #15803d;
-
     --text-primary: #1e1b2e;
     --text-secondary: #514c66;
     --text-muted: #8b86a3;
-
     --glow-shadow: 0 8px 28px 0 rgba(88, 28, 135, 0.1);
     --card-shadow: 0 2px 14px rgba(30, 20, 60, 0.08);
     --surface-tint: rgba(30, 20, 60, 0.045);
@@ -72,13 +67,11 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent; /* kills the blue flash on tap (mobile Chrome/Safari) */
+    -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: default;
 }
 html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
 
-/* Replace the browser's default blue focus ring with a themed one.
-   Mouse/touch taps get no outline at all; keyboard nav keeps an accessible ring. */
 a, button, .btn, .nav-item, .cat-filter, .theme-toggle-btn, .btn-logout,
 input, textarea, select, .banner-dot {
     -webkit-tap-highlight-color: transparent;
@@ -105,7 +98,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Glowing Ambient Particles Background */
 body::before {
     content: '';
     position: fixed;
@@ -160,7 +152,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     gap: 10px;
 }
 
-/* Brand Top-Left Logo */
 .brand-logo {
     display: flex;
     align-items: center;
@@ -204,9 +195,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     line-height: 1;
 }
 
-/* Nav Actions — Store, History, theme toggle, logout all share one
-   consistent height/visual weight so none of them looks "heavier"
-   or more highlighted than the others at rest. */
 .nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .nav-links { display: flex; gap: 6px; }
 .nav-item {
@@ -233,7 +221,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
 }
 
-/* Dark/Light Mode Switcher */
 .theme-toggle-btn {
     width: 36px;
     height: 36px;
@@ -279,15 +266,12 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     box-shadow: 0 0 12px rgba(255, 71, 87, 0.5);
 }
 
-/* On narrow phones, drop the History text label — its icon stays
-   as a visible fallback so the button never goes blank. */
 @media (max-width: 380px) {
     .nav-item { padding: 0 10px; }
     .nav-links .nav-item .nav-text { display: none; }
     .brand-sub { display: none; }
 }
 
-/* Glass Main Container */
 .term-window {
     max-width: 500px;
     margin: 20px auto;
@@ -296,7 +280,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     z-index: 2;
 }
 
-/* Glass Panel Card */
 .panel {
     background: var(--glass-panel);
     backdrop-filter: blur(16px);
@@ -312,7 +295,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     border-color: var(--glass-border-hover);
 }
 
-/* Prompt / Section Header */
 .prompt-header {
     font-family: var(--font-heading);
     font-size: 13px;
@@ -326,7 +308,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
 }
 .prompt-header i { color: var(--neon-purple); }
 
-/* Modern Animated Buttons */
 .btn {
     width: 100%;
     padding: 11px 16px;
@@ -373,7 +354,6 @@ a { color: var(--neon-blue); text-decoration: none; transition: all 0.3s ease; }
     box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
 }
 
-/* Input Fields */
 .field { margin-bottom: 12px; }
 .field label {
     display: flex;
@@ -403,7 +383,6 @@ input:focus, textarea:focus {
     box-shadow: var(--cyan-glow);
 }
 
-/* Category Filter Badges */
 .cat-filter {
     padding: 6px 14px;
     border-radius: 20px;
@@ -423,7 +402,6 @@ input:focus, textarea:focus {
     box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
 }
 
-/* Banner Carousel */
 .banner-carousel {
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -458,7 +436,6 @@ input:focus, textarea:focus {
     box-shadow: 0 0 8px var(--neon-blue);
 }
 
-/* Modal Overlay & Animations */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -478,7 +455,6 @@ input:focus, textarea:focus {
     to { opacity: 1; transform: scale(1); }
 }
 
-/* Toast Message */
 .toast {
     position: fixed;
     bottom: 24px;
@@ -508,14 +484,7 @@ input:focus, textarea:focus {
 .hidden { display: none !important; }
 .mono-num { font-family: var(--font-mono); }
 
-/* ==============================================================
-   Premium additions — gold balance treatment, menu FAB + sheet,
-   icon chips, support ticket block
-   ============================================================== */
-
-/* Balance panel gets the one bold treatment on the page — a soft
-   gold edge and a shine on the number itself. Everything else stays
-   quiet so this reads as the page's premium moment, not just noise. */
+/* Premium additions — gold balance, etc. */
 .panel-premium {
     border: 1px solid rgba(212, 175, 55, 0.35);
     box-shadow: 0 8px 32px 0 rgba(212, 175, 55, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -527,7 +496,6 @@ input:focus, textarea:focus {
     background-clip: text;
 }
 
-/* Header utility button (hamburger, etc.) */
 .icon-btn {
     width: 36px;
     height: 36px;
@@ -552,7 +520,6 @@ input:focus, textarea:focus {
     flex: 1;
 }
 
-/* Store / History — big pill tab row under the header */
 .tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
 .tab-pill {
     flex: 1;
@@ -576,7 +543,7 @@ input:focus, textarea:focus {
     box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
 }
 
-/* ---- Left drawer menu ---- */
+/* Drawer */
 .drawer-backdrop {
     position: fixed;
     inset: 0;
@@ -707,7 +674,7 @@ input:focus, textarea:focus {
     font-size: 13px;
 }
 
-/* ---- Bottom tab bar ---- */
+/* Bottom tab bar */
 .bottom-tabbar {
     position: fixed;
     left: 0;
@@ -754,10 +721,8 @@ input:focus, textarea:focus {
     box-shadow: 0 6px 18px rgba(212, 175, 55, 0.4);
 }
 
-/* Room for the fixed bottom tab bar so content isn't hidden behind it */
 .term-content { padding-bottom: 76px; }
 
-/* Support ticket block inside the Support modal */
 .support-ticket {
     background: var(--input-bg);
     border: 1px solid rgba(212, 175, 55, 0.3);
@@ -772,7 +737,7 @@ input:focus, textarea:focus {
 .ticket-row .eq { color: var(--text-muted); }
 .ticket-row .v { color: var(--neon-amber); font-weight: 700; word-break: break-all; }
 
-/* ---- Product grid (2-column catalog cards) ---- */
+/* Product grid */
 .product-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -872,10 +837,10 @@ input:focus, textarea:focus {
 }
 .btn-download:hover { background: #1a9e5a; }
 
-
+/* ===== FIX: WhatsApp floating button ===== */
 .whatsapp-float {
     position: fixed;
-    bottom: 80px;          /* 👈 raised above bottom nav */
+    bottom: 100px;          /* raised above bottom nav */
     right: 20px;
     z-index: 999;
     display: flex;
@@ -883,10 +848,10 @@ input:focus, textarea:focus {
     gap: 8px;
     background: #25D366;
     color: #fff;
-    padding: 10px 16px;    /* slightly smaller */
+    padding: 10px 16px;
     border-radius: 50px;
     font-weight: 700;
-    font-size: 13px;       /* smaller text */
+    font-size: 13px;
     box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
     text-decoration: none;
     transition: all 0.25s ease;
@@ -897,12 +862,13 @@ input:focus, textarea:focus {
     color: #fff;
 }
 .whatsapp-float i {
-    font-size: 20px;       /* smaller icon */
+    font-size: 20px;
 }
 
+/* Small screens */
 @media (max-width: 480px) {
     .whatsapp-float {
-        bottom: 70px;
+        bottom: 90px;        /* even more room on small devices */
         right: 12px;
         padding: 8px 14px;
         font-size: 12px;
