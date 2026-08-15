@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'History — SRT X CHEATS';
+$pageTitle = 'History - panels hub';
 $currentPage = 'history';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
