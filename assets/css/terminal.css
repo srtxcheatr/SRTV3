@@ -871,3 +871,43 @@ input:focus, textarea:focus {
     color: #fff;
 }
 .btn-download:hover { background: #1a9e5a; }
+
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 80px;          /* 👈 raised above bottom nav */
+    right: 20px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #25D366;
+    color: #fff;
+    padding: 10px 16px;    /* slightly smaller */
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 13px;       /* smaller text */
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+.whatsapp-float:hover {
+    transform: scale(1.05);
+    background: #1ebe5a;
+    color: #fff;
+}
+.whatsapp-float i {
+    font-size: 20px;       /* smaller icon */
+}
+
+@media (max-width: 480px) {
+    .whatsapp-float {
+        bottom: 70px;
+        right: 12px;
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+    .whatsapp-float i {
+        font-size: 18px;
+    }
+}
