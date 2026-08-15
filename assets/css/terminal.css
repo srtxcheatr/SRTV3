@@ -837,43 +837,189 @@ input:focus, textarea:focus {
 }
 .btn-download:hover { background: #1a9e5a; }
 
-/* ===== FIX: WhatsApp floating button ===== */
-.whatsapp-float {
-    position: fixed;
-    bottom: 100px;          /* raised above bottom nav */
-    right: 20px;
-    z-index: 999;
+/* ============================================================
+   STORE-SPECIFIC STYLES (previously inline)
+   ============================================================ */
+
+/* Duration list rows (inside modal) */
+.dur-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    font-size: 13px;
+    border-top: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.dur-row:hover { background: var(--surface-tint); }
+.dur-row .price { color: var(--neon-amber); font-weight: 700; }
+
+.apk-update-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #25D366;
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 50px;
+    padding: 12px 14px;
+    font-size: 12px;
     font-weight: 700;
-    font-size: 13px;
-    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+    border-top: 1px solid var(--glass-border);
+    color: var(--neon-blue);
     text-decoration: none;
-    transition: all 0.25s ease;
 }
-.whatsapp-float:hover {
-    transform: scale(1.05);
-    background: #1ebe5a;
-    color: #fff;
+.apk-update-row:hover { background: rgba(0,240,255,0.05); }
+
+/* Access-key delivery: circular progress ring */
+.load-ring-wrap {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    margin: 0 auto;
 }
-.whatsapp-float i {
+.load-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.35));
+}
+.load-ring-bg {
+    fill: none;
+    stroke: var(--surface-tint-strong);
+    stroke-width: 8;
+}
+.load-ring-fg {
+    fill: none;
+    stroke: var(--neon-amber);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 326.7;
+    stroke-dashoffset: 326.7;
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease;
+}
+.load-ring-fg.complete { stroke: var(--neon-green); }
+.load-ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.load-ring-icon {
     font-size: 20px;
+    color: var(--neon-amber);
+    animation: ringIconPulse 1.6s ease-in-out infinite;
+}
+.load-ring-icon.complete { color: var(--neon-green); animation: none; }
+.load-ring-pct {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+@keyframes ringIconPulse {
+    0%, 100% { transform: scale(1); opacity: 0.75; }
+    50% { transform: scale(1.15); opacity: 1; }
 }
 
-/* Small screens */
-@media (max-width: 480px) {
-    .whatsapp-float {
-        bottom: 90px;        /* even more room on small devices */
-        right: 12px;
-        padding: 8px 14px;
-        font-size: 12px;
-    }
-    .whatsapp-float i {
-        font-size: 18px;
-    }
+/* Button loading states */
+.btn .btn-spinner { display: none; }
+.btn.loading .btn-text { visibility: hidden; }
+.btn.loading .btn-spinner {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
+.btn.loading .btn-spinner .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Topup step wizard */
+.topup-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+.topup-step {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--surface-tint-strong);
+    color: var(--text-muted);
+    border: 1px solid var(--glass-border);
+    transition: all 0.25s ease;
+}
+.topup-step.active {
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 10px rgba(168,85,247,0.5);
+}
+.topup-step.done {
+    background: var(--neon-green);
+    color: #fff;
+    border-color: transparent;
+}
+.topup-step-line {
+    width: 28px;
+    height: 2px;
+    background: var(--glass-border);
+}
+.topup-step-panel.hidden { display: none; }
+.topup-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid var(--neon-red);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--neon-red);
+    margin-bottom: 14px;
+}
+.topup-warning i { margin-top: 2px; }
+
+/* Amount preset chips */
+.amount-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.amount-chip {
+    flex: 1 1 auto;
+    min-width: 70px;
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+.amount-chip:hover { border-color: var(--neon-purple); color: var(--text-primary); }
+.amount-chip.active {
+    background: linear-gradient(135deg, var(--neon-purple), #6d28d9);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(168,85,247,0.4);
+}
+#amountChipCustom { flex-basis: 100%; }
