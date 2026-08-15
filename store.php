@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'Store — SRT X CHEATS';
+$pageTitle = 'PANELS_HUB';
 $currentPage = 'store';
 require __DIR__ . '/includes/head.php';
 require __DIR__ . '/includes/nav.php';
