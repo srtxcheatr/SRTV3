@@ -17,15 +17,7 @@ require_once __DIR__ . '/notice-popup.php';
 
 <link rel="stylesheet" href="/assets/css/notice-popup.css">
 
-<script>
-    window.BACKEND_URL = "<?= BACKEND_URL ?>";
-    window.FIREBASE_CONFIG = <?= FIREBASE_CONFIG_JSON ?>;
 
-    // Apply saved theme immediately to avoid flickering
-    (function() {
-        const savedTheme = localStorage.getItem('srtx_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-</script>
+<script src="/assets/js/notice-popup.js?v=1" defer></script>
 </head>
 <body>
