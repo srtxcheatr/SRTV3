@@ -10,7 +10,6 @@
     class="srt-notice-overlay"
     aria-hidden="true"
 >
-
     <div
         id="srtNoticePopup"
         class="srt-notice-popup"
@@ -19,35 +18,31 @@
         aria-labelledby="srtNoticeTitle"
     >
 
-        <!-- Animated glow -->
         <div class="srt-notice-glow"></div>
 
-        <!-- Close button -->
+        <!-- CLOSE -->
         <button
             type="button"
             id="srtNoticeClose"
             class="srt-notice-close"
-            aria-label="Close announcement"
+            aria-label="Close"
         >
             <i class="fas fa-xmark"></i>
         </button>
 
-        <!-- Top icon -->
+        <!-- ICON -->
         <div class="srt-notice-icon">
             <i class="fas fa-store"></i>
         </div>
 
-        <!-- Small label -->
         <div class="srt-notice-label">
             STORE UPDATE
         </div>
 
-        <!-- Main title -->
         <h2 id="srtNoticeTitle">
             THIS STORE IS PATCH 🧐
         </h2>
 
-        <!-- Main message -->
         <div class="srt-notice-content">
 
             <p class="srt-notice-heading">
@@ -79,7 +74,7 @@
 
         </div>
 
-        <!-- Buttons -->
+        <!-- ONLY NEW STORE BUTTON -->
         <div class="srt-notice-actions">
 
             <a
@@ -92,16 +87,12 @@
                 OPEN NEW STORE
             </a>
 
-            
-
         </div>
 
-        <!-- Bottom indicator -->
         <div class="srt-notice-footer">
             <span class="srt-status-dot"></span>
             STORE NOTICE
         </div>
 
     </div>
-
 </div>
