@@ -1,6 +1,6 @@
 <?php
 // includes/head.php — Global Head with FontAwesome & Dynamic Theme
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/notice-popup.php';
 ?>
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
