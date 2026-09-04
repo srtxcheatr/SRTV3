@@ -9,55 +9,8 @@
 
     'use strict';
 
-    const STORAGE_KEY = 'srt_new_store_notice';
-
-    // Show again after 24 hours
-    const SHOW_INTERVAL = 24 * 60 * 60 * 1000;
-
-
     function getElement(id) {
         return document.getElementById(id);
-    }
-
-
-    function shouldShowNotice() {
-
-        try {
-
-            const lastShown =
-                localStorage.getItem(STORAGE_KEY);
-
-            if (!lastShown) {
-                return true;
-            }
-
-            const elapsed =
-                Date.now() - Number(lastShown);
-
-            return elapsed >= SHOW_INTERVAL;
-
-        } catch (error) {
-
-            // If localStorage is unavailable,
-            // allow the popup to appear.
-            return true;
-        }
-    }
-
-
-    function markNoticeShown() {
-
-        try {
-
-            localStorage.setItem(
-                STORAGE_KEY,
-                String(Date.now())
-            );
-
-        } catch (error) {
-
-            // Ignore storage errors.
-        }
     }
 
 
@@ -70,9 +23,7 @@
             return;
         }
 
-        overlay.classList.add(
-            'srt-notice-show'
-        );
+        overlay.classList.add('srt-notice-show');
 
         overlay.setAttribute(
             'aria-hidden',
@@ -85,7 +36,7 @@
     }
 
 
-    function closeNotice(saveState = true) {
+    function closeNotice() {
 
         const overlay =
             getElement('srtNoticeOverlay');
@@ -106,10 +57,6 @@
         document.body.classList.remove(
             'srt-notice-open'
         );
-
-        if (saveState) {
-            markNoticeShown();
-        }
     }
 
 
@@ -121,16 +68,13 @@
         const closeButton =
             getElement('srtNoticeClose');
 
-        const continueButton =
-            getElement('srtNoticeContinue');
-
         if (!overlay) {
             return;
         }
 
 
         /*
-         * Close button
+         * CLOSE BUTTON
          */
         if (closeButton) {
 
@@ -138,7 +82,7 @@
                 'click',
                 function () {
 
-                    closeNotice(true);
+                    closeNotice();
 
                 }
             );
@@ -147,24 +91,7 @@
 
 
         /*
-         * Continue to old store
-         */
-        if (continueButton) {
-
-            continueButton.addEventListener(
-                'click',
-                function () {
-
-                    closeNotice(true);
-
-                }
-            );
-
-        }
-
-
-        /*
-         * Clicking the dark background closes popup.
+         * CLICK OUTSIDE POPUP
          */
         overlay.addEventListener(
             'click',
@@ -172,7 +99,7 @@
 
                 if (event.target === overlay) {
 
-                    closeNotice(true);
+                    closeNotice();
 
                 }
 
@@ -181,7 +108,7 @@
 
 
         /*
-         * ESC key closes popup.
+         * ESC KEY
          */
         document.addEventListener(
             'keydown',
@@ -194,7 +121,7 @@
                     )
                 ) {
 
-                    closeNotice(true);
+                    closeNotice();
 
                 }
 
@@ -203,41 +130,42 @@
 
 
         /*
-         * Prevent page scrolling while popup is open.
+         * OPEN POPUP
+         *
+         * Every page load.
+         * No localStorage.
+         * No cookies.
+         * No 24-hour timer.
          */
-        const style =
-            document.createElement('style');
+        setTimeout(
+            function () {
 
-        style.textContent = `
-            body.srt-notice-open {
-                overflow: hidden !important;
-            }
-        `;
+                openNotice();
 
-        document.head.appendChild(style);
-
-
-        /*
-         * Show popup after a short delay.
-         */
-        if (shouldShowNotice()) {
-
-            setTimeout(
-                function () {
-
-                    openNotice();
-
-                },
-                500
-            );
-
-        }
+            },
+            350
+        );
 
     }
 
 
     /*
-     * Start after DOM is ready.
+     * Prevent scrolling while popup is open.
+     */
+    const style =
+        document.createElement('style');
+
+    style.textContent = `
+        body.srt-notice-open {
+            overflow: hidden !important;
+        }
+    `;
+
+    document.head.appendChild(style);
+
+
+    /*
+     * Initialize.
      */
     if (
         document.readyState === 'loading'
@@ -256,11 +184,8 @@
 
 
     /*
-     * Optional global controls.
-     * Useful if another page needs to manually
-     * open or close the announcement.
+     * Global controls.
      */
-
     window.SRTXNotice = {
 
         open: function () {
@@ -268,19 +193,7 @@
         },
 
         close: function () {
-            closeNotice(false);
-        },
-
-        reset: function () {
-
-            try {
-
-                localStorage.removeItem(
-                    STORAGE_KEY
-                );
-
-            } catch (error) {}
-
+            closeNotice();
         }
 
     };
