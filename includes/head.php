@@ -15,7 +15,7 @@ require_once __DIR__ . '/config.php';
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<link rel="stylesheet" href="/assets/css/terminal.css">
+<link rel="stylesheet" href="/assets/css/notice-popup.css">
 
 <script>
     window.BACKEND_URL = "<?= BACKEND_URL ?>";
