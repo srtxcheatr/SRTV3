@@ -92,13 +92,7 @@
                 OPEN NEW STORE
             </a>
 
-            <button
-                type="button"
-                id="srtNoticeContinue"
-                class="srt-notice-secondary"
-            >
-                CONTINUE TO OLD STORE
-            </button>
+            
 
         </div>
 
