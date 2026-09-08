@@ -51,11 +51,11 @@
 
             <a
                 class="srt-new-store-link"
-                href="https://srtxdevv.free.nf"
+                href="https://srtxcheats.ct.ws"
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                srtxdevv.free.nf
+                srtxcheats.ct.ws
             </a>
 
             <p class="srt-notice-description">
@@ -78,7 +78,7 @@
         <div class="srt-notice-actions">
 
             <a
-                href="https://srtxdevv.free.nf"
+                href="https://srtxcheats.ct.ws"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="srt-notice-primary"
